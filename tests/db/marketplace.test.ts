@@ -12,7 +12,7 @@ async function categoryId(slug: string) {
     const { data } = await anonClient().from("service_categories").select("id, slug");
     categoryCache = Object.fromEntries(data!.map((c) => [c.slug, c.id]));
   }
-  return categoryCache[slug];
+  return categoryCache![slug];
 }
 
 /** A marketplace provider based in a ZIP, serving a radius, offering some categories. */
@@ -352,6 +352,23 @@ describe("reviews", () => {
     const { data: profile } = await anonClient().rpc("get_provider_profile", { p_business_id: p.businessId });
     expect(profile.stats).toEqual({ rating: 5, review_count: 1, completed_jobs: 1 });
     expect(profile.reviews[0]).toMatchObject({ rating: 5, comment: "Great job", author: "Casey" });
+  });
+});
+
+describe("reviews can't be pointed at another business", () => {
+  it("the business on a review always comes from the booking", async () => {
+    const p = await provider();
+    const other = await provider();
+    const c = await customer();
+    const r = await postJob(c);
+    const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: (await bid(p, r.id)).id });
+    await p.client.from("jobs").update({ status: "completed" }).eq("id", booking.job_id);
+    const { data } = await c.client
+      .from("reviews")
+      .insert({ booking_id: booking.id, business_id: other.businessId, rating: 1 })
+      .select("business_id")
+      .single();
+    expect(data?.business_id).toBe(p.businessId);
   });
 });
 

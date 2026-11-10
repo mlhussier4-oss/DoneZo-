@@ -1105,6 +1105,11 @@ isOneToOne: false
 "customer_booking":
 { Args: { "p_request_id": string }; Returns: Json
                            },
+"customer_invoices":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "amount_paid_cents": number,"business_name": string,"due_date": string,"issue_date": string,"number": number,"request_id": string,"status": Database["public"]['Enums']["invoice_status"],"token": string,"total_cents": number
+            }[]
+                           },
 "decide_change_order":
 { Args: { "p_approve": boolean,"p_change_order_id": string }; Returns: {
               "booking_id": string,

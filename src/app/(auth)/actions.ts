@@ -178,3 +178,26 @@ function friendlyAuthError(message: string): string {
   if (m.includes("weak") || m.includes("password")) return message;
   return "Something went wrong. Please try again.";
 }
+
+/**
+ * Verify the email code without navigating away (used inside the Post a Job flow, so the
+ * customer stays on the same screen and their job is posted right after).
+ */
+export async function verifyEmailCodeInline(email: string, token: string): Promise<{ ok: boolean; message?: string; role?: AppRole }> {
+  const parsed = verifyCodeSchema.safeParse({ email, token });
+  if (!parsed.success) return { ok: false, message: "Enter the 6-digit code from your email." };
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({ ...parsed.data, type: "email" });
+  if (error || !data.user) return { ok: false, message: "That code is incorrect or has expired. Try again or request a new code." };
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
+  return { ok: true, role: (profile?.role as AppRole) ?? "customer" };
+}
+
+export async function sendEmailCodeInline(email: string, fullName: string): Promise<{ ok: boolean; message?: string }> {
+  const fd = new FormData();
+  fd.set("email", email);
+  fd.set("fullName", fullName);
+  const result = await sendEmailCode({ status: "idle" }, fd);
+  if (result.status === "verify") return { ok: true };
+  return { ok: false, message: result.fieldErrors?.email ?? result.message ?? "Could not send the code." };
+}

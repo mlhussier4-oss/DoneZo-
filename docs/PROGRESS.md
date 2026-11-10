@@ -2,7 +2,38 @@
 
 Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
 
-Next up: **Phase 3 — Marketplace.**
+Next up: **Phase 4 — Payments (Stripe Connect, test mode).**
+
+## Phase 3 — Customer marketplace ✅ (built and tested 2026-11-11)
+
+Launch area: **Austin, TX** (35 miles around downtown, ZIP 78701). Providers set a home ZIP and a radius.
+
+### Works
+- **Post a job in under a minute** (`/post-job`): pick a service → add photos from the phone camera or library → a sentence or two, plus one or two optional quick-pick questions per service → timing (ASAP, tomorrow, within 3 days, later this week, or a date) → address and ZIP → review. New customers confirm with a 6-digit email code at the last step. **No card, no password, no long form.** ZIPs outside an open service area get a friendly "not available yet".
+- **Privacy until acceptance:** providers see the service, description, photos, timing, ZIP and distance, never the customer's name, address or phone.
+- **Matching:** only providers with the marketplace switched on, offering that service, whose radius covers the job's ZIP see it and get a notification. CRM-only providers never see anything.
+- **Sealed bids:** price, what's included, availability, exclusions, possible extra charges and a message. Providers can edit or withdraw until the job is booked, and never see other bids.
+- **Bid comparison:** provider cards with logo, rating and review count, jobs completed on DoneZo, years in business, Verified badge (admin-granted only), recent work photos, accepted payment methods, and a link to the full public profile (`/pros/…`).
+- **Accepting a bid** books it in one step: the price and scope are locked, the other bids close (those providers are told), and the customer (name, phone, address) appears in the winning provider's CRM with a marketplace job, ready to schedule, complete and invoice with the Phase 2 tools.
+- **Private messaging** (text and photos, live) opens only after acceptance, only between the customer and the chosen provider.
+- **Change orders:** the provider proposes a new price with a reason; nothing changes unless the customer approves. Approval updates the booking, the job and any unpaid invoice. Providers can't edit a marketplace job's price or invoice lines directly, and no tax is added on top of the agreed price.
+- **Job tracking for customers:** requests, bids, booking status, scheduled time, invoices (with the customer link), messages, cancel before work starts.
+- **Reviews** only from the customer of a completed booking, once. Ratings on profiles come only from these reviews.
+- **In-app notifications** for new jobs, new bids, accepted/closed bids, messages, change orders, cancellations and completion, with unread counts in the menu.
+- **Report a problem** from any request or booking; admins see and resolve reports (logged).
+- **Admin:** marketplace activity, service areas (add/close), support reports, Verify/Unverify businesses (logged).
+- **Provider marketplace profile:** home ZIP, radius, years in business, services, accepted payment methods, description, logo and up to 24 past-work photos.
+- Requests stay open 7 days, then expire automatically (nightly).
+
+### Tests
+- Database: 22 new marketplace tests (85 total) — posting rules and service area, who sees a job, notifications only to matching providers, CRM-only can't bid, photo access, sealed bids, accept-bid booking and CRM hand-off, losing bidders learn nothing, messaging only between the two parties, price changes only by approved change order, reviews only after completion, verification admin-only.
+- Browser: 4 new tests (21 total) — the complete flow from a first-time visitor posting a job with a photo to two providers bidding, accepting, messaging both ways, an approved price change, completing the job in the CRM, the review and the public profile; out-of-area ZIP; CRM-only provider never sees the marketplace; wizard on a phone.
+
+### Not yet done / notes
+- **Email and text notifications** aren't sent yet (in-app only). SMS consent is recorded with the job so it can be honored once texting is set up.
+- ZIP locations come from the Census Bureau's 2022 ZIP areas (via the `us-zips` package); a few new or PO-box-only ZIPs aren't included.
+- Customer-facing times are shown in Central time (Austin).
+- Card payment when the job is done is Phase 4.
 
 ## Phase 2 — Provider CRM ✅ (built and tested 2026-11-11)
 

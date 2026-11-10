@@ -1267,7 +1267,7 @@ grant update (price_cents, included, availability, exclusions, additional_charge
 grant select on public.bookings to authenticated;
 grant select, insert (booking_id, body, photo_path) on public.messages to authenticated;
 grant select, insert (booking_id, new_price_cents, description) on public.change_orders to authenticated;
-grant insert (booking_id, rating, comment) on public.reviews to authenticated;
+grant insert (booking_id, business_id, rating, comment) on public.reviews to authenticated; -- business_id is overwritten from the booking by reviews_before_insert
 grant select, update (read_at) on public.notifications to authenticated;
 grant select, insert (booking_id, request_id, category, message) on public.support_reports to authenticated;
 

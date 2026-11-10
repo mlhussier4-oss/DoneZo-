@@ -27,6 +27,7 @@ export function JobForm({
   defaults,
   submitLabel,
   lockCustomer,
+  lockPrice,
 }: {
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   customers: CustomerOption[];
@@ -34,6 +35,7 @@ export function JobForm({
   defaults: JobDefaults;
   submitLabel: string;
   lockCustomer?: boolean;
+  lockPrice?: boolean;
 }) {
   const [state, formAction] = useFormAction(action, idle);
   const e = state.fieldErrors ?? {};
@@ -47,8 +49,8 @@ export function JobForm({
         <Textarea id="description" name="description" defaultValue={defaults.description ?? ""} maxLength={5000} className="min-h-20" />
       </Field>
       <div className="grid gap-4 sm:grid-cols-4">
-        <Field label="Price ($)" htmlFor="price" error={e.price}>
-          <Input id="price" name="price" inputMode="decimal" defaultValue={defaults.price ?? ""} placeholder="0.00" />
+        <Field label="Price ($)" htmlFor="price" hint={lockPrice ? "Agreed with the customer" : undefined} error={e.price}>
+          <Input id="price" name="price" inputMode="decimal" defaultValue={defaults.price ?? ""} placeholder="0.00" readOnly={lockPrice} className={lockPrice ? "bg-muted" : undefined} />
         </Field>
         <Field label="Date" htmlFor="date" error={e.date}>
           <Input id="date" name="date" type="date" defaultValue={defaults.date ?? ""} />

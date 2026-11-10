@@ -101,10 +101,10 @@ npm run db:types         # regenerate TypeScript types after changing the databa
 docs/                   Blueprint, decisions, progress
 supabase/migrations/    Database structure and security rules
 supabase/templates/     Login and confirmation email templates
-src/app/(public)/       Homepage, "For providers", post-a-job (placeholder)
+src/app/(public)/       Homepage, "For providers", post-a-job wizard, public provider profiles (/pros)
 src/app/(auth)/         Sign up, log in, password reset
 src/app/provider/       Provider dashboard and CRM (customers, jobs, recurring, calendar, invoices, payments, reports)
-src/app/customer/       Customer dashboard
+src/app/customer/       Customer dashboard: requests, bids, bookings, messages, payments, notifications
 src/app/admin/          Admin area
 src/app/(public-docs)/  Invoice and estimate pages customers open from a link
 src/components/         Reusable UI (buttons, cards, forms, navigation)

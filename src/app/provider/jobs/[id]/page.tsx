@@ -28,10 +28,11 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
     .single();
   if (!job) notFound();
 
-  const [{ data: photos }, { data: invoices }, { data: history }] = await Promise.all([
+  const [{ data: photos }, { data: invoices }, { data: history }, { data: booking }] = await Promise.all([
     supabase.from("job_photos").select("id, storage_path, caption, created_at").eq("job_id", id).order("created_at"),
     supabase.from("invoices").select("id, number, status, total_cents").eq("job_id", id).order("number"),
     supabase.from("job_status_history").select("id, to_status, changed_at").eq("job_id", id).order("id"),
+    supabase.from("bookings").select("id").eq("job_id", id).maybeSingle(),
   ]);
   const signed = photos?.length
     ? (await supabase.storage.from("job-photos").createSignedUrls(photos.map((p) => p.storage_path), 3600)).data ?? []
@@ -50,6 +51,7 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
               <h1 className="text-2xl font-semibold tracking-tight">{job.title}</h1>
               <JobStatusBadge status={job.status} />
               {job.source === "marketplace" ? <Badge tone="accent">Marketplace</Badge> : null}
+              {booking ? <Link href={`/provider/marketplace/bookings/${booking.id}`} className="text-sm text-primary hover:underline">Booking &amp; messages →</Link> : null}
             </div>
             <p className="mt-1 text-lg font-medium">{formatMoney(job.price_cents)}</p>
           </div>

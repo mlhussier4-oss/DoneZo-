@@ -14,6 +14,7 @@ export default async function HomePage() {
       <section className="border-b border-border bg-card">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div className="space-y-6">
+            <p className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary">Now serving the Austin, TX area</p>
             <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl">{brand.tagline}</h1>
             <p className="max-w-xl text-lg text-muted-foreground">
               Snap a photo, describe the job, and local pros send you their best price. No calling around, and no card

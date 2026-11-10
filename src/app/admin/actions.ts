@@ -59,3 +59,46 @@ export async function setUserSuspended(_prev: AdminState, formData: FormData): P
   refresh();
   return { status: "success", message: parsed.data.suspended === "true" ? "User suspended." : "User reinstated." };
 }
+
+const areaSchema = z.object({
+  id: z.union([z.literal(""), z.string().uuid()]),
+  name: z.string().trim().min(1, "Enter a name.").max(80),
+  centerZip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP."),
+  radius: z.coerce.number().int().min(1).max(150),
+  isActive: z.enum(["true", "false"]),
+});
+
+export async function saveServiceArea(_prev: AdminState, formData: FormData): Promise<AdminState> {
+  await requireRole("admin");
+  const parsed = areaSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
+  const v = parsed.data;
+  const { error } = await (await createClient()).rpc("admin_upsert_service_area", {
+    p_id: (v.id || null) as string,
+    p_name: v.name,
+    p_center_zip: v.centerZip,
+    p_radius_miles: v.radius,
+    p_is_active: v.isActive === "true",
+  });
+  if (error) return { status: "error", message: error.code === "23503" ? "That ZIP code isn't recognized." : "Could not save the service area." };
+  refresh();
+  return { status: "success", message: "Saved." };
+}
+
+export async function setBusinessVerified(businessId: string, verified: boolean, note: string): Promise<AdminState> {
+  await requireRole("admin");
+  if (!z.string().uuid().safeParse(businessId).success) return { status: "error", message: "Unknown business." };
+  const { error } = await (await createClient()).rpc("admin_set_business_verified", { p_business_id: businessId, p_verified: verified, p_note: note });
+  if (error) return { status: "error", message: "Could not update verification." };
+  refresh();
+  return { status: "success" };
+}
+
+export async function resolveReport(reportId: string, note: string): Promise<AdminState> {
+  await requireRole("admin");
+  if (!z.string().uuid().safeParse(reportId).success) return { status: "error", message: "Unknown report." };
+  const { error } = await (await createClient()).rpc("admin_resolve_report", { p_report_id: reportId, p_note: note });
+  if (error) return { status: "error", message: "Could not resolve the report." };
+  refresh();
+  return { status: "success" };
+}

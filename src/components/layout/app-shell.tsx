@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BarChart3, Briefcase, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LogOut,
+  BarChart3, Bell, Briefcase, Flag, MapPin, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LogOut,
   Menu, MessageSquare, ScrollText, Settings, Store, Tags, UserCog, Users, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -13,10 +13,10 @@ import { cn } from "@/lib/utils";
 const icons = {
   home: Home, gauge: Gauge, calendar: CalendarDays, users: Users, briefcase: Briefcase, invoice: FileText,
   card: CreditCard, store: Store, userCog: UserCog, chart: BarChart3, settings: Settings, message: MessageSquare,
-  grid: LayoutGrid, tags: Tags, log: ScrollText,
+  grid: LayoutGrid, tags: Tags, log: ScrollText, bell: Bell, map: MapPin, flag: Flag,
 } satisfies Record<string, LucideIcon>;
 
-export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean };
+export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number };
 
 export function AppShell({
   nav,
@@ -55,7 +55,12 @@ export function AppShell({
             )}
           >
             <Icon className="size-4" aria-hidden />
-            {item.label}
+            <span className="flex-1">{item.label}</span>
+            {item.badge ? (
+              <span className="rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-accent-foreground" aria-label={`${item.badge} unread`}>
+                {item.badge > 99 ? "99+" : item.badge}
+              </span>
+            ) : null}
           </Link>
         );
       })}

@@ -30,6 +30,11 @@ export default async function EditJobPage({ params }: PageProps<"/provider/jobs/
   return (
     <>
       <PageHeader title="Edit job" />
+      {job.source === "marketplace" ? (
+        <Alert tone="info" className="mb-4 max-w-3xl">
+          This is a marketplace job, so its price is the one the customer accepted. To change it, propose a change order from the booking.
+        </Alert>
+      ) : null}
       {job.recurring_schedule_id ? (
         <Alert tone="info" className="mb-4 max-w-3xl">
           This visit is part of a recurring service. Changes here apply to this visit only, and it won&apos;t be changed by later edits to the recurring service.
@@ -42,6 +47,7 @@ export default async function EditJobPage({ params }: PageProps<"/provider/jobs/
             customers={customers}
             categories={categories}
             lockCustomer
+            lockPrice={job.source === "marketplace"}
             submitLabel="Save changes"
             defaults={{
               customerId: job.customer_id,
