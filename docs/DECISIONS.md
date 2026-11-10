@@ -4,16 +4,15 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
-_None yet._
+- **2026-11-10 — Working brand name:** DoneZo. Kept in one config file so it can be changed later.
+- **2026-11-10 — Customer signup:** customers fill in the job first, then confirm with a one-time email code at "Post Job". No password.
+- **2026-11-10 — Build order:** CRM before marketplace. Phases are now: 1 Foundation, 2 CRM, 3 Marketplace, 4 Payments, 5 Advanced, 6 Launch.
 
 ## Waiting for the owner
 
-1. **Build order.** Recommended: build the CRM (blueprint Phase 3) before the marketplace (Phase 2), because accepting a bid creates a CRM customer record and a CRM job. Business model unchanged.
-2. **Customer signup timing.** Recommended: customers fill in the job first, then confirm with a one-time code by email or text at "Post Job". No password.
-3. **Working brand name.** "DoneZo" (from the repository name) or a neutral placeholder.
-4. **Stripe charge type.** Recommended: direct charges. The provider is the seller of record and handles processing fees, refunds and disputes; the platform takes an application fee on marketplace payments only. Needs review by an accountant or lawyer before live mode.
-5. **Marketplace fee.** The percentage, and whether it is refunded when a job is refunded.
-6. **Launch area.** US only, with providers choosing a home ZIP plus a radius in miles? Which city or region first?
+1. **Stripe charge type.** Recommended: direct charges. The provider is the seller of record and handles processing fees, refunds and disputes; the platform takes an application fee on marketplace payments only. Needs review by an accountant or lawyer before live mode.
+2. **Marketplace fee.** The percentage, and whether it is refunded when a job is refunded.
+3. **Launch area.** US only, with providers choosing a home ZIP plus a radius in miles? Which city or region first?
 
 ## Defaults in use until the owner says otherwise
 
