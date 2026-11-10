@@ -4,6 +4,10 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-11 — Paid access:** providers must have an active paid subscription to use DoneZo, both the CRM and the marketplace. (Replaces the earlier free-beta default.) Prices and trial: see "Waiting for the owner".
+- **2026-11-11 — Marketplace fee:** 10% of each marketplace card payment, taken through Stripe. No fee on cash, Venmo, Cash App or check.
+- **2026-11-11 — Stripe charge type:** direct charges. The provider is the seller of record and handles card processing fees, refunds and disputes; DoneZo takes an application fee. Still needs an accountant/lawyer review before live mode.
+- **2026-11-11 — Marketplace price is all-in:** no sales tax is added on top of an accepted bid; changes go through a customer-approved change order.
 - **2026-11-11 — Service areas:** US only. Providers choose a home ZIP plus a radius in miles (1–60). Launch area: **Austin, TX** (35 miles around downtown ZIP 78701); admins can add or close areas.
 - **2026-11-10 — Working brand name:** DoneZo. Kept in one config file so it can be changed later.
 - **2026-11-10 — Customer signup:** customers fill in the job first, then confirm with a one-time email code at "Post Job". No password.
@@ -11,9 +15,9 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-1. **Stripe charge type.** Recommended: direct charges. The provider is the seller of record and handles processing fees, refunds and disputes; the platform takes an application fee on marketplace payments only. Needs review by an accountant or lawyer before live mode.
-2. **Marketplace fee.** The percentage, and whether it is refunded when a job is refunded.
-3. **Is the agreed marketplace price all-in (tax included)?** Built this way for now: no tax is added on top of an accepted bid, and changes go through a change order. Please confirm, or tell me if providers should be able to add sales tax.
+1. **Fee on CRM card payments** (a provider charging their own customers by card through DoneZo). The blueprint said no fee; the owner mentioned taking a percentage of card payments. Needs a clear answer.
+2. **Subscription prices and trial**, and whether CRM-only and CRM + Marketplace cost the same.
+3. **Refunds:** is DoneZo's 10% returned when a marketplace payment is refunded?
 
 ## Defaults in use until the owner says otherwise
 
@@ -28,7 +32,6 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 - Reviews go from customer to provider only.
 - Invoice tax is a rate the provider enters (no automatic tax calculation).
 - "Verified" badges are granted by an admin after a manual document check.
-- Everyone is on a free plan with all features until subscription pricing is approved.
 
 ## Business risk noted (no change made)
 
