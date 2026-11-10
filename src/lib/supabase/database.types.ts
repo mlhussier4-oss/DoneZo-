@@ -37,6 +37,82 @@ export type Database = {
                   Relationships: [
                     
                   ]
+                },"bids": {
+                  Row: {
+                    "additional_charges": string | null,"availability": string,"business_id": string,"created_at": string,"created_by": string | null,"exclusions": string | null,"id": string,"included": string,"message": string | null,"price_cents": number,"request_id": string,"status": Database["public"]['Enums']["bid_status"],"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "additional_charges"?: string | null,"availability": string,"business_id": string,"created_at"?: string,"created_by"?: string | null,"exclusions"?: string | null,"id"?: string,"included": string,"message"?: string | null,"price_cents": number,"request_id": string,"status"?: Database["public"]['Enums']["bid_status"],"updated_at"?: string
+                  }
+                  Update: {
+                    "additional_charges"?: string | null,"availability"?: string,"business_id"?: string,"created_at"?: string,"created_by"?: string | null,"exclusions"?: string | null,"id"?: string,"included"?: string,"message"?: string | null,"price_cents"?: number,"request_id"?: string,"status"?: Database["public"]['Enums']["bid_status"],"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "bids_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bids_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"bookings": {
+                  Row: {
+                    "agreed_price_cents": number,"bid_id": string,"business_id": string,"cancel_reason": string | null,"canceled_at": string | null,"canceled_by": string | null,"completed_at": string | null,"created_at": string,"crm_customer_id": string | null,"customer_id": string,"id": string,"job_id": string | null,"original_price_cents": number,"request_id": string,"scope": string,"status": Database["public"]['Enums']["booking_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "agreed_price_cents": number,"bid_id": string,"business_id": string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id": string,"id"?: string,"job_id"?: string | null,"original_price_cents": number,"request_id": string,"scope": string,"status"?: Database["public"]['Enums']["booking_status"]
+                  }
+                  Update: {
+                    "agreed_price_cents"?: number,"bid_id"?: string,"business_id"?: string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id"?: string,"id"?: string,"job_id"?: string | null,"original_price_cents"?: number,"request_id"?: string,"scope"?: string,"status"?: Database["public"]['Enums']["booking_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "bookings_bid_id_fkey"
+      columns: ["bid_id"]
+isOneToOne: true
+      referencedRelation: "bids"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_crm_customer_id_fkey"
+      columns: ["crm_customer_id"]
+isOneToOne: false
+      referencedRelation: "crm_customers"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_job_id_fkey"
+      columns: ["job_id"]
+isOneToOne: false
+      referencedRelation: "jobs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: true
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"business_document_counters": {
                   Row: {
                     "business_id": string,"kind": string,"last_number": number
@@ -79,21 +155,47 @@ isOneToOne: false
                   ]
                 },"businesses": {
                   Row: {
-                    "created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"id": string,"is_suspended": boolean,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"name": string,"phone": string | null,"plan_id": string,"timezone": string,"updated_at": string
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"name": string,"phone": string | null,"plan_id": string,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name": string,"phone"?: string | null,"plan_id": string,"timezone"?: string,"updated_at"?: string
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name": string,"phone"?: string | null,"plan_id": string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name"?: string,"phone"?: string | null,"plan_id"?: string,"timezone"?: string,"updated_at"?: string
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name"?: string,"phone"?: string | null,"plan_id"?: string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
+      foreignKeyName: "businesses_home_zip_fkey"
+      columns: ["home_zip"]
+isOneToOne: false
+      referencedRelation: "zip_codes"
+      referencedColumns: ["zip"]
+    },{
       foreignKeyName: "businesses_plan_id_fkey"
       columns: ["plan_id"]
 isOneToOne: false
       referencedRelation: "plans"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"change_orders": {
+                  Row: {
+                    "booking_id": string,"created_at": string,"decided_at": string | null,"description": string,"id": string,"new_price_cents": number,"proposed_by": string | null,"status": Database["public"]['Enums']["change_order_status"]
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "booking_id": string,"created_at"?: string,"decided_at"?: string | null,"description": string,"id"?: string,"new_price_cents": number,"proposed_by"?: string | null,"status"?: Database["public"]['Enums']["change_order_status"]
+                  }
+                  Update: {
+                    "booking_id"?: string,"created_at"?: string,"decided_at"?: string | null,"description"?: string,"id"?: string,"new_price_cents"?: number,"proposed_by"?: string | null,"status"?: Database["public"]['Enums']["change_order_status"]
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "change_orders_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
       referencedColumns: ["id"]
     }
                   ]
@@ -351,6 +453,40 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"messages": {
+                  Row: {
+                    "body": string | null,"booking_id": string,"created_at": string,"id": string,"photo_path": string | null,"sender_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body"?: string | null,"booking_id": string,"created_at"?: string,"id"?: string,"photo_path"?: string | null,"sender_id"?: string
+                  }
+                  Update: {
+                    "body"?: string | null,"booking_id"?: string,"created_at"?: string,"id"?: string,"photo_path"?: string | null,"sender_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "messages_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"notifications": {
+                  Row: {
+                    "body": string | null,"created_at": string,"id": string,"kind": string,"link": string | null,"read_at": string | null,"title": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "body"?: string | null,"created_at"?: string,"id"?: string,"kind": string,"link"?: string | null,"read_at"?: string | null,"title": string,"user_id": string
+                  }
+                  Update: {
+                    "body"?: string | null,"created_at"?: string,"id"?: string,"kind"?: string,"link"?: string | null,"read_at"?: string | null,"title"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"payment_records": {
                   Row: {
                     "amount_cents": number,"business_id": string,"created_at": string,"customer_id": string,"id": string,"invoice_id": string | null,"job_id": string | null,"method": Database["public"]['Enums']["payment_method"],"note": string | null,"received_on": string,"recorded_by": string | null,"verification": Database["public"]['Enums']["payment_verification"]
@@ -417,6 +553,26 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"portfolio_photos": {
+                  Row: {
+                    "business_id": string,"caption": string | null,"created_at": string,"id": string,"storage_path": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "business_id": string,"caption"?: string | null,"created_at"?: string,"id"?: string,"storage_path": string
+                  }
+                  Update: {
+                    "business_id"?: string,"caption"?: string | null,"created_at"?: string,"id"?: string,"storage_path"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "portfolio_photos_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"profiles": {
                   Row: {
                     "created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
@@ -430,6 +586,32 @@ isOneToOne: false
                   }
                   Relationships: [
                     
+                  ]
+                },"provider_categories": {
+                  Row: {
+                    "business_id": string,"category_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "business_id": string,"category_id": string
+                  }
+                  Update: {
+                    "business_id"?: string,"category_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "provider_categories_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "provider_categories_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "service_categories"
+      referencedColumns: ["id"]
+    }
                   ]
                 },"recurring_schedules": {
                   Row: {
@@ -463,6 +645,84 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"request_photos": {
+                  Row: {
+                    "created_at": string,"customer_id": string,"id": string,"request_id": string,"storage_path": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"customer_id"?: string,"id"?: string,"request_id": string,"storage_path": string
+                  }
+                  Update: {
+                    "created_at"?: string,"customer_id"?: string,"id"?: string,"request_id"?: string,"storage_path"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "request_photos_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "request_photos_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"reviews": {
+                  Row: {
+                    "booking_id": string,"business_id": string,"comment": string | null,"created_at": string,"customer_id": string,"id": string,"rating": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "booking_id": string,"business_id": string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"rating": number
+                  }
+                  Update: {
+                    "booking_id"?: string,"business_id"?: string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"rating"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "reviews_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: true
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reviews_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "reviews_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"service_areas": {
+                  Row: {
+                    "center_zip": string,"created_at": string,"id": string,"is_active": boolean,"name": string,"radius_miles": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "center_zip": string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name": string,"radius_miles": number,"updated_at"?: string
+                  }
+                  Update: {
+                    "center_zip"?: string,"created_at"?: string,"id"?: string,"is_active"?: boolean,"name"?: string,"radius_miles"?: number,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "service_areas_center_zip_fkey"
+      columns: ["center_zip"]
+isOneToOne: false
+      referencedRelation: "zip_codes"
+      referencedColumns: ["zip"]
+    }
+                  ]
                 },"service_categories": {
                   Row: {
                     "created_at": string,"description": string | null,"icon": string,"id": string,"is_active": boolean,"name": string,"slug": string,"sort_order": number,"updated_at": string
@@ -477,13 +737,185 @@ isOneToOne: false
                   Relationships: [
                     
                   ]
+                },"service_request_locations": {
+                  Row: {
+                    "city": string,"customer_id": string,"line1": string,"line2": string | null,"phone": string | null,"request_id": string,"sms_consent": boolean,"state": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "city": string,"customer_id"?: string,"line1": string,"line2"?: string | null,"phone"?: string | null,"request_id": string,"sms_consent"?: boolean,"state"?: string
+                  }
+                  Update: {
+                    "city"?: string,"customer_id"?: string,"line1"?: string,"line2"?: string | null,"phone"?: string | null,"request_id"?: string,"sms_consent"?: boolean,"state"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "service_request_locations_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "service_request_locations_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: true
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"service_requests": {
+                  Row: {
+                    "booked_at": string | null,"canceled_at": string | null,"category_id": string,"created_at": string,"customer_id": string,"description": string,"details": NonNullable<Json>,"expires_at": string,"id": string,"preferred_date": string | null,"status": Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at": string,"zip": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id": string,"created_at"?: string,"customer_id"?: string,"description": string,"details"?: NonNullable<Json>,"expires_at"?: string,"id"?: string,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip": string
+                  }
+                  Update: {
+                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id"?: string,"created_at"?: string,"customer_id"?: string,"description"?: string,"details"?: NonNullable<Json>,"expires_at"?: string,"id"?: string,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing"?: Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "service_requests_category_id_fkey"
+      columns: ["category_id"]
+isOneToOne: false
+      referencedRelation: "service_categories"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "service_requests_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "service_requests_zip_fkey"
+      columns: ["zip"]
+isOneToOne: false
+      referencedRelation: "zip_codes"
+      referencedColumns: ["zip"]
+    }
+                  ]
+                },"support_reports": {
+                  Row: {
+                    "admin_note": string | null,"booking_id": string | null,"category": string,"created_at": string,"id": string,"message": string,"reporter_id": string,"request_id": string | null,"resolved_at": string | null,"status": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "admin_note"?: string | null,"booking_id"?: string | null,"category": string,"created_at"?: string,"id"?: string,"message": string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string
+                  }
+                  Update: {
+                    "admin_note"?: string | null,"booking_id"?: string | null,"category"?: string,"created_at"?: string,"id"?: string,"message"?: string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "support_reports_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "support_reports_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"zip_codes": {
+                  Row: {
+                    "latitude": number,"longitude": number,"zip": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "latitude": number,"longitude": number,"zip": string
+                  }
+                  Update: {
+                    "latitude"?: number,"longitude"?: number,"zip"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 }
           }
           Views: {
             [_ in never]: never
           }
           Functions: {
-            "admin_set_user_suspended":
+            "accept_bid":
+{ Args: { "p_bid_id": string }; Returns: {
+              "agreed_price_cents": number,
+"bid_id": string,
+"business_id": string,
+"cancel_reason": string | null,
+"canceled_at": string | null,
+"canceled_by": string | null,
+"completed_at": string | null,
+"created_at": string,
+"crm_customer_id": string | null,
+"customer_id": string,
+"id": string,
+"job_id": string | null,
+"original_price_cents": number,
+"request_id": string,
+"scope": string,
+"status": Database["public"]['Enums']["booking_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "bookings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_resolve_report":
+{ Args: { "p_note": string,"p_report_id": string }; Returns: {
+              "admin_note": string | null,
+"booking_id": string | null,
+"category": string,
+"created_at": string,
+"id": string,
+"message": string,
+"reporter_id": string,
+"request_id": string | null,
+"resolved_at": string | null,
+"status": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "support_reports"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_set_business_verified":
+{ Args: { "p_business_id": string,"p_note": string,"p_verified": boolean }; Returns: {
+              "accepted_payment_methods": (string)[],
+"created_at": string,
+"created_by": string | null,
+"default_tax_rate_bps": number,
+"description": string | null,
+"email": string | null,
+"home_zip": string | null,
+"id": string,
+"is_suspended": boolean,
+"logo_path": string | null,
+"marketplace_enabled": boolean,
+"marketplace_enabled_at": string | null,
+"name": string,
+"phone": string | null,
+"plan_id": string,
+"service_radius_miles": number,
+"timezone": string,
+"updated_at": string,
+"verified_at": string | null,
+"verified_note": string | null,
+"years_experience": number | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "businesses"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_set_user_suspended":
 { Args: { "p_reason": string,"p_suspended": boolean,"p_user_id": string }; Returns: {
               "created_at": string,
 "email": string | null,
@@ -497,6 +929,22 @@ isOneToOne: false
                           SetofOptions: {
         from: "*"
         to: "profiles"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"admin_upsert_service_area":
+{ Args: { "p_center_zip": string,"p_id": string,"p_is_active": boolean,"p_name": string,"p_radius_miles": number }; Returns: {
+              "center_zip": string,
+"created_at": string,
+"id": string,
+"is_active": boolean,
+"name": string,
+"radius_miles": number,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "service_areas"
         isOneToOne: true
         isSetofReturn: false
       } },
@@ -518,15 +966,69 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"business_can_see_request":
+{ Args: { "p_business_id": string,"p_request_id": string }; Returns: boolean
+                           },
 "business_dashboard":
 { Args: { "p_business_id": string }; Returns: Json
                            },
 "business_entitlements":
 { Args: { "p_business_id": string }; Returns: Json
                            },
+"business_public_stats":
+{ Args: { "p_business_id": string }; Returns: Json
+                           },
 "business_today":
 { Args: { "p_business_id": string }; Returns: string
                            },
+"cancel_booking":
+{ Args: { "p_booking_id": string,"p_reason": string }; Returns: {
+              "agreed_price_cents": number,
+"bid_id": string,
+"business_id": string,
+"cancel_reason": string | null,
+"canceled_at": string | null,
+"canceled_by": string | null,
+"completed_at": string | null,
+"created_at": string,
+"crm_customer_id": string | null,
+"customer_id": string,
+"id": string,
+"job_id": string | null,
+"original_price_cents": number,
+"request_id": string,
+"scope": string,
+"status": Database["public"]['Enums']["booking_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "bookings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"cancel_request":
+{ Args: { "p_request_id": string }; Returns: {
+              "booked_at": string | null,
+"canceled_at": string | null,
+"category_id": string,
+"created_at": string,
+"customer_id": string,
+"description": string,
+"details": NonNullable<Json>,
+"expires_at": string,
+"id": string,
+"preferred_date": string | null,
+"status": Database["public"]['Enums']["request_status"],
+"timing": Database["public"]['Enums']["request_timing"],
+"updated_at": string,
+"zip": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "service_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "clear_future_recurring_jobs":
 { Args: { "p_schedule_id": string }; Returns: number
                            },
@@ -597,11 +1099,40 @@ isOneToOne: false
 "current_app_role":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["app_role"]
                            },
+"current_user_can_see_request":
+{ Args: { "p_request_id": string }; Returns: boolean
+                           },
+"customer_booking":
+{ Args: { "p_request_id": string }; Returns: Json
+                           },
+"decide_change_order":
+{ Args: { "p_approve": boolean,"p_change_order_id": string }; Returns: {
+              "booking_id": string,
+"created_at": string,
+"decided_at": string | null,
+"description": string,
+"id": string,
+"new_price_cents": number,
+"proposed_by": string | null,
+"status": Database["public"]['Enums']["change_order_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "change_orders"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"expire_requests":
+{ Args: Record<PropertyKey, never>; Returns: number
+                           },
 "extend_recurring_jobs":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
 "generate_recurring_jobs":
 { Args: { "p_schedule_id": string,"p_through": string }; Returns: number
+                           },
+"get_provider_profile":
+{ Args: { "p_business_id": string }; Returns: Json
                            },
 "get_public_estimate":
 { Args: { "p_token": string }; Returns: Json
@@ -615,14 +1146,37 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"is_booking_participant":
+{ Args: { "p_booking_id": string }; Returns: boolean
+                           },
 "is_business_member":
 { Args: { "p_business_id": string }; Returns: boolean
+                           },
+"marketplace_feed":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "category_icon": string,"category_name": string,"created_at": string,"description": string,"details": Json,"expires_at": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
+            }[]
+                           },
+"marketplace_request_detail":
+{ Args: { "p_request_id": string }; Returns: Json
+                           },
+"miles_between_zips":
+{ Args: { "p_a": string,"p_b": string }; Returns: number
                            },
 "next_document_number":
 { Args: { "p_business_id": string,"p_kind": string }; Returns: number
                            },
+"notify":
+{ Args: { "p_body": string,"p_kind": string,"p_link": string,"p_title": string,"p_user_id": string }; Returns: undefined
+                           },
+"notify_business":
+{ Args: { "p_body": string,"p_business_id": string,"p_kind": string,"p_link": string,"p_title": string }; Returns: undefined
+                           },
 "replace_document_lines":
 { Args: { "p_document_id": string,"p_kind": string,"p_lines": Json }; Returns: undefined
+                           },
+"request_bids":
+{ Args: { "p_request_id": string }; Returns: Json
                            },
 "send_invoice":
 { Args: { "p_invoice_id": string }; Returns: {
@@ -686,20 +1240,27 @@ isOneToOne: false
       } },
 "set_marketplace_enabled":
 { Args: { "p_business_id": string,"p_enabled": boolean }; Returns: {
-              "created_at": string,
+              "accepted_payment_methods": (string)[],
+"created_at": string,
 "created_by": string | null,
 "default_tax_rate_bps": number,
 "description": string | null,
 "email": string | null,
+"home_zip": string | null,
 "id": string,
 "is_suspended": boolean,
+"logo_path": string | null,
 "marketplace_enabled": boolean,
 "marketplace_enabled_at": string | null,
 "name": string,
 "phone": string | null,
 "plan_id": string,
+"service_radius_miles": number,
 "timezone": string,
-"updated_at": string
+"updated_at": string,
+"verified_at": string | null,
+"verified_note": string | null,
+"years_experience": number | null
             }
                           SetofOptions: {
         from: "*"
@@ -738,10 +1299,30 @@ isOneToOne: false
         to: "invoices"
         isOneToOne: true
         isSetofReturn: false
-      } }
+      } },
+"withdraw_change_order":
+{ Args: { "p_change_order_id": string }; Returns: {
+              "booking_id": string,
+"created_at": string,
+"decided_at": string | null,
+"description": string,
+"id": string,
+"new_price_cents": number,
+"proposed_by": string | null,
+"status": Database["public"]['Enums']["change_order_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "change_orders"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"zip_in_service_area":
+{ Args: { "p_zip": string }; Returns: boolean
+                           }
           }
           Enums: {
-            "app_role": "customer"|"provider"|"admin","business_member_role": "owner"|"manager"|"employee","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled"
+            "app_role": "customer"|"provider"|"admin","bid_status": "submitted"|"withdrawn"|"accepted"|"closed","booking_status": "active"|"completed"|"canceled","business_member_role": "owner"|"manager"|"employee","change_order_status": "pending"|"approved"|"declined"|"withdrawn","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled","request_status": "open"|"booked"|"canceled"|"expired","request_timing": "asap"|"tomorrow"|"within_3_days"|"this_week"|"specific_date"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -861,7 +1442,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["customer", "provider", "admin"],"business_member_role": ["owner", "manager", "employee"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"]
+            "app_role": ["customer", "provider", "admin"],"bid_status": ["submitted", "withdrawn", "accepted", "closed"],"booking_status": ["active", "completed", "canceled"],"business_member_role": ["owner", "manager", "employee"],"change_order_status": ["pending", "approved", "declined", "withdrawn"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"],"request_status": ["open", "booked", "canceled", "expired"],"request_timing": ["asap", "tomorrow", "within_3_days", "this_week", "specific_date"]
           }
         }
 } as const
