@@ -4,8 +4,9 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
-- **2026-11-11 — Paid access:** providers must have an active paid subscription to use DoneZo, both the CRM and the marketplace. (Replaces the earlier free-beta default.) Prices and trial: see "Waiting for the owner".
-- **2026-11-11 — Marketplace fee:** 10% of each marketplace card payment, taken through Stripe. No fee on cash, Venmo, Cash App or check.
+- **2026-11-11 — Paid access:** providers must have an active paid subscription to use DoneZo, both the CRM and the marketplace. **$9.99/month, one price for everyone, no free trial** (paid at sign-up). Replaces the earlier free-beta default.
+- **2026-11-11 — Card fee: 10% of every card payment made through DoneZo**, marketplace jobs *and* providers' own (CRM) customers. **This changes Blueprint rule 8** ("no marketplace commissions on CRM-only payments") at the owner's request. Still no fee on cash, Venmo, Cash App or check.
+- **2026-11-11 — Refunds:** when a card payment is refunded, DoneZo's 10% is refunded too.
 - **2026-11-11 — Stripe charge type:** direct charges. The provider is the seller of record and handles card processing fees, refunds and disputes; DoneZo takes an application fee. Still needs an accountant/lawyer review before live mode.
 - **2026-11-11 — Marketplace price is all-in:** no sales tax is added on top of an accepted bid; changes go through a customer-approved change order.
 - **2026-11-11 — Service areas:** US only. Providers choose a home ZIP plus a radius in miles (1–60). Launch area: **Austin, TX** (35 miles around downtown ZIP 78701); admins can add or close areas.
@@ -15,9 +16,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-1. **Fee on CRM card payments** (a provider charging their own customers by card through DoneZo). The blueprint said no fee; the owner mentioned taking a percentage of card payments. Needs a clear answer.
-2. **Subscription prices and trial**, and whether CRM-only and CRM + Marketplace cost the same.
-3. **Refunds:** is DoneZo's 10% returned when a marketplace payment is refunded?
+_Nothing right now._
 
 ## Defaults in use until the owner says otherwise
 
