@@ -1,0 +1,127 @@
+import "server-only";
+import { cache } from "react";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
+
+export type AppRole = "customer" | "provider" | "admin";
+
+export type CurrentUser = {
+  id: string;
+  email: string | null;
+  role: AppRole;
+  fullName: string | null;
+};
+
+export type CurrentBusiness = {
+  id: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  description: string | null;
+  marketplaceEnabled: boolean;
+  marketplaceEnabledAt: string | null;
+  memberRole: "owner" | "manager" | "employee";
+};
+
+/** Where each kind of user lands after signing in. */
+export function homePathFor(role: AppRole): string {
+  return role === "admin" ? "/admin" : role === "provider" ? "/provider" : "/customer";
+}
+
+/**
+ * Only allow redirects to paths on this site (prevents "open redirect" attacks
+ * where a link sends someone to a look-alike site after signing in).
+ */
+export function safeNextPath(next: unknown): string | null {
+  if (typeof next !== "string") return null;
+  if (!next.startsWith("/") || next.startsWith("//") || next.startsWith("/\\")) return null;
+  return next;
+}
+
+/**
+ * The signed-in user, verified with the auth server, plus their profile.
+ * Returns null when nobody is signed in. Cached for the duration of one request.
+ */
+export const getCurrentUser = cache(async (): Promise<CurrentUser | null> => {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getClaims();
+  const userId = data?.claims?.sub;
+  if (error || !userId) return null;
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id, role, full_name, email, is_suspended")
+    .eq("id", userId)
+    .single();
+  if (!profile) return null;
+
+  if (profile.is_suspended) {
+    await supabase.auth.signOut();
+    redirect("/login?error=suspended");
+  }
+
+  return {
+    id: profile.id,
+    email: profile.email,
+    role: profile.role as AppRole,
+    fullName: profile.full_name,
+  };
+});
+
+/** Require a signed-in user with one of the given roles; otherwise redirect. */
+export async function requireRole(...roles: AppRole[]): Promise<CurrentUser> {
+  const user = await getCurrentUser();
+  if (!user) redirect("/login");
+  if (!roles.includes(user.role)) redirect(homePathFor(user.role));
+  return user;
+}
+
+/** The business the signed-in provider belongs to. */
+export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null> => {
+  const user = await getCurrentUser();
+  if (!user) return null;
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("business_members")
+    .select("role, businesses ( id, name, email, phone, description, marketplace_enabled, marketplace_enabled_at )")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  const b = data?.businesses as unknown as
+    | {
+        id: string;
+        name: string;
+        email: string | null;
+        phone: string | null;
+        description: string | null;
+        marketplace_enabled: boolean;
+        marketplace_enabled_at: string | null;
+      }
+    | null
+    | undefined;
+  if (!data || !b) return null;
+
+  return {
+    id: b.id,
+    name: b.name,
+    email: b.email,
+    phone: b.phone,
+    description: b.description,
+    marketplaceEnabled: b.marketplace_enabled,
+    marketplaceEnabledAt: b.marketplace_enabled_at,
+    memberRole: data.role as CurrentBusiness["memberRole"],
+  };
+});
+
+/** Require a provider who belongs to a business. */
+export async function requireProvider(): Promise<{ user: CurrentUser; business: CurrentBusiness }> {
+  const user = await requireRole("provider");
+  const business = await getCurrentBusiness();
+  if (!business) {
+    // A provider without a business should not exist; fail safe.
+    throw new Error("Your provider account has no business attached. Please contact support.");
+  }
+  return { user, business };
+}

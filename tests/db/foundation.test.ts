@@ -214,17 +214,18 @@ describe("the public (not logged in)", () => {
 
 describe("administrators have separate permissions", () => {
   it("an admin can see all profiles and businesses", async () => {
-    const provider = await createUser({ role: "provider", business_name: "Seen By Admin" });
+    const name = `Seen By Admin ${Date.now()}`;
+    const provider = await createUser({ role: "provider", business_name: name });
     const admin = await createAdmin();
     const { data: profiles } = await admin.client.from("profiles").select("id").eq("id", provider.id);
     expect(profiles).toHaveLength(1);
-    const { data: businesses } = await admin.client.from("businesses").select("name").eq("name", "Seen By Admin");
+    const { data: businesses } = await admin.client.from("businesses").select("name").eq("name", name);
     expect(businesses).toHaveLength(1);
   });
 
   it("an admin can create a service category and it is written to the audit log", async () => {
     const admin = await createAdmin();
-    const slug = `test-cat-${Date.now()}`;
+    const slug = `e2e-test-cat-${Date.now()}`;
     const { data: cat, error } = await admin.client.rpc("admin_upsert_service_category", {
       p_id: null,
       p_slug: slug,
@@ -246,6 +247,8 @@ describe("administrators have separate permissions", () => {
     // Inactive categories are hidden from the public.
     const { data: publicView } = await anonClient().from("service_categories").select("id").eq("id", cat.id);
     expect(publicView).toEqual([]);
+
+    await adminClient().from("service_categories").delete().eq("id", cat.id);
   });
 
   it("providers and customers cannot use admin functions", async () => {
