@@ -17,7 +17,7 @@ export const CATEGORIES_TAG = "service-categories";
 export async function getActiveCategories(): Promise<ServiceCategory[]> {
   "use cache";
   cacheTag(CATEGORIES_TAG);
-  cacheLife("hours");
+  cacheLife("minutes"); // admin edits refresh it immediately; this bounds anything changed outside the app
   const { data, error } = await createPublicClient()
     .from("service_categories")
     .select("id, slug, name, description, icon, sort_order")

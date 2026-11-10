@@ -26,7 +26,7 @@ Launch area: **Austin, TX** (35 miles around downtown, ZIP 78701). Providers set
 - Requests stay open 7 days, then expire automatically (nightly).
 
 ### Tests
-- Database: 22 new marketplace tests (85 total) — posting rules and service area, who sees a job, notifications only to matching providers, CRM-only can't bid, photo access, sealed bids, accept-bid booking and CRM hand-off, losing bidders learn nothing, messaging only between the two parties, price changes only by approved change order, reviews only after completion, verification admin-only.
+- Database: 24 new marketplace tests (86 total) — posting rules and service area, who sees a job, notifications only to matching providers, CRM-only can't bid, photo access, sealed bids, accept-bid booking and CRM hand-off, losing bidders learn nothing, messaging only between the two parties, price changes only by approved change order, reviews only after completion, verification admin-only, bidders keep seeing the job they bid on but never the customer.
 - Browser: 4 new tests (21 total) — the complete flow from a first-time visitor posting a job with a photo to two providers bidding, accepting, messaging both ways, an approved price change, completing the job in the CRM, the review and the public profile; out-of-area ZIP; CRM-only provider never sees the marketplace; wizard on a phone.
 
 ### Not yet done / notes

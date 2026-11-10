@@ -355,6 +355,21 @@ describe("reviews", () => {
   });
 });
 
+describe("bidders keep seeing the job they bid on, never the customer", () => {
+  it("a bidder can read the request row but not the customer's location or profile", async () => {
+    const p = await provider();
+    const outsider = await provider();
+    const c = await customer();
+    const r = await postJob(c);
+    await bid(p, r.id);
+    const { data } = await p.client.from("service_requests").select("description, zip").eq("id", r.id).single();
+    expect(data?.zip).toBe("78745");
+    expect((await p.client.from("service_request_locations").select("line1").eq("request_id", r.id)).data).toEqual([]);
+    expect((await p.client.from("profiles").select("full_name").eq("id", c.id)).data).toEqual([]);
+    expect((await outsider.client.from("service_requests").select("id").eq("id", r.id)).data).toEqual([]);
+  });
+});
+
 describe("reviews can't be pointed at another business", () => {
   it("the business on a review always comes from the booking", async () => {
     const p = await provider();

@@ -100,10 +100,12 @@ test.describe("marketplace: post → bid → accept → message → change → c
     // 5. The winner now sees the customer's details; the other provider is told they weren't chosen.
     await alpha.goto("/provider/marketplace?tab=bookings");
     await alpha.getByRole("link", { name: /Riley/ }).click();
+    await expect(alpha.getByRole("heading", { level: 1, name: "Lawn mowing for Riley" })).toBeVisible();
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toBeVisible();
     await expect(alpha.getByText("512-555-0199")).toBeVisible();
     await bravo.goto("/provider/marketplace?tab=bids");
     await expect(bravo.getByText("Not chosen")).toBeVisible();
+    await expect(bravo.getByText(/Lawn mowing · 78745/).first()).toBeVisible();
 
     // 6. Private messaging, both ways.
     await alpha.getByLabel("Message", { exact: true }).fill("Hi Riley, Thursday at 9am works?");
