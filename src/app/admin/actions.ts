@@ -26,10 +26,11 @@ export async function saveCategory(_prev: AdminState, formData: FormData): Promi
   const supabase = await createClient();
   // The database function re-checks admin rights and writes the audit log.
   const { error } = await supabase.rpc("admin_upsert_service_category", {
-    p_id: v.id || null,
+    // NULL id means "create"; generated types don't model nullable function arguments.
+    p_id: (v.id || null) as string,
     p_slug: v.slug,
     p_name: v.name,
-    p_description: v.description || null,
+    p_description: (v.description || null) as string,
     p_icon: v.icon,
     p_sort_order: v.sortOrder,
     p_is_active: v.isActive === "true",

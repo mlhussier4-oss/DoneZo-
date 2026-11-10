@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { Form, useFormAction } from "@/components/ui/form";
 import { MailCheck } from "lucide-react";
 import { sendEmailCode, verifyEmailCode, type FormState } from "../actions";
 import { Alert } from "@/components/ui/alert";
@@ -12,13 +12,13 @@ import { SubmitButton } from "./submit-button";
  * This is the same flow customers will use at the "Post Job" step.
  */
 export function EmailCodeForm({ askName = false, next }: { askName?: boolean; next?: string }) {
-  const [sendState, sendAction] = useActionState<FormState, FormData>(sendEmailCode, { status: "idle" });
-  const [verifyState, verifyAction] = useActionState<FormState, FormData>(verifyEmailCode, { status: "idle" });
+  const [sendState, sendAction] = useFormAction<FormState>(sendEmailCode, { status: "idle" });
+  const [verifyState, verifyAction] = useFormAction<FormState>(verifyEmailCode, { status: "idle" });
 
   if (sendState.status === "verify") {
     const email = sendState.email!;
     return (
-      <form action={verifyAction} className="space-y-4" noValidate>
+      <Form form={verifyAction}  className="space-y-4" noValidate>
         <Alert tone="info" className="flex gap-2">
           <MailCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>
@@ -44,12 +44,12 @@ export function EmailCodeForm({ askName = false, next }: { askName?: boolean; ne
         <SubmitButton className="w-full" pendingText="Checking…">
           Continue
         </SubmitButton>
-      </form>
+      </Form>
     );
   }
 
   return (
-    <form action={sendAction} className="space-y-4" noValidate>
+    <Form form={sendAction}  className="space-y-4" noValidate>
       {askName ? (
         <Field label="Your name" htmlFor="fullName" hint="Optional. Shown to the provider you hire.">
           <Input id="fullName" name="fullName" autoComplete="name" maxLength={120} />
@@ -63,6 +63,6 @@ export function EmailCodeForm({ askName = false, next }: { askName?: boolean; ne
         Email me a code
       </SubmitButton>
       <p className="text-center text-xs text-muted-foreground">No password needed. We&apos;ll email you a sign-in code.</p>
-    </form>
+    </Form>
   );
 }

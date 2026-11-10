@@ -3,7 +3,9 @@
 import { refresh } from "next/cache";
 import { z } from "zod";
 import { requireProvider } from "@/lib/auth";
+import { parsePercentToBps } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { US_TIMEZONES } from "./timezones";
 
 export type SettingsState = { status: "idle" | "success" | "error"; message?: string; fieldErrors?: Record<string, string> };
 
@@ -12,6 +14,8 @@ const detailsSchema = z.object({
   email: z.union([z.literal(""), z.string().trim().email("Enter a valid email.").max(254)]),
   phone: z.string().trim().max(30, "Too long."),
   description: z.string().trim().max(2000, "Keep it under 2,000 characters."),
+  timezone: z.enum(US_TIMEZONES.map((t) => t.value) as [string, ...string[]], { message: "Choose a time zone." }),
+  defaultTax: z.string().trim(),
 });
 
 export async function updateBusinessDetails(_prev: SettingsState, formData: FormData): Promise<SettingsState> {
@@ -25,10 +29,19 @@ export async function updateBusinessDetails(_prev: SettingsState, formData: Form
     return { status: "error", fieldErrors };
   }
   const v = parsed.data;
+  const taxBps = parsePercentToBps(v.defaultTax);
+  if (taxBps === null) return { status: "error", fieldErrors: { defaultTax: "Enter a rate like 8.25, or leave it empty." } };
   const supabase = await createClient();
   const { error } = await supabase
     .from("businesses")
-    .update({ name: v.name, email: v.email || null, phone: v.phone || null, description: v.description || null })
+    .update({
+      name: v.name,
+      email: v.email || null,
+      phone: v.phone || null,
+      description: v.description || null,
+      timezone: v.timezone,
+      default_tax_rate_bps: taxBps,
+    })
     .eq("id", business.id);
   if (error) return { status: "error", message: "Could not save your changes. Please try again." };
   refresh();

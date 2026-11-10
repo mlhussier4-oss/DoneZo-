@@ -16,6 +16,11 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Defaults in use until the owner says otherwise
 
+- Each visit is its own job (a weekly service creates one job per week), so every visit can be completed, photographed and invoiced separately.
+- Recurring services keep 90 days of visits on the calendar.
+- "Revenue" on the dashboard means payments received (recorded or, later, Stripe-verified), not invoices sent.
+- Invoices start with a 14-day due date; estimates are valid for 30 days. Both can be changed per document.
+
 - Job requests stay open for 7 days.
 - Reviews go from customer to provider only.
 - Invoice tax is a rate the provider enters (no automatic tax calculation).

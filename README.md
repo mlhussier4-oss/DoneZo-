@@ -73,6 +73,7 @@ npm run build            # build the website
 npm run test:e2e         # browser tests: sign-up, login, permissions, phone layout
 npm run lint
 npm run typecheck
+npm run db:types         # regenerate TypeScript types after changing the database
 ```
 
 ## Environment variables
@@ -102,9 +103,10 @@ supabase/migrations/    Database structure and security rules
 supabase/templates/     Login and confirmation email templates
 src/app/(public)/       Homepage, "For providers", post-a-job (placeholder)
 src/app/(auth)/         Sign up, log in, password reset
-src/app/provider/       Provider dashboard
+src/app/provider/       Provider dashboard and CRM (customers, jobs, recurring, calendar, invoices, payments, reports)
 src/app/customer/       Customer dashboard
 src/app/admin/          Admin area
+src/app/(public-docs)/  Invoice and estimate pages customers open from a link
 src/components/         Reusable UI (buttons, cards, forms, navigation)
 src/config/brand.ts     Brand name and tagline. Change here to rebrand.
 src/lib/auth.ts         Who is signed in, and role checks

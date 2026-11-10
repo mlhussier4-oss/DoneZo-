@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState } from "react";
+import { Form, useFormAction } from "@/components/ui/form";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input } from "@/components/ui/input";
 import { updateProfile, type ProfileState } from "./actions";
 
 export function ProfileForm({ fullName, phone, email }: { fullName: string; phone: string; email: string }) {
-  const [state, action, pending] = useActionState<ProfileState, FormData>(updateProfile, { status: "idle" });
+  const [state, action] = useFormAction<ProfileState>(updateProfile, { status: "idle" });
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <Form form={action}  className="space-y-4" noValidate>
       <Field label="Email" htmlFor="email" hint="You sign in with a code sent to this address.">
         <Input id="email" value={email} disabled readOnly />
       </Field>
@@ -20,9 +20,9 @@ export function ProfileForm({ fullName, phone, email }: { fullName: string; phon
         <Input id="phone" name="phone" type="tel" defaultValue={phone} autoComplete="tel" maxLength={30} />
       </Field>
       {state.message ? <Alert tone={state.status === "error" ? "error" : "success"}>{state.message}</Alert> : null}
-      <Button type="submit" disabled={pending}>
-        {pending ? "Saving…" : "Save"}
+      <Button type="submit" disabled={action.pending}>
+        {action.pending ? "Saving…" : "Save"}
       </Button>
-    </form>
+    </Form>
   );
 }

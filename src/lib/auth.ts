@@ -20,6 +20,8 @@ export type CurrentBusiness = {
   description: string | null;
   marketplaceEnabled: boolean;
   marketplaceEnabledAt: string | null;
+  timezone: string;
+  defaultTaxRateBps: number;
   memberRole: "owner" | "manager" | "employee";
 };
 
@@ -83,24 +85,13 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
   const supabase = await createClient();
   const { data } = await supabase
     .from("business_members")
-    .select("role, businesses ( id, name, email, phone, description, marketplace_enabled, marketplace_enabled_at )")
+    .select("role, businesses ( id, name, email, phone, description, marketplace_enabled, marketplace_enabled_at, timezone, default_tax_rate_bps )")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
     .limit(1)
     .maybeSingle();
 
-  const b = data?.businesses as unknown as
-    | {
-        id: string;
-        name: string;
-        email: string | null;
-        phone: string | null;
-        description: string | null;
-        marketplace_enabled: boolean;
-        marketplace_enabled_at: string | null;
-      }
-    | null
-    | undefined;
+  const b = data?.businesses;
   if (!data || !b) return null;
 
   return {
@@ -111,6 +102,8 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
     description: b.description,
     marketplaceEnabled: b.marketplace_enabled,
     marketplaceEnabledAt: b.marketplace_enabled_at,
+    timezone: b.timezone,
+    defaultTaxRateBps: b.default_tax_rate_bps,
     memberRole: data.role as CurrentBusiness["memberRole"],
   };
 });

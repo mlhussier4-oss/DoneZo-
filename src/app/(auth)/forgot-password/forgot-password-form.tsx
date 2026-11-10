@@ -1,13 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { Form, useFormAction } from "@/components/ui/form";
 import { requestPasswordReset, type FormState } from "../actions";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/input";
 import { SubmitButton } from "../_components/submit-button";
 
 export function ForgotPasswordForm() {
-  const [state, action] = useActionState<FormState, FormData>(requestPasswordReset, { status: "idle" });
+  const [state, action] = useFormAction<FormState>(requestPasswordReset, { status: "idle" });
   if (state.status === "success") {
     return (
       <Alert tone="success">
@@ -16,13 +16,13 @@ export function ForgotPasswordForm() {
     );
   }
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <Form form={action}  className="space-y-4" noValidate>
       <Field label="Email" htmlFor="email" error={state.fieldErrors?.email}>
         <Input id="email" name="email" type="email" autoComplete="email" required />
       </Field>
       <SubmitButton className="w-full" pendingText="Sending…">
         Send reset link
       </SubmitButton>
-    </form>
+    </Form>
   );
 }

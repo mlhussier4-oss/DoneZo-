@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { publicEnv } from "@/lib/env";
+import type { Database } from "./database.types";
 
 /**
  * Supabase client for Server Components, Server Actions and Route Handlers.
@@ -12,7 +13,7 @@ export async function createClient() {
   // Login checks depend on the current time and the request, so never pre-render them.
   await connection();
   const cookieStore = await cookies();
-  return createServerClient(publicEnv.supabaseUrl(), publicEnv.supabaseKey(), {
+  return createServerClient<Database>(publicEnv.supabaseUrl(), publicEnv.supabaseKey(), {
     cookies: {
       getAll() {
         return cookieStore.getAll();

@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { Form, useFormAction } from "@/components/ui/form";
+import { useState } from "react";
 import { Check, MailCheck } from "lucide-react";
 import { providerSignUp, type FormState } from "../../actions";
 import { Alert } from "@/components/ui/alert";
@@ -22,7 +23,7 @@ const usageOptions = [
 ] as const;
 
 export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "marketplace" | null }) {
-  const [state, action] = useActionState<FormState, FormData>(providerSignUp, { status: "idle" });
+  const [state, action] = useFormAction<FormState>(providerSignUp, { status: "idle" });
   const [usage, setUsage] = useState<string | null>(initialUsage);
 
   if (state.status === "success") {
@@ -41,7 +42,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
   }
 
   return (
-    <form action={action} className="space-y-5" noValidate>
+    <Form form={action}  className="space-y-5" noValidate>
       <fieldset className="space-y-3">
         <legend className="mb-2 text-sm font-medium">How would you like to use our platform?</legend>
         {usageOptions.map((o) => {
@@ -104,6 +105,6 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
       <SubmitButton className="w-full" size="lg" pendingText="Creating account…">
         Create provider account
       </SubmitButton>
-    </form>
+    </Form>
   );
 }

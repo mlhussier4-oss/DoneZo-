@@ -13,7 +13,8 @@
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "admin:create": "node scripts/create-admin.mjs",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:types": "supabase gen types typescript > src/lib/supabase/database.types.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.3.0",

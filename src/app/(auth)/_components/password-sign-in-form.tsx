@@ -1,16 +1,16 @@
 "use client";
 
+import { Form, useFormAction } from "@/components/ui/form";
 import Link from "next/link";
-import { useActionState } from "react";
 import { passwordSignIn, type FormState } from "../actions";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/input";
 import { SubmitButton } from "./submit-button";
 
 export function PasswordSignInForm({ next }: { next?: string }) {
-  const [state, action] = useActionState<FormState, FormData>(passwordSignIn, { status: "idle" });
+  const [state, action] = useFormAction<FormState>(passwordSignIn, { status: "idle" });
   return (
-    <form action={action} className="space-y-4" noValidate>
+    <Form form={action}  className="space-y-4" noValidate>
       {next ? <input type="hidden" name="next" value={next} /> : null}
       <Field label="Email" htmlFor="email" error={state.fieldErrors?.email}>
         <Input id="email" name="email" type="email" autoComplete="email" required />
@@ -27,6 +27,6 @@ export function PasswordSignInForm({ next }: { next?: string }) {
           Forgot your password?
         </Link>
       </p>
-    </form>
+    </Form>
   );
 }

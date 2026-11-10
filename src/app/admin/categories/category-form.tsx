@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { Form, useFormAction } from "@/components/ui/form";
 import { categoryIconNames, CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -21,10 +21,10 @@ const selectClass =
   "h-11 w-full rounded-lg border border-input bg-card px-3 text-base sm:text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 export function CategoryForm({ category, submitLabel }: { category?: CategoryRow; submitLabel: string }) {
-  const [state, action, pending] = useActionState<AdminState, FormData>(saveCategory, { status: "idle" });
+  const [state, action] = useFormAction<AdminState>(saveCategory, { status: "idle" });
   const idp = category?.id ?? "new";
   return (
-    <form action={action} className="grid gap-3 sm:grid-cols-6 sm:items-end">
+    <Form form={action}  className="grid gap-3 sm:grid-cols-6 sm:items-end">
       <input type="hidden" name="id" value={category?.id ?? ""} />
       <div className="space-y-1.5 sm:col-span-2">
         <Label htmlFor={`name-${idp}`}>Name</Label>
@@ -59,15 +59,15 @@ export function CategoryForm({ category, submitLabel }: { category?: CategoryRow
           <option value="false">Hidden</option>
         </select>
       </div>
-      <Button type="submit" disabled={pending} variant={category ? "outline" : "primary"}>
+      <Button type="submit" disabled={action.pending} variant={category ? "outline" : "primary"}>
         {category ? <CategoryIcon name={category.icon} /> : null}
-        {pending ? "Saving…" : submitLabel}
+        {action.pending ? "Saving…" : submitLabel}
       </Button>
       {state.message ? (
         <Alert tone={state.status === "error" ? "error" : "success"} className="sm:col-span-6">
           {state.message}
         </Alert>
       ) : null}
-    </form>
+    </Form>
   );
 }
