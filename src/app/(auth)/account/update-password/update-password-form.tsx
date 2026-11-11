@@ -10,7 +10,7 @@ export function UpdatePasswordForm() {
   const [state, action] = useFormAction<FormState>(updatePassword, { status: "idle" });
   return (
     <Form form={action}  className="space-y-4" noValidate>
-      <Field label="New password" htmlFor="password" hint="At least 8 characters." error={state.fieldErrors?.password}>
+      <Field label="New password" htmlFor="password" hint="At least 8 characters, with a letter and a number." error={state.fieldErrors?.password}>
         <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
       </Field>
       <Field label="Confirm new password" htmlFor="confirm" error={state.fieldErrors?.confirm}>

@@ -95,7 +95,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
       <Field
         label="Password"
         htmlFor="password"
-        hint="At least 8 characters."
+        hint="At least 8 characters, with a letter and a number."
         error={state.fieldErrors?.password}
       >
         <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />

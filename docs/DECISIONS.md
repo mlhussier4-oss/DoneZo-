@@ -4,6 +4,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-11 — Employees see job prices** on jobs assigned to them (no change for now).
 - **2026-11-11 — Paid access:** providers must have an active paid subscription to use DoneZo, both the CRM and the marketplace. **$9.99/month, one price for everyone, no free trial** (paid at sign-up). Replaces the earlier free-beta default.
 - **2026-11-11 — Card fee: 10% of every card payment made through DoneZo**, marketplace jobs *and* providers' own (CRM) customers. **This changes Blueprint rule 8** ("no marketplace commissions on CRM-only payments") at the owner's request. Still no fee on cash, Venmo, Cash App or check.
 - **2026-11-11 — Refunds:** when a card payment is refunded, DoneZo's 10% is refunded too.
@@ -17,7 +18,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-- **Should employees see job prices?** Right now an employee sees the price on the jobs assigned to them, but no invoices, payments or reports. Hiding the price is a database change (about half a day). Recommendation: hide it if your crews are paid hourly; keep it if they're paid by the job.
+_Nothing right now._
 
 ## Defaults in use until the owner says otherwise
 

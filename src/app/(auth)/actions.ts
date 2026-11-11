@@ -26,7 +26,8 @@ const email = z.string().trim().toLowerCase().email("Enter a valid email address
 const password = z
   .string()
   .min(8, "Use at least 8 characters.")
-  .max(72, "Use 72 characters or fewer.");
+  .max(72, "Use 72 characters or fewer.")
+  .refine((v) => /[a-zA-Z]/.test(v) && /\d/.test(v), "Use at least one letter and one number.");
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
