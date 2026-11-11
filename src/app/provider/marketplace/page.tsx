@@ -75,7 +75,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
       <nav className="mb-4 flex gap-1 overflow-x-auto rounded-lg bg-muted p-1 text-sm" aria-label="Marketplace sections">
         {tabs.map((t) => (
           <Link key={t.value} href={`/provider/marketplace?tab=${t.value}`} aria-current={tab === t.value ? "page" : undefined}
-            className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", tab === t.value ? "bg-card shadow-sm" : "text-muted-foreground")}>
+            className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", tab === t.value ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>
             {t.label}{t.value === "jobs" && openJobs.length ? ` (${openJobs.length})` : ""}
           </Link>
         ))}
@@ -92,7 +92,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
               <li key={j.id}>
                 <Link href={`/provider/marketplace/requests/${j.id}`}>
                   <Card className="flex gap-3 p-4 transition-colors hover:border-primary sm:p-5">
-                    <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-cta">
                       <CategoryIcon name={j.category_icon} className="size-6" />
                     </span>
                     <div className="min-w-0 flex-1 space-y-1">

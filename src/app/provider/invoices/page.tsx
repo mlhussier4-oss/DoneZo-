@@ -57,7 +57,7 @@ export default async function InvoicesPage({ searchParams }: PageProps<"/provide
         <nav className="flex gap-1 rounded-lg bg-muted p-1 text-sm" aria-label="Document type">
           {(["invoices", "estimates"] as const).map((t) => (
             <Link key={t} href={t === "invoices" ? "/provider/invoices" : "/provider/invoices?tab=estimates"} aria-current={tab === t ? "page" : undefined}
-              className={cn("rounded-md px-3 py-1.5 font-medium capitalize", tab === t ? "bg-card shadow-sm" : "text-muted-foreground")}>{t}</Link>
+              className={cn("rounded-md px-3 py-1.5 font-medium capitalize", tab === t ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>{t}</Link>
           ))}
         </nav>
         {tab === "invoices" ? (

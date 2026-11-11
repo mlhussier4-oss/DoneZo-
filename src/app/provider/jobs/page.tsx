@@ -61,7 +61,7 @@ export default async function JobsPage({ searchParams }: PageProps<"/provider/jo
             key={t.value}
             href={`/provider/jobs?tab=${t.value}`}
             aria-current={tab === t.value ? "page" : undefined}
-            className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", tab === t.value ? "bg-card shadow-sm" : "text-muted-foreground")}
+            className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", tab === t.value ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
           >
             {t.label}
           </Link>

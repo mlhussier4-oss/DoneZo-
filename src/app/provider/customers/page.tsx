@@ -58,7 +58,7 @@ export default async function CustomersPage({ searchParams }: PageProps<"/provid
               href={v === "active" ? "/provider/customers" : "/provider/customers?view=archived"}
               role="tab"
               aria-selected={view === v}
-              className={cn("rounded-md px-3 py-1.5 font-medium capitalize", view === v ? "bg-card shadow-sm" : "text-muted-foreground")}
+              className={cn("rounded-md px-3 py-1.5 font-medium capitalize", view === v ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}
             >
               {v}
             </Link>

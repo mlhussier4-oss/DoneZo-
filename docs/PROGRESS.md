@@ -1,25 +1,30 @@
 # Build progress
 
-## ▶ Pick up here (saved 2026-11-11, end of day)
-**Live:** https://donezo.org is online for the private test (Vercel + Supabase project `DoneZo1`, Stripe test mode, testing banner, hidden from search).
+## ▶ Pick up here (updated 2026-11-12)
+**Live:** https://donezo.org (private test, Stripe test mode). The newest work below is on branch `claude/project-setup` and goes live after merging into `main` and applying the two new database migrations to the live project.
 
-**Done today, not yet live** (on branch `claude/project-setup`; goes live once merged into `main`):
-- New look: navy and gray, with yellow buttons (owner request). All 32 browser tests pass.
-- The explicit database-permissions migration. Already applied to the live database; main just needs the file.
+**Built 2026-11-12, tested, not yet live:**
+- **Fast posting:** homeowners post a job with **no email, password or card**. A private guest account is created on their device.
+- **Live bids:** the customer dashboard shows each job with a **Bids drop-down that fills in live** (every few seconds, no refresh, no emails).
+- **Live booking:**
+  - Picking a bid notifies the provider and **opens the chat under the job**.
+  - The provider sees an **alert with a chime on every page** and has **5:00 to confirm with an arrival time**.
+  - From **2:00 left** the customer can **add 10 minutes** (repeatable) or **drop the provider**. If time runs out, the provider loses the job and the other bids remain.
+  - The full address reaches the provider only when they confirm. A provider who lapses loses access to the chat.
+- **More professional look across the site:**
+  - navy selected tabs;
+  - yellow-on-navy service icons;
+  - navy-accented dashboard numbers;
+  - bolder page titles with dividers;
+  - navy focus outlines on form fields.
+- **Tests:** 145 database and unit tests and 33 browser tests pass, including the full live-booking flow and the add-time/drop flow.
 
 **Waiting on the owner:**
-1. **Email:** connect Resend to Supabase (Resend → Integrations → Supabase, or custom SMTP in Supabase). Until then **nobody can sign up on donezo.org**, because confirmation emails can't be sent. Then Claude adds the branded email templates.
-2. **Admin account email:** which address should be the DoneZo admin?
-3. Approve merging `claude/project-setup` into `main` (or merge it on GitHub) to publish the new look.
+1. Approve going live: merge into `main` and apply migrations `20261119000000`/`20261119000100` to the live database, plus turn on guest (anonymous) sign-in there.
+2. **Email for providers:** connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
+3. Admin account email.
 
-**Next for Claude:**
-- **Owner request:** show every bid right under each job listing on the customer's dashboard (no emails of bids). Bids are already only in-app; the dashboard list needs to show them inline.
-- After email works: a live end-to-end test on donezo.org (sign up, subscribe with Stripe's test card, account unlocks), then create the admin account.
-- Set `NEXT_PUBLIC_SUPPORT_EMAIL=support@donezo.org` in Vercel (approved) once Cloudflare Email Routing forwards it.
-
-Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
-
-Next up: **going live**, which waits for the owner's approval of hosting accounts and costs (see docs/DEPLOYMENT.md), plus an attorney's review of the terms and privacy pages.
+**Recommended next:** add a free Cloudflare Turnstile check on "Post job" so bots can't flood providers with fake jobs. Guest sign-ins are already limited to 30 per hour per internet address.
 
 ## Plans update: DoneZo Basic and DoneZo Pro ✅ (built and tested 2026-11-11)
 

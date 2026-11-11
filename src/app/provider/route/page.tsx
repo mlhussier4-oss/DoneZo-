@@ -74,7 +74,7 @@ export default async function RoutePage({ searchParams }: PageProps<"/provider/r
           <Link href={qs({ date: addDays(date, 1) })} className={buttonVariants({ variant: "outline", size: "sm" })} aria-label="Next day"><ChevronRight /></Link>
           <nav className="flex gap-1 rounded-lg bg-muted p-1 text-sm" aria-label="Stop order">
             {([["short", "Shortest drive"], ["time", "By time"]] as const).map(([v, label]) => (
-              <Link key={v} href={qs({ order: v })} aria-current={order === v ? "page" : undefined} className={cn("rounded-md px-3 py-1 font-medium", order === v ? "bg-card shadow-sm" : "text-muted-foreground")}>{label}</Link>
+              <Link key={v} href={qs({ order: v })} aria-current={order === v ? "page" : undefined} className={cn("rounded-md px-3 py-1 font-medium", order === v ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>{label}</Link>
             ))}
           </nav>
           {mapsUrl ? <a href={mapsUrl} target="_blank" rel="noreferrer" className={buttonVariants({ size: "sm" })}><Navigation /> Open in Google Maps <ExternalLink className="size-3.5" /></a> : null}

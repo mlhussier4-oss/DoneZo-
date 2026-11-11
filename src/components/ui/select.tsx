@@ -6,7 +6,7 @@ export function Select({ className, children, ...props }: React.ComponentProps<"
     <div className="relative">
       <select
         className={cn(
-          "h-11 w-full appearance-none rounded-lg border border-input bg-card pr-9 pl-3 text-base text-foreground shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 sm:text-sm",
+          "h-11 w-full appearance-none rounded-lg border border-input bg-card pr-9 pl-3 text-base text-foreground shadow-xs focus-visible:outline-none focus-visible:border-primary focus-visible:ring-3 focus-visible:ring-primary/15 disabled:opacity-50 sm:text-sm",
           className,
         )}
         {...props}

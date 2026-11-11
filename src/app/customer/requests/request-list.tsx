@@ -39,7 +39,7 @@ export function RequestList({ rows }: { rows: RequestRow[] }) {
         const s = requestState(r);
         return (
           <Link key={r.id} href={`/customer/requests/${r.id}`} className="flex items-center gap-3 px-4 py-3 hover:bg-muted sm:px-5">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-cta">
               <CategoryIcon name={r.service_categories?.icon ?? "wrench"} className="size-5" />
             </span>
             <div className="min-w-0 flex-1">

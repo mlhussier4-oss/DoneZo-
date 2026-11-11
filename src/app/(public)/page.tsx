@@ -62,7 +62,7 @@ export default async function HomePage() {
                 href={`/post-job?category=${c.slug}`}
                 className="flex h-full flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary hover:bg-primary-soft"
               >
-                <span className="flex size-11 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-cta">
                   <CategoryIcon name={c.icon} className="size-6" />
                 </span>
                 <span className="font-semibold">{c.name}</span>

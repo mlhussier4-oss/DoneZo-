@@ -169,7 +169,7 @@ export function PostJobWizard({
                     category?.id === c.id ? "border-primary ring-1 ring-primary" : "border-border",
                   )}
                 >
-                  <span className="flex size-11 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                  <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-cta">
                     <CategoryIcon name={c.icon} className="size-6" />
                   </span>
                   <span className="font-semibold">{c.name}</span>
