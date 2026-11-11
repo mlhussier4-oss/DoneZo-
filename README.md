@@ -114,12 +114,17 @@ Browser tests never touch real Stripe. They run against Stripe's official local 
 
 `.env.local` is ignored by git. Never commit real keys.
 
+## Deploying
+
+Not deployed yet. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for the recommended setup, costs, environment variables and the pre-launch checklist. A production server refuses to start with missing or unsafe settings (see `src/instrumentation.ts`).
+
 ## How permissions work
 
 - Every database table has **Row Level Security**: the database itself refuses to return another business's records, whatever the website asks for.
 - Tables are not exposed to the API automatically; each has explicit, minimal grants (`supabase/migrations/`).
 - Role changes, the marketplace switch and admin actions go through database functions that check permissions themselves. Admin actions are written to an append-only audit log.
 - Pages check the user's role on the server; the menu hiding a link is never the only protection.
+- `tests/db/security.test.ts` audits the live schema (row-level security everywhere, no public writes, server-only payment functions). It connects to the local database directly (`SUPABASE_DB_URL`, default `postgresql://postgres:postgres@127.0.0.1:54322/postgres`).
 - Team roles: `is_business_member` means owner or manager; `is_business_staff` means anyone on the team. Employees reach jobs only through `job_assignments`, and a trigger limits what they may change on a job.
 - Invitations: the invited person joins only when they confirm the invite email (`handle_user_confirmed` trigger). Restart Supabase after editing an email template in `supabase/templates/`.
 

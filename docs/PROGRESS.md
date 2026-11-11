@@ -2,7 +2,51 @@
 
 Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
 
-Next up: **Phase 6 — Launch preparation** (waiting for the owner's go-ahead).
+Next up: **going live**, which waits for the owner's approval of hosting accounts and costs (see docs/DEPLOYMENT.md), plus an attorney's review of the terms and privacy pages.
+
+## Phase 6 — Launch preparation ✅ (built and tested 2026-11-11; not deployed)
+
+### Works
+- **Security review:**
+  - Every table has row-level security.
+  - Supabase's default extra table permissions (including TRUNCATE, which skips row-level security) are revoked, now and for future tables.
+  - Internal trigger functions can't be called directly.
+  - An **automated database security audit** runs with every test run: it checks security on every table, public read/write access, server-only payment functions and storage buckets.
+  - Browser security headers: no framing by other sites, a content security policy, no caching of signed-in pages, HTTPS-only once on a real domain.
+  - Stronger sign-in rules: passwords need a letter and a number; sign-in codes expire after 15 minutes; changing a password needs a recent sign-in.
+  - The packages the live site uses have no known vulnerabilities (`npm audit`).
+- **Error handling:** friendly "Something went wrong" screens with Try again, and a reference code that matches the server log. A last-resort screen covers a broken site layout. Unexpected database errors are never shown raw.
+- **Help & support:**
+  - The Help page has answers for customers and providers.
+  - Signed-in users can contact support and see their requests and replies.
+  - Admins answer from a Support inbox; the person is notified and the reply is logged.
+  - Limit: 10 requests per person per day.
+- **Privacy and Terms pages** describe how DoneZo actually works ($9.99/month, the 10% card fee, address privacy, sealed bids). They are linked from every footer and sign-up form, and **clearly marked as drafts for attorney review**, with bracketed blanks for the legal name and address.
+- **Performance:**
+  - 14 new database indexes.
+  - Tested with a busy business (600 customers, 6,000 jobs, 5,400 payments): every main page is served in under 0.1 s locally.
+  - The homepage loads about 180 KB of compressed code.
+- **Production configuration:**
+  - The server refuses to start with missing or unsafe settings: no https, the test payment simulator configured, or a live Stripe key without approval.
+  - Step-by-step deployment guide in docs/DEPLOYMENT.md.
+- **Accessibility fix:** sign-in, sign-up and subscribe pages now have a proper page heading.
+
+### Tests
+- Database: 116 tests, including the security audit and support requests.
+- Unit: 19 tests.
+- Browser: 32 tests. New ones:
+  - a role-by-role permission matrix (signed out, customer, owner, employee, another provider, admin);
+  - the support request-and-reply flow;
+  - the legal pages;
+  - a phone-size sweep of **every** page for every role (no sideways scrolling, no blocked resources, no server errors).
+- Real Stripe account re-checked: reachable and in test mode.
+
+### Not done (needs the owner)
+- **Deployment:** paid accounts must be approved first; see docs/DEPLOYMENT.md.
+- **Attorney review** of Terms and Privacy.
+- **Transactional email:** support replies, invoices and similar notifications are in-app only. Sign-in, invite and code emails are sent by Supabase and need a custom email sender (Resend) in production.
+- The logo is still a placeholder.
+
 
 ## Phase 5 — Advanced business management ✅ (built and tested 2026-11-11)
 

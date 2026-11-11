@@ -18,7 +18,10 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-_Nothing right now._
+- **Approve hosting for going live** (see docs/DEPLOYMENT.md): Vercel Pro (about $20/month), Supabase Pro (about $25/month), Resend email (free to start), plus a domain name. Nothing is created until you approve.
+- **Domain name and support email** to use (e.g. donezo.com / support@donezo.com).
+- **Business legal name and address** for the Terms and Privacy pages, and an attorney to review them.
+- **Later, separately:** approval to switch Stripe from test mode to live payments.
 
 ## Defaults in use until the owner says otherwise
 
@@ -38,6 +41,9 @@ _Nothing right now._
 - Invitations expire after 7 days. An email that already has a DoneZo account can't be invited; the person should use a different email for work.
 - An employee's job report counts each completed job they were assigned to. If two people did the job, its price is split evenly between them.
 - Reports count revenue on the day a payment was received, minus refunds.
+
+- Support requests: up to 10 per person per day; replies are shown in DoneZo with a notification (no email yet).
+- Sign-in codes expire after 15 minutes; passwords need at least 8 characters with a letter and a number.
 
 ## Business risk noted (no change made)
 
