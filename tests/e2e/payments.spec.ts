@@ -196,7 +196,7 @@ test.describe("card payments with DoneZo's 10% fee", () => {
 });
 
 test.describe("marketplace completion payment (Blueprint §18)", () => {
-  test("Mark complete & send payment → link in chat → verified payment completes the job", async ({ page }) => {
+  test("Mark job completed → Card → link in chat → verified payment completes the job", async ({ page }) => {
     test.setTimeout(120_000);
     await stubStripePages(page);
     const email = uniqueEmail("mktpay");
@@ -230,13 +230,15 @@ test.describe("marketplace completion payment (Blueprint §18)", () => {
 
     // …then finishes the job and sends the payment request.
     await page.goto(`/provider/marketplace/bookings/${booking!.id}`);
-    page.once("dialog", (d) => d.accept());
-    await page.getByRole("button", { name: "Mark complete & send payment" }).click();
+    const finish = page.getByTestId("finish-job");
+    await finish.getByRole("button", { name: "Mark job completed" }).click();
+    await finish.getByRole("radio", { name: /^Card/ }).click();
+    await finish.getByRole("button", { name: "Send invoice & card link" }).click();
     // The page refreshes into its "waiting for payment" state once the request is sent.
-    await expect(page.getByText("Waiting for the customer's payment").filter({ visible: true })).toBeVisible();
+    await expect(page.getByText("Waiting for the customer's card payment").filter({ visible: true })).toBeVisible();
     await page.reload();
     await expect(page.getByText(/The job is done! Here's your invoice for \$80\.00/)).toBeVisible();
-    await expect(page.getByText("Waiting for the customer's payment")).toBeVisible();
+    await expect(page.getByText("Waiting for the customer's card payment")).toBeVisible();
 
     const { data: job } = await admin.from("jobs").select("status").eq("id", booking!.job_id!).single();
     expect(job?.status).toBe("awaiting_payment");

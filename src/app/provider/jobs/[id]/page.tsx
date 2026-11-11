@@ -12,6 +12,7 @@ import { uuid } from "@/lib/crm/schemas";
 import { formatDate, formatDateTime, formatMoney, formatTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { getTeam } from "@/lib/crm/team";
+import { CompleteJobPanel } from "@/components/marketplace/complete-job-panel";
 import { AssigneePicker, CreateInvoiceButton, DeletePhotoButton, NotesForm, PhotoUploader, StatusControls } from "./job-controls";
 
 export const metadata: Metadata = { title: "Job" };
@@ -36,11 +37,15 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
     supabase.from("job_photos").select("id, storage_path, caption, created_at").eq("job_id", id).order("created_at"),
     supabase.from("invoices").select("id, number, status, total_cents").eq("job_id", id).order("number"),
     supabase.from("job_status_history").select("id, to_status, changed_at").eq("job_id", id).order("id"),
-    supabase.from("bookings").select("id").eq("job_id", id).maybeSingle(),
+    supabase.from("bookings").select("id, status").eq("job_id", id).maybeSingle(),
     supabase.from("job_assignments").select("user_id").eq("job_id", id),
     getTeam(business.id),
   ]);
   const assignedIds = (assignments ?? []).map((a) => a.user_id);
+  // Marketplace jobs finish in one step: "Mark job completed" → form of payment (owner request 2026-11-12).
+  const finishWithPayment = isManager && booking?.status === "active" && !["awaiting_payment", "completed", "canceled"].includes(job.status);
+  const { data: stripeAcct } = finishWithPayment ? await supabase.from("stripe_accounts").select("status").eq("business_id", business.id).maybeSingle() : { data: null };
+  const cardsOn = stripeAcct?.status === "active";
   const assignedNames = team.filter((m) => assignedIds.includes(m.user_id)).map((m) => m.name);
   const signed = photos?.length
     ? (await supabase.storage.from("job-photos").createSignedUrls(photos.map((p) => p.storage_path), 3600)).data ?? []
@@ -71,7 +76,12 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
         <div className="space-y-6">
           <Card>
             <CardHeader><CardTitle>Status</CardTitle></CardHeader>
-            <CardContent><StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} /></CardContent>
+            <CardContent>{finishWithPayment ? (
+                <div className="space-y-4">
+                  <StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} hideComplete />
+                  <div className="rounded-lg border-2 border-cta p-4" data-testid="finish-job"><CompleteJobPanel bookingId={booking!.id} amountCents={job.price_cents} cardsOn={cardsOn} /></div>
+                </div>
+              ) : <StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} />}</CardContent>
           </Card>
 
           <Card>

@@ -31,7 +31,7 @@ const actionLabel: Partial<Record<JobStatus, string>> = {
 
 const employeeStatuses: JobStatus[] = ["in_progress", "awaiting_payment", "completed"];
 
-export function StatusControls({ jobId, status, limited = false }: { jobId: string; status: JobStatus; limited?: boolean }) {
+export function StatusControls({ jobId, status, limited = false, hideComplete = false }: { jobId: string; status: JobStatus; limited?: boolean; hideComplete?: boolean }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   const change = (s: JobStatus) =>
@@ -42,7 +42,7 @@ export function StatusControls({ jobId, status, limited = false }: { jobId: stri
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        {nextSteps[status].filter((s) => !limited || employeeStatuses.includes(s)).map((s) => (
+        {nextSteps[status].filter((s) => (!limited || employeeStatuses.includes(s)) && !(hideComplete && (s === "completed" || s === "awaiting_payment"))).map((s) => (
           <Button key={s} size="sm" variant={s === "completed" ? "primary" : "outline"} disabled={pending} onClick={() => change(s)}>
             {actionLabel[s] ?? s}
           </Button>

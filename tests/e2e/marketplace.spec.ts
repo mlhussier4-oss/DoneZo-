@@ -142,21 +142,29 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByText("Originally $65.00")).toBeVisible();
     await expect(page.getByText("$80.00").first()).toBeVisible();
 
-    // 8. The provider does the job in the CRM.
+    // 8. One step to finish (owner request 2026-11-12): "Mark job completed" → form of payment → Cash.
     await alpha.reload();
-    await alpha.getByRole("link", { name: /Open job/ }).click();
-    await expect(alpha.getByText("Marketplace").first()).toBeVisible();
-    await alpha.getByRole("button", { name: "Start job" }).click();
-    await expect(alpha.getByText("In progress").first()).toBeVisible();
-    await alpha.getByRole("button", { name: "Mark complete" }).click();
-    await expect(alpha.getByText("Completed").first()).toBeVisible();
+    const finish = alpha.getByTestId("finish-job");
+    await finish.getByRole("button", { name: "Mark job completed" }).click();
+    await expect(finish.getByRole("radiogroup", { name: "Form of payment" })).toBeVisible();
+    await finish.getByRole("radio", { name: /^Cash Paid in person/ }).click();
+    await finish.getByRole("button", { name: "Mark paid & complete job" }).click();
+    await expect(alpha.getByTestId("finish-job")).toHaveCount(0); // the page refreshes into its completed state
+    await expect(alpha.getByTestId("job-completed")).toBeVisible();
+    // The paid invoice and a thank-you went to the customer in the chat; the job is completed and paid.
+    await alpha.reload();
+    await expect(alpha.getByText(/The job is done! Paid \$80\.00 by cash/)).toBeVisible();
+    await expect(alpha.getByText("completed", { exact: true }).first()).toBeVisible();
 
-    // 9. The customer reviews; the public profile reflects it.
-    await page.reload();
-    await expect(page.getByText("Job completed")).toBeVisible();
-    await page.getByRole("radio", { name: "5 stars" }).click();
-    await page.getByLabel("Comments (optional)").fill("On time and did a great job.");
-    await page.getByRole("button", { name: "Post review" }).click();
+    // 9. The homeowner's dashboard asks them to rate the provider; the public profile reflects it.
+    await page.goto("/customer");
+    const rate = page.getByTestId("rate-provider");
+    await expect(rate.getByText("Job completed! How did Alpha Lawn Co do?")).toBeVisible();
+    await rate.getByRole("radio", { name: "5 stars" }).click();
+    await rate.getByLabel("Comments (optional)").fill("On time and did a great job.");
+    await rate.getByRole("button", { name: "Post review" }).click();
+    await expect(page.getByTestId("rate-provider")).toHaveCount(0);
+    await page.goto(requestPath);
     await expect(page.getByRole("heading", { name: "Your review" })).toBeVisible();
     await page.getByRole("link", { name: "Alpha Lawn Co" }).first().click();
     // Previous pages stay mounted (hidden) for instant back-navigation, so look at visible text only.

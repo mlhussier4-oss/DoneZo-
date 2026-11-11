@@ -9,7 +9,7 @@ import { timingLabel } from "@/config/marketplace";
 import { isPast } from "@/lib/crm/time";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import type { BidCardData, CustomerBooking } from "@/lib/marketplace/types";
-import { AcceptBidButton, CancelRequestButton } from "./requests/[id]/request-controls";
+import { AcceptBidButton, CancelRequestButton, ReviewForm } from "./requests/[id]/request-controls";
 import { WaitingPanel } from "./waiting-panel";
 
 const TZ = "America/Chicago";
@@ -48,7 +48,7 @@ export function JobCard({ req, bids, booking, thread, userId }: {
             <h2 className="text-lg font-semibold">{req.service_categories?.name}</h2>
             {open ? <Badge tone="primary"><span className="size-1.5 animate-pulse rounded-full bg-primary" aria-hidden />Live</Badge> : null}
             {waiting ? <Badge tone="accent">Waiting for confirmation</Badge> : null}
-            {confirmed ? <Badge tone="success">Booked</Badge> : null}
+            {confirmed ? <Badge tone="success">{booking.status === "completed" ? "Completed" : "Booked"}</Badge> : null}
           </div>
           <p className="line-clamp-2 text-sm text-muted-foreground">{req.description}</p>
           <p className="mt-1 text-xs text-muted-foreground">Posted {formatDate(req.created_at, TZ)} · {timingLabel(req.timing as never)} · ZIP {req.zip}</p>
@@ -82,7 +82,14 @@ export function JobCard({ req, bids, booking, thread, userId }: {
           <WaitingPanel bookingId={booking.id} providerName={booking.business.name} confirmBy={booking.confirm_by} serverNow={booking.server_now} />
         ) : null}
 
-        {confirmed ? (
+        {booking?.status === "completed" && !booking.review ? (
+          <div className="space-y-3 rounded-lg border-2 border-cta bg-accent-soft p-4" data-testid="rate-provider">
+            <p className="font-semibold">Job completed! How did {booking.business.name} do?</p>
+            <ReviewForm bookingId={booking.id} businessName={booking.business.name} />
+          </div>
+        ) : null}
+
+        {confirmed && booking.status !== "completed" ? (
           <div className="flex items-start gap-3 rounded-lg border border-success/30 bg-success-soft p-4">
             <CalendarCheck className="mt-0.5 size-5 shrink-0 text-success" aria-hidden />
             <div className="text-sm">
