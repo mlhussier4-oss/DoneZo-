@@ -235,6 +235,64 @@ export async function completeAndRequestPayment(bookingId: string): Promise<Resu
   return { ok: true };
 }
 
+// ---------------------------------------------------------------- one-step completion (owner request 2026-11-12)
+const completionMethod = z.enum(["card", "cash", "venmo", "cash_app", "check"]);
+const methodName: Record<string, string> = { cash: "cash", venmo: "Venmo", cash_app: "Cash App", check: "check" };
+
+/**
+ * "Mark job completed" → "Form of payment".
+ *  - Card: sends the invoice with a secure pay-by-card link in the chat; the job completes when Stripe confirms.
+ *  - Cash / Venmo / Cash App / check: records the full balance as paid (provider-recorded, kept distinct from
+ *    Stripe-verified payments), completes the job, and sends the customer their paid invoice. The customer is then
+ *    asked to rate the provider.
+ */
+export async function completeJob(bookingId: string, method: string): Promise<Result & { ok?: boolean }> {
+  const parsedMethod = completionMethod.safeParse(method);
+  if (!uuid.safeParse(bookingId).success || !parsedMethod.success) return { error: "Choose how the customer is paying." };
+  if (parsedMethod.data === "card") return completeAndRequestPayment(bookingId);
+
+  const { business } = await requireManager();
+  const supabase = await createClient();
+  const { data: b } = await supabase.from("bookings").select("id, status, job_id, business_id, crm_customer_id").eq("id", bookingId).single();
+  if (!b || b.business_id !== business.id || !b.job_id) return { error: "Unknown booking." };
+  if (b.status !== "active") return { error: "This booking isn't active." };
+
+  let { data: inv } = await supabase
+    .from("invoices").select("id, number, status, total_cents, amount_paid_cents, public_token")
+    .eq("job_id", b.job_id).neq("status", "void").order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (!inv) {
+    const { data: created, error } = await supabase.rpc("create_invoice_for_job", { p_job_id: b.job_id });
+    if (error || !created) return { error: dbErrorMessage(error, "Could not create the invoice.") };
+    inv = created;
+  }
+  if (inv!.status === "draft") {
+    const { data: sent, error } = await supabase.rpc("send_invoice", { p_invoice_id: inv!.id });
+    if (error || !sent) return { error: dbErrorMessage(error, "Could not send the invoice.") };
+    inv = sent;
+  }
+  const balance = inv!.total_cents - inv!.amount_paid_cents;
+  const { localDateKey, formatMoney } = await import("@/lib/format");
+  if (balance > 0) {
+    const { error } = await supabase.from("payment_records").insert({
+      business_id: business.id, customer_id: b.crm_customer_id!, invoice_id: inv!.id, job_id: b.job_id,
+      amount_cents: balance, method: parsedMethod.data, received_on: localDateKey(new Date(), business.timezone),
+      note: "Recorded when the job was marked completed",
+    });
+    if (error) return { error: dbErrorMessage(error, "Could not record the payment.") };
+  }
+  const { error: jobError } = await supabase.from("jobs").update({ status: "completed" }).eq("id", b.job_id);
+  if (jobError) return { error: dbErrorMessage(jobError, "Could not mark the job completed.") };
+
+  const { siteUrl } = await import("@/lib/env");
+  const link = siteUrl(`/i/${inv!.public_token}`).toString();
+  await supabase.from("messages").insert({
+    booking_id: b.id,
+    body: `The job is done! ${balance > 0 ? `Paid ${formatMoney(balance)} by ${methodName[parsedMethod.data]}. ` : ""}Your invoice: ${link} Thanks for choosing ${business.name}. Please take a moment to rate the job.`,
+  });
+  refresh();
+  return { ok: true };
+}
+
 // ---------------------------------------------------------------- live booking (owner decision 2026-11-12)
 const arrivalSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), time: z.string().regex(/^\d{2}:\d{2}$/) });
 

@@ -14,7 +14,8 @@ import { formatDateTime, formatMoney } from "@/lib/format";
 import { getThread } from "@/lib/marketplace/queries";
 import { createClient } from "@/lib/supabase/server";
 import { defaultArrival } from "@/lib/crm/time";
-import { ChangeOrderForm, CompleteAndRequestPaymentButton, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
+import { CompleteJobPanel } from "@/components/marketplace/complete-job-panel";
+import { ChangeOrderForm, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
 import { ConfirmPanel } from "./confirm-panel";
 
 export const metadata: Metadata = { title: "Booking" };
@@ -42,6 +43,9 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
   const lost = b.status === "lapsed";
   const arrival = defaultArrival(tz);
   const statusLabel = waiting ? "Confirm now" : lost ? "Lost" : b.status;
+  const canComplete = b.status === "active" && Boolean(b.jobs) && !["awaiting_payment", "completed", "canceled"].includes(b.jobs?.status ?? "");
+  const { data: stripeAcct } = await supabase.from("stripe_accounts").select("status").eq("business_id", business.id).maybeSingle();
+  const cardsOn = stripeAcct?.status === "active";
 
   return (
     <>
@@ -63,6 +67,9 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
       {waiting && b.confirm_by ? (
         <div className="mb-6"><ConfirmPanel bookingId={b.id} confirmBy={b.confirm_by} serverNow={new Date().toISOString()} defaultDate={arrival.date} defaultTime={arrival.time} /></div>
       ) : null}
+      {b.status === "completed" ? (
+        <Alert tone="success" className="mb-6" data-testid="job-completed">Job completed. The customer has their invoice in the chat and was asked to rate you.</Alert>
+      ) : null}
       {lost ? (
         <Alert tone="info" className="mb-6">
           {b.cancel_reason === "dropped" ? "The customer chose to move on, so this job went to another bid." : "This job wasn't confirmed in time, so it went back to the customer."} Keep an eye on your job board for new ones.
@@ -71,6 +78,12 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
+          {canComplete ? (
+            <Card className="border-2 border-cta" data-testid="finish-job">
+              <CardHeader><CardTitle>Job finished?</CardTitle></CardHeader>
+              <CardContent><CompleteJobPanel bookingId={b.id} amountCents={b.agreed_price_cents} cardsOn={cardsOn} /></CardContent>
+            </Card>
+          ) : null}
           {!lost && !waiting ? <Card>
             <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
             <CardContent>
@@ -86,13 +99,8 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           </Card>
         </div>
         <aside className="space-y-6">
-          {b.status === "active" && b.jobs && !["awaiting_payment", "completed", "canceled"].includes(b.jobs.status) ? (
-            <Card className="border-primary/30">
-              <CardHeader><CardTitle className="text-base">Finished the job?</CardTitle></CardHeader>
-              <CardContent><CompleteAndRequestPaymentButton bookingId={b.id} /></CardContent>
-            </Card>
-          ) : b.jobs?.status === "awaiting_payment" ? (
-            <Alert tone="info">Waiting for the customer&apos;s payment. You&apos;ll be notified when Stripe confirms it.</Alert>
+          {b.jobs?.status === "awaiting_payment" ? (
+            <Alert tone="info">Waiting for the customer&apos;s card payment. You&apos;ll be notified when Stripe confirms it, and the job completes by itself.</Alert>
           ) : null}
           <Card>
             <CardHeader><CardTitle className="text-base">Customer</CardTitle></CardHeader>

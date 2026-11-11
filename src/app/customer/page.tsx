@@ -38,8 +38,8 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
     const thread = booking && booking.status !== "canceled" ? await getThread(booking.id) : [];
     return { req, bids: (bidsJson ?? []) as unknown as BidCardData[], booking, thread };
   }));
-  // Booked jobs stay here until the work is done; finished ones live under "All my jobs".
-  const current = jobs.filter((j) => j.req.status !== "booked" || j.booking?.status === "active")
+  // Booked jobs stay here until the work is done and rated; after that they live under "All my jobs".
+  const current = jobs.filter((j) => j.req.status !== "booked" || j.booking?.status === "active" || (j.booking?.status === "completed" && !j.booking.review))
     .filter((j) => j.req.status !== "open" || !isPast(j.req.expires_at));
   const live = current.some((j) => j.req.status === "open" || j.booking?.status === "pending");
   const due = (invoices ?? []).filter((i) => i.status === "sent" || i.status === "partially_paid");
