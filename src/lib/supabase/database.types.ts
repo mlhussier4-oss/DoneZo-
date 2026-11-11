@@ -133,6 +133,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"business_invitations": {
+                  Row: {
+                    "accepted_at": string | null,"business_id": string,"created_at": string,"email": string,"expires_at": string,"full_name": string | null,"id": string,"invited_by": string | null,"revoked_at": string | null,"role": Database["public"]['Enums']["business_member_role"],"token": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "accepted_at"?: string | null,"business_id": string,"created_at"?: string,"email": string,"expires_at"?: string,"full_name"?: string | null,"id"?: string,"invited_by"?: string | null,"revoked_at"?: string | null,"role": Database["public"]['Enums']["business_member_role"],"token"?: string
+                  }
+                  Update: {
+                    "accepted_at"?: string | null,"business_id"?: string,"created_at"?: string,"email"?: string,"expires_at"?: string,"full_name"?: string | null,"id"?: string,"invited_by"?: string | null,"revoked_at"?: string | null,"role"?: Database["public"]['Enums']["business_member_role"],"token"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "business_invitations_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"business_members": {
                   Row: {
                     "business_id": string,"created_at": string,"role": Database["public"]['Enums']["business_member_role"],"user_id": string
@@ -381,6 +401,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "estimates"
       referencedColumns: ["business_id","id"]
+    }
+                  ]
+                },"job_assignments": {
+                  Row: {
+                    "assigned_by": string | null,"business_id": string,"created_at": string,"job_id": string,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "assigned_by"?: string | null,"business_id": string,"created_at"?: string,"job_id": string,"user_id": string
+                  }
+                  Update: {
+                    "assigned_by"?: string | null,"business_id"?: string,"created_at"?: string,"job_id"?: string,"user_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "job_assignments_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "job_assignments_job_id_fkey"
+      columns: ["job_id"]
+isOneToOne: false
+      referencedRelation: "jobs"
+      referencedColumns: ["id"]
     }
                   ]
                 },"job_photos": {
@@ -675,14 +721,14 @@ isOneToOne: false
                   ]
                 },"recurring_schedules": {
                   Row: {
-                    "address_id": string | null,"business_id": string,"category_id": string | null,"created_at": string,"created_by": string | null,"customer_id": string,"description": string | null,"duration_minutes": number,"end_date": string | null,"frequency": Database["public"]['Enums']["recurrence_frequency"],"generated_through": string | null,"id": string,"interval_days": number | null,"price_cents": number,"start_date": string,"start_time": string,"status": Database["public"]['Enums']["recurrence_status"],"title": string,"updated_at": string
+                    "address_id": string | null,"business_id": string,"category_id": string | null,"created_at": string,"created_by": string | null,"customer_id": string,"default_assignee": string | null,"description": string | null,"duration_minutes": number,"end_date": string | null,"frequency": Database["public"]['Enums']["recurrence_frequency"],"generated_through": string | null,"id": string,"interval_days": number | null,"price_cents": number,"start_date": string,"start_time": string,"status": Database["public"]['Enums']["recurrence_status"],"title": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "address_id"?: string | null,"business_id": string,"category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"customer_id": string,"description"?: string | null,"duration_minutes"?: number,"end_date"?: string | null,"frequency": Database["public"]['Enums']["recurrence_frequency"],"generated_through"?: string | null,"id"?: string,"interval_days"?: number | null,"price_cents": number,"start_date": string,"start_time": string,"status"?: Database["public"]['Enums']["recurrence_status"],"title": string,"updated_at"?: string
+                    "address_id"?: string | null,"business_id": string,"category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"customer_id": string,"default_assignee"?: string | null,"description"?: string | null,"duration_minutes"?: number,"end_date"?: string | null,"frequency": Database["public"]['Enums']["recurrence_frequency"],"generated_through"?: string | null,"id"?: string,"interval_days"?: number | null,"price_cents": number,"start_date": string,"start_time": string,"status"?: Database["public"]['Enums']["recurrence_status"],"title": string,"updated_at"?: string
                   }
                   Update: {
-                    "address_id"?: string | null,"business_id"?: string,"category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"customer_id"?: string,"description"?: string | null,"duration_minutes"?: number,"end_date"?: string | null,"frequency"?: Database["public"]['Enums']["recurrence_frequency"],"generated_through"?: string | null,"id"?: string,"interval_days"?: number | null,"price_cents"?: number,"start_date"?: string,"start_time"?: string,"status"?: Database["public"]['Enums']["recurrence_status"],"title"?: string,"updated_at"?: string
+                    "address_id"?: string | null,"business_id"?: string,"category_id"?: string | null,"created_at"?: string,"created_by"?: string | null,"customer_id"?: string,"default_assignee"?: string | null,"description"?: string | null,"duration_minutes"?: number,"end_date"?: string | null,"frequency"?: Database["public"]['Enums']["recurrence_frequency"],"generated_through"?: string | null,"id"?: string,"interval_days"?: number | null,"price_cents"?: number,"start_date"?: string,"start_time"?: string,"status"?: Database["public"]['Enums']["recurrence_status"],"title"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1174,6 +1220,26 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"create_invitation":
+{ Args: { "p_business_id": string,"p_email": string,"p_full_name": string,"p_role": Database["public"]['Enums']["business_member_role"] }; Returns: {
+              "accepted_at": string | null,
+"business_id": string,
+"created_at": string,
+"email": string,
+"expires_at": string,
+"full_name": string | null,
+"id": string,
+"invited_by": string | null,
+"revoked_at": string | null,
+"role": Database["public"]['Enums']["business_member_role"],
+"token": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "business_invitations"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "create_invoice_for_job":
 { Args: { "p_job_id": string }; Returns: {
               "amount_paid_cents": number,
@@ -1261,6 +1327,11 @@ isOneToOne: false
 "has_business_role":
 { Args: { "p_business_id": string,"p_roles": (Database["public"]['Enums']["business_member_role"])[] }; Returns: boolean
                            },
+"invitation_by_token":
+{ Args: { "p_token": string }; Returns: {
+              "business_name": string,"email": string,"role": Database["public"]['Enums']["business_member_role"],"valid": boolean
+            }[]
+                           },
 "invoice_for_payment":
 { Args: { "p_token": string }; Returns: {
               "balance_cents": number,"business_id": string,"business_name": string,"invoice_id": string,"number": number,"source": Database["public"]['Enums']["job_source"],"status": Database["public"]['Enums']["invoice_status"],"stripe_account_id": string,"stripe_status": Database["public"]['Enums']["stripe_account_status"]
@@ -1269,10 +1340,19 @@ isOneToOne: false
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
                            },
+"is_assigned_to_customer":
+{ Args: { "p_customer_id": string }; Returns: boolean
+                           },
+"is_assigned_to_job":
+{ Args: { "p_job_id": string }; Returns: boolean
+                           },
 "is_booking_participant":
 { Args: { "p_booking_id": string }; Returns: boolean
                            },
 "is_business_member":
+{ Args: { "p_business_id": string }; Returns: boolean
+                           },
+"is_business_staff":
 { Args: { "p_business_id": string }; Returns: boolean
                            },
 "marketplace_feed":
@@ -1295,11 +1375,17 @@ isOneToOne: false
 "notify_business":
 { Args: { "p_body": string,"p_business_id": string,"p_kind": string,"p_link": string,"p_title": string }; Returns: undefined
                            },
+"remove_member":
+{ Args: { "p_business_id": string,"p_user_id": string }; Returns: undefined
+                           },
 "replace_document_lines":
 { Args: { "p_document_id": string,"p_kind": string,"p_lines": Json }; Returns: undefined
                            },
 "request_bids":
 { Args: { "p_request_id": string }; Returns: Json
+                           },
+"revoke_invitation":
+{ Args: { "p_invitation_id": string }; Returns: undefined
                            },
 "send_invoice":
 { Args: { "p_invoice_id": string }; Returns: {
@@ -1391,6 +1477,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_member_role":
+{ Args: { "p_business_id": string,"p_role": Database["public"]['Enums']["business_member_role"],"p_user_id": string }; Returns: undefined
+                           },
 "stripe_mark_payment_request":
 { Args: { "p_checkout_session_id": string,"p_message": string,"p_status": Database["public"]['Enums']["payment_request_status"] }; Returns: undefined
                            },
