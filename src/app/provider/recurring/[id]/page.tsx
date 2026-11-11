@@ -4,10 +4,11 @@ import { notFound } from "next/navigation";
 import { JobStatusBadge } from "@/components/crm/status-badges";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { frequencyLabels } from "@/lib/crm/labels";
 import { getCategoryOptions, getCustomerOptions } from "@/lib/crm/queries";
 import { uuid } from "@/lib/crm/schemas";
+import { getTeam } from "@/lib/crm/team";
 import { splitByNow } from "@/lib/crm/time";
 import { centsToInput, formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -18,17 +19,18 @@ import { ScheduleStatusButtons } from "./schedule-buttons";
 export const metadata: Metadata = { title: "Recurring service" };
 
 export default async function SchedulePage({ params }: PageProps<"/provider/recurring/[id]">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();
   const { data: s } = await supabase.from("recurring_schedules").select("*, crm_customers(id, full_name)").eq("id", id).single();
   if (!s) notFound();
-  const [customers, categories, { data: visits }] = await Promise.all([
+  const [customers, categories, { data: visits }, team] = await Promise.all([
     getCustomerOptions(business.id),
     getCategoryOptions(),
     supabase.from("jobs").select("id, scheduled_start, status, price_cents, is_detached").eq("recurring_schedule_id", id)
       .order("scheduled_start").limit(200),
+    getTeam(business.id),
   ]);
   const { upcoming, rest } = splitByNow(visits ?? [], (v) => v.scheduled_start);
   const past = rest.reverse();
@@ -65,6 +67,7 @@ export default async function SchedulePage({ params }: PageProps<"/provider/recu
                 customers={customers}
                 categories={categories}
                 lockCustomer
+                team={team}
                 submitLabel="Save changes"
                 defaults={{
                   customerId: s.customer_id,
@@ -78,6 +81,7 @@ export default async function SchedulePage({ params }: PageProps<"/provider/recu
                   startDate: s.start_date,
                   startTime: s.start_time.slice(0, 5),
                   durationMinutes: s.duration_minutes,
+                  defaultAssignee: s.default_assignee,
                   endDate: s.end_date,
                 }}
               />

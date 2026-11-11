@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { parseMoneyToCents, parsePercentToBps } from "@/lib/format";
 import { dbErrorMessage, type ActionState } from "@/lib/forms";
@@ -53,7 +53,7 @@ function parse(fd: FormData) {
 }
 
 export async function saveDocument(documentId: string | null, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const parsed = parse(fd);
   if ("error" in parsed) return parsed.error!;
   const v = parsed.value;
@@ -94,7 +94,7 @@ export async function saveDocument(documentId: string | null, _prev: ActionState
 type Result = { error?: string };
 
 export async function sendInvoice(invoiceId: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(invoiceId).success) return { error: "Unknown invoice." };
   const { error } = await (await createClient()).rpc("send_invoice", { p_invoice_id: invoiceId });
   if (error) return { error: dbErrorMessage(error, "Could not mark the invoice as sent.") };
@@ -103,7 +103,7 @@ export async function sendInvoice(invoiceId: string): Promise<Result> {
 }
 
 export async function voidInvoice(invoiceId: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(invoiceId).success) return { error: "Unknown invoice." };
   const { error } = await (await createClient()).rpc("void_invoice", { p_invoice_id: invoiceId });
   if (error) return { error: dbErrorMessage(error, "Could not void the invoice.") };
@@ -112,7 +112,7 @@ export async function voidInvoice(invoiceId: string): Promise<Result> {
 }
 
 export async function deleteDraft(kind: "invoice" | "estimate", id: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(id).success) return { error: "Unknown document." };
   const supabase = await createClient();
   const { data, error } = await supabase.from(kind === "invoice" ? "invoices" : "estimates").delete().eq("id", id).select("id");
@@ -121,7 +121,7 @@ export async function deleteDraft(kind: "invoice" | "estimate", id: string): Pro
 }
 
 export async function setEstimateStatus(estimateId: string, status: "sent" | "accepted" | "declined"): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(estimateId).success) return { error: "Unknown estimate." };
   const { error } = await (await createClient()).rpc("set_estimate_status", { p_estimate_id: estimateId, p_status: status });
   if (error) return { error: dbErrorMessage(error, "Could not update the estimate.") };
@@ -130,7 +130,7 @@ export async function setEstimateStatus(estimateId: string, status: "sent" | "ac
 }
 
 export async function convertEstimate(estimateId: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(estimateId).success) return { error: "Unknown estimate." };
   const { data, error } = await (await createClient()).rpc("convert_estimate_to_invoice", { p_estimate_id: estimateId });
   if (error || !data) return { error: dbErrorMessage(error, "Could not create the invoice.") };
@@ -145,7 +145,7 @@ const paymentSchema = z.object({
 });
 
 export async function recordPayment(invoiceId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(invoiceId).success) return { status: "error", message: "Unknown invoice." };
   const parsed = paymentSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { status: "error", message: parsed.error.issues[0]?.message };
@@ -173,7 +173,7 @@ export async function recordPayment(invoiceId: string, _prev: ActionState, fd: F
 }
 
 export async function deletePayment(paymentId: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(paymentId).success) return { error: "Unknown payment." };
   const { error } = await (await createClient()).from("payment_records").delete().eq("id", paymentId);
   if (error) return { error: dbErrorMessage(error, "Could not delete the payment.") };
@@ -183,7 +183,7 @@ export async function deletePayment(paymentId: string): Promise<Result> {
 
 /** Create (or reuse) a Stripe card payment link for the invoice's balance. */
 export async function createCardPaymentLink(invoiceId: string): Promise<{ url?: string; error?: string }> {
-  const { user, business } = await requireProvider();
+  const { user, business } = await requireManager();
   if (!uuid.safeParse(invoiceId).success) return { error: "Unknown invoice." };
   const supabase = await createClient();
   const [{ data: inv }, { data: acct }] = await Promise.all([

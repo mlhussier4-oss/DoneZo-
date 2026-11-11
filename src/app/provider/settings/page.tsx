@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
 import { ManageBillingButton } from "../../subscribe/subscribe-buttons";
 import { formatDate } from "@/lib/format";
@@ -11,7 +11,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = { title: "Business settings" };
 
 export default async function ProviderSettingsPage() {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const canManage = business.memberRole !== "employee";
   const { data: sub } = await (await createClient())
     .from("business_subscriptions")

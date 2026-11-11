@@ -11,7 +11,7 @@ import { jobStatuses, type JobStatus } from "@/lib/crm/labels";
 import { idle } from "@/lib/forms";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { deleteJobPhoto, invoiceJob, registerJobPhoto, saveJobNotes, setJobStatus } from "../actions";
+import { deleteJobPhoto, invoiceJob, registerJobPhoto, saveJobNotes, setJobAssignees, setJobStatus } from "../actions";
 
 /** The usual next steps for each status; any status can still be chosen from "More". */
 const nextSteps: Record<JobStatus, JobStatus[]> = {
@@ -29,7 +29,9 @@ const actionLabel: Partial<Record<JobStatus, string>> = {
   completed: "Mark complete",
 };
 
-export function StatusControls({ jobId, status }: { jobId: string; status: JobStatus }) {
+const employeeStatuses: JobStatus[] = ["in_progress", "awaiting_payment", "completed"];
+
+export function StatusControls({ jobId, status, limited = false }: { jobId: string; status: JobStatus; limited?: boolean }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   const change = (s: JobStatus) =>
@@ -40,7 +42,7 @@ export function StatusControls({ jobId, status }: { jobId: string; status: JobSt
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
-        {nextSteps[status].map((s) => (
+        {nextSteps[status].filter((s) => !limited || employeeStatuses.includes(s)).map((s) => (
           <Button key={s} size="sm" variant={s === "completed" ? "primary" : "outline"} disabled={pending} onClick={() => change(s)}>
             {actionLabel[s] ?? s}
           </Button>
@@ -58,7 +60,7 @@ export function StatusControls({ jobId, status }: { jobId: string; status: JobSt
           className="h-9 cursor-pointer rounded-lg border border-input bg-card px-2 text-sm"
         >
           <option value="">More…</option>
-          {jobStatuses.filter((s) => s.value !== status).map((s) => (
+          {jobStatuses.filter((s) => s.value !== status && (!limited || employeeStatuses.includes(s.value))).map((s) => (
             <option key={s.value} value={s.value}>{s.value === "canceled" ? "Cancel job" : `Set to ${s.label}`}</option>
           ))}
         </select>
@@ -166,6 +168,39 @@ export function CreateInvoiceButton({ jobId }: { jobId: string }) {
       >
         {pending ? "Creating…" : "Create invoice"}
       </Button>
+      {error ? <Alert tone="error">{error}</Alert> : null}
+    </div>
+  );
+}
+
+export function AssigneePicker({ jobId, team, assigned }: { jobId: string; team: { user_id: string; name: string; role: string }[]; assigned: string[] }) {
+  const [selected, setSelected] = useState<string[]>(assigned);
+  const [pending, start] = useTransition();
+  const [error, setError] = useState<string>();
+  const [saved, setSaved] = useState(false);
+  const dirty = selected.length !== assigned.length || selected.some((s) => !assigned.includes(s));
+  return (
+    <div className="space-y-3">
+      <fieldset className="space-y-1.5">
+        <legend className="sr-only">Assigned to</legend>
+        {team.map((m) => (
+          <label key={m.user_id} className="flex cursor-pointer items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="size-4 accent-primary"
+              checked={selected.includes(m.user_id)}
+              onChange={(e) => { setSaved(false); setSelected(e.target.checked ? [...selected, m.user_id] : selected.filter((s) => s !== m.user_id)); }}
+            />
+            {m.name} <span className="text-xs text-muted-foreground capitalize">{m.role}</span>
+          </label>
+        ))}
+      </fieldset>
+      <div className="flex items-center gap-3">
+        <Button size="sm" variant="outline" disabled={pending || !dirty} onClick={() => start(async () => { const r = await setJobAssignees(jobId, selected); setError(r.error); setSaved(!r.error); })}>
+          {pending ? "Saving…" : "Save"}
+        </Button>
+        {saved && !dirty ? <span className="text-sm text-success">Saved</span> : null}
+      </div>
       {error ? <Alert tone="error">{error}</Alert> : null}
     </div>
   );

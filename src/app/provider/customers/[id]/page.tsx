@@ -6,7 +6,7 @@ import { InvoiceStatusBadge, JobStatusBadge, VerificationBadge } from "@/compone
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { frequencyLabels, paymentMethodLabel } from "@/lib/crm/labels";
 import { uuid } from "@/lib/crm/schemas";
 import { splitByNow } from "@/lib/crm/time";
@@ -18,7 +18,7 @@ import { AddressActions, ArchiveButton, DeleteNoteButton } from "./customer-butt
 export const metadata: Metadata = { title: "Customer" };
 
 export default async function CustomerPage({ params }: PageProps<"/provider/customers/[id]">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const tz = business.timezone;

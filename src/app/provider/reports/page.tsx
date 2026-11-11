@@ -4,7 +4,7 @@ import { MeterList } from "@/components/charts/meter-list";
 import { StatTile } from "@/components/charts/stat-tile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { getDashboard } from "@/lib/crm/dashboard";
 import { formatIso } from "@/lib/dates";
 import { formatMoney } from "@/lib/format";
@@ -17,7 +17,7 @@ const compactUsd = (cents: number) => {
 };
 
 export default async function ReportsPage() {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const d = await getDashboard(business.id);
   const months = d.revenue_by_month.map((m) => ({
     key: m.month,

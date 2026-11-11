@@ -8,7 +8,7 @@ import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { getThread } from "@/lib/marketplace/queries";
@@ -18,7 +18,7 @@ import { ChangeOrderForm, CompleteAndRequestPaymentButton, ProviderCancelBooking
 export const metadata: Metadata = { title: "Booking" };
 
 export default async function ProviderBookingPage({ params }: PageProps<"/provider/marketplace/bookings/[id]">) {
-  const { user, business } = await requireProvider();
+  const { user, business } = await requireManager();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

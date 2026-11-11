@@ -7,14 +7,14 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Customers" };
 
 export default async function CustomersPage({ searchParams }: PageProps<"/provider/customers">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const params = await searchParams;
   const q = typeof params.q === "string" ? params.q.trim().slice(0, 100) : "";
   const view = params.view === "archived" ? "archived" : "active";

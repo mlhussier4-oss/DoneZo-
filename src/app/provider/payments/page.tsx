@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { paymentMethodLabel } from "@/lib/crm/labels";
 import { formatDate, formatMoney } from "@/lib/format";
 import { formatFeePercent } from "@/lib/payments/fees";
@@ -23,7 +23,7 @@ const payoutStatus: Record<string, string> = {
 };
 
 export default async function PaymentsPage({ searchParams }: PageProps<"/provider/payments">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const params = await searchParams;
   const supabase = await createClient();
   // Returning from Stripe onboarding, or still waiting on Stripe: read the account from Stripe's API.

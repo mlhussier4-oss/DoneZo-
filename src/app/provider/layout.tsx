@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { AppShell, AppShellSkeleton } from "@/components/layout/app-shell";
-import { providerNav } from "@/config/nav";
+import { employeeNav, providerNav } from "@/config/nav";
 import { redirect } from "next/navigation";
 import { requireProvider } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
@@ -15,9 +15,9 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
   const unread = await unreadCount(user.id);
   return (
     <AppShell
-      nav={providerNav(business.marketplaceEnabled, unread)}
+      nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread)}
       areaLabel="Business"
-      homeHref="/provider"
+      homeHref={business.memberRole === "employee" ? "/provider/my-jobs" : "/provider"}
       userLabel={business.name}
       userSubLabel={user.email ?? undefined}
     >

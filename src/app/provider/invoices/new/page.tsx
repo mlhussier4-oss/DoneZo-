@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { DocumentEditor } from "@/components/crm/document-editor";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { addDays } from "@/lib/dates";
 import { getCustomerOptions } from "@/lib/crm/queries";
 import { bpsToPercent, localDateKey } from "@/lib/format";
@@ -11,7 +11,7 @@ import { saveDocument } from "../actions";
 export const metadata: Metadata = { title: "New invoice" };
 
 export default async function NewDocumentPage({ searchParams }: PageProps<"/provider/invoices/new">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const params = await searchParams;
   const kind = params.kind === "estimate" ? "estimate" : "invoice";
   const customers = await getCustomerOptions(business.id);

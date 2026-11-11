@@ -7,7 +7,7 @@ import { InvoiceStatusBadge, VerificationBadge } from "@/components/crm/status-b
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { paymentMethodLabel } from "@/lib/crm/labels";
 import { uuid } from "@/lib/crm/schemas";
 import { siteUrl } from "@/lib/env";
@@ -21,7 +21,7 @@ import { cardPaymentLabel, cardPaymentState } from "@/lib/payments/invoice-payme
 export const metadata: Metadata = { title: "Invoice" };
 
 export default async function InvoicePage({ params }: PageProps<"/provider/invoices/[id]">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

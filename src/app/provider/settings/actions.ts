@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { parsePercentToBps } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { US_TIMEZONES } from "./timezones";
@@ -19,7 +19,7 @@ const detailsSchema = z.object({
 });
 
 export async function updateBusinessDetails(_prev: SettingsState, formData: FormData): Promise<SettingsState> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   if (business.memberRole === "employee") return { status: "error", message: "Only the owner or a manager can change these details." };
 
   const parsed = detailsSchema.safeParse(Object.fromEntries(formData));
@@ -49,7 +49,7 @@ export async function updateBusinessDetails(_prev: SettingsState, formData: Form
 }
 
 export async function setMarketplaceEnabled(_prev: SettingsState, formData: FormData): Promise<SettingsState> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const enabled = formData.get("enabled") === "true";
   const supabase = await createClient();
   // The database function re-checks that this user is an owner/manager of this business.

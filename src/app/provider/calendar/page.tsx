@@ -5,6 +5,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { requireProvider } from "@/lib/auth";
 import { jobStatuses } from "@/lib/crm/labels";
+import { getTeam, initials } from "@/lib/crm/team";
 import { addDays, addMonths, daysBetween, formatIso, isIsoDate, startOfMonth, startOfWeek } from "@/lib/dates";
 import { formatTime, localDateKey, zonedToUtcIso } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -13,7 +14,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = { title: "Calendar" };
 
 type View = "day" | "week" | "month";
-type CalJob = { id: string; title: string; status: string; scheduled_start: string; customer: string; recurring: boolean };
+type CalJob = { id: string; title: string; status: string; scheduled_start: string; customer: string; recurring: boolean; people: string };
 
 const statusStyle: Record<string, string> = {
   new: "border-l-muted-foreground bg-muted",
@@ -34,6 +35,7 @@ function JobChip({ job, tz, compact = false }: { job: CalJob; tz: string; compac
       <span className="font-medium">{formatTime(job.scheduled_start, tz)}</span>{" "}
       <span className={compact ? "" : "font-medium"}>{job.title}</span>
       {job.recurring ? <Repeat className="ml-1 inline size-3" aria-label="Recurring" /> : null}
+      {job.people ? <span className="ml-1 rounded bg-card/80 px-1 text-[10px] font-semibold" title="Assigned to">{job.people}</span> : null}
       {!compact ? <span className="block text-muted-foreground">{job.customer}</span> : null}
     </Link>
   );
@@ -41,6 +43,7 @@ function JobChip({ job, tz, compact = false }: { job: CalJob; tz: string; compac
 
 export default async function CalendarPage({ searchParams }: PageProps<"/provider/calendar">) {
   const { business } = await requireProvider();
+  const isManager = business.memberRole !== "employee";
   const tz = business.timezone;
   const params = await searchParams;
   const view: View = params.view === "day" || params.view === "month" ? params.view : "week";
@@ -66,24 +69,30 @@ export default async function CalendarPage({ searchParams }: PageProps<"/provide
   const supabase = await createClient();
   const { data } = await supabase
     .from("jobs")
-    .select("id, title, status, scheduled_start, recurring_schedule_id, crm_customers(full_name)")
+    .select("id, title, status, scheduled_start, recurring_schedule_id, crm_customers(full_name), job_assignments(user_id)")
     .eq("business_id", business.id)
     .gte("scheduled_start", zonedToUtcIso(from, "00:00", tz))
     .lt("scheduled_start", zonedToUtcIso(to, "00:00", tz))
     .order("scheduled_start")
     .limit(2000);
 
+  // Employees only ever receive their own jobs (database rules); managers can filter by person.
+  const team = isManager ? await getTeam(business.id) : [];
+  const assignee = typeof params.assignee === "string" && (params.assignee === "unassigned" || team.some((m) => m.user_id === params.assignee)) ? params.assignee : "";
+  const nameOf = new Map(team.map((m) => [m.user_id, m.name]));
+  const shown = (data ?? []).filter((j) =>
+    !assignee ? true : assignee === "unassigned" ? j.job_assignments.length === 0 : j.job_assignments.some((a) => a.user_id === assignee));
   const byDay = new Map<string, CalJob[]>();
-  for (const j of data ?? []) {
+  for (const j of shown) {
     if (!j.scheduled_start) continue;
     const key = localDateKey(j.scheduled_start, tz);
     const list = byDay.get(key) ?? [];
-    list.push({ id: j.id, title: j.title, status: j.status, scheduled_start: j.scheduled_start, customer: j.crm_customers?.full_name ?? "", recurring: Boolean(j.recurring_schedule_id) });
+    list.push({ id: j.id, title: j.title, status: j.status, scheduled_start: j.scheduled_start, customer: j.crm_customers?.full_name ?? "", recurring: Boolean(j.recurring_schedule_id), people: team.length > 1 ? j.job_assignments.map((a) => initials(nameOf.get(a.user_id) ?? "?")).join(" ") : "" });
     byDay.set(key, list);
   }
   const days = daysBetween(from, to);
-  const link = (v: View, d: string) => `/provider/calendar?view=${v}&date=${d}`;
-  const activeCount = (data ?? []).filter((j) => j.status !== "canceled").length;
+  const link = (v: View, d: string, a = assignee) => `/provider/calendar?view=${v}&date=${d}${a ? `&assignee=${a}` : ""}`;
+  const activeCount = shown.filter((j) => j.status !== "canceled").length;
 
   return (
     <>
@@ -106,7 +115,18 @@ export default async function CalendarPage({ searchParams }: PageProps<"/provide
               </Link>
             ))}
           </nav>
-          <Link href={`/provider/jobs/new?date=${view === "day" ? date : today}`} className={buttonVariants({ size: "sm" })}><Plus /> New job</Link>
+          {team.length > 1 ? (
+            <nav className="flex flex-wrap gap-1 text-sm" aria-label="Filter by person">
+              {[{ id: "", label: "Everyone" }, ...team.map((m) => ({ id: m.user_id, label: m.name })), { id: "unassigned", label: "Unassigned" }].map((o) => (
+                <Link key={o.id || "all"} href={link(view, date, o.id)} aria-current={assignee === o.id ? "page" : undefined}
+                  className={cn("rounded-full border px-3 py-1", assignee === o.id ? "border-primary bg-primary-soft text-primary" : "border-border text-muted-foreground hover:text-foreground")}>
+                  {o.label}
+                </Link>
+              ))}
+            </nav>
+          ) : null}
+          {isManager && view === "day" && byDay.get(date)?.length ? <Link href={`/provider/route?date=${date}${assignee && assignee !== "unassigned" ? `&assignee=${assignee}` : ""}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Plan route</Link> : null}
+          {isManager ? <Link href={`/provider/jobs/new?date=${view === "day" ? date : today}`} className={buttonVariants({ size: "sm" })}><Plus /> New job</Link> : null}
         </div>
       </div>
 

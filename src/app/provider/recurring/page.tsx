@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { frequencyLabels } from "@/lib/crm/labels";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -14,7 +14,7 @@ import { createClient } from "@/lib/supabase/server";
 export const metadata: Metadata = { title: "Recurring services" };
 
 export default async function RecurringPage() {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const supabase = await createClient();
   const { data: schedules } = await supabase
     .from("recurring_schedules")

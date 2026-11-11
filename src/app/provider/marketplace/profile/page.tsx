@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { getCategoryOptions } from "@/lib/crm/queries";
 import { publicMediaUrl } from "@/lib/marketplace/queries";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +16,7 @@ import { DeletePortfolioButton, MarketplaceProfileForm, MediaUploader } from "./
 export const metadata: Metadata = { title: "Marketplace profile" };
 
 export default async function MarketplaceProfilePage() {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   if (!business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   const supabase = await createClient();
   const [{ data: b }, { data: cats }, { data: photos }, allCategories] = await Promise.all([

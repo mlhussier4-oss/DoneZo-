@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { formatDate, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -21,7 +21,7 @@ const invoiceFilters = [
 ] as const;
 
 export default async function InvoicesPage({ searchParams }: PageProps<"/provider/invoices">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const params = await searchParams;
   const tab = params.tab === "estimates" ? "estimates" : "invoices";
   const filter = invoiceFilters.find((f) => f.value === params.filter) ?? invoiceFilters[0];

@@ -3,13 +3,13 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { onboardingLink, refreshAccountStatus } from "@/lib/stripe/connect";
 import { stripe } from "@/lib/stripe/server";
 import { createClient } from "@/lib/supabase/server";
 
 export async function connectStripe(): Promise<{ error?: string }> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   if (business.memberRole === "employee") return { error: "Only the owner or a manager can connect Stripe." };
   let url: string;
   try {
@@ -22,7 +22,7 @@ export async function connectStripe(): Promise<{ error?: string }> {
 }
 
 export async function checkStripeStatus(): Promise<void> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   try {
     await refreshAccountStatus(business.id);
   } catch (err) {
@@ -33,7 +33,7 @@ export async function checkStripeStatus(): Promise<void> {
 
 /** Full refund of a Stripe card payment, including DoneZo's fee (owner decision). Confirmed by webhook. */
 export async function refundCardPayment(paymentRecordId: string): Promise<{ error?: string; ok?: boolean }> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   if (business.memberRole === "employee") return { error: "Only the owner or a manager can issue refunds." };
   if (!z.string().uuid().safeParse(paymentRecordId).success) return { error: "Unknown payment." };
   const supabase = await createClient();

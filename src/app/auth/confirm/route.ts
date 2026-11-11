@@ -4,7 +4,7 @@ import { homePathFor, safeNextPath, type AppRole } from "@/lib/auth";
 import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
-const allowedTypes: EmailOtpType[] = ["email", "signup", "magiclink", "recovery", "email_change"];
+const allowedTypes: EmailOtpType[] = ["email", "signup", "magiclink", "recovery", "email_change", "invite"];
 
 /** Handles the links in confirmation, sign-in and password-reset emails. */
 export async function GET(request: NextRequest) {
@@ -21,7 +21,9 @@ export async function GET(request: NextRequest) {
   if (error || !data.user) return fail();
 
   let destination = next;
-  if (type !== "recovery") {
+  if (type === "invite") {
+    destination = "/account/update-password?welcome=1";
+  } else if (type !== "recovery") {
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
     const home = homePathFor((profile?.role as AppRole) ?? "customer");
     destination = next && next.startsWith(home) ? next : home;

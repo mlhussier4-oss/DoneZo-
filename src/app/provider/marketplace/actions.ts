@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { parseMoneyToCents } from "@/lib/format";
 import { dbErrorMessage, zodErrors, type ActionState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +12,7 @@ const uuid = z.string().uuid();
 type Result = { error?: string };
 
 async function requireMarketplace() {
-  const ctx = await requireProvider();
+  const ctx = await requireManager();
   if (!ctx.business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   return ctx;
 }
@@ -145,7 +145,7 @@ export async function withdrawBid(bidId: string): Promise<Result> {
 
 // ---------------------------------------------------------------- bookings
 export async function proposeChangeOrder(bookingId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(bookingId).success) return { status: "error", message: "Unknown booking." };
   const cents = parseMoneyToCents(String(fd.get("price") ?? ""));
   const description = String(fd.get("description") ?? "").trim().slice(0, 2000);
@@ -160,7 +160,7 @@ export async function proposeChangeOrder(bookingId: string, _prev: ActionState, 
 }
 
 export async function withdrawChangeOrder(changeOrderId: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(changeOrderId).success) return { error: "Unknown change." };
   const { error } = await (await createClient()).rpc("withdraw_change_order", { p_change_order_id: changeOrderId });
   if (error) return { error: dbErrorMessage(error, "Could not withdraw the change.") };
@@ -169,7 +169,7 @@ export async function withdrawChangeOrder(changeOrderId: string): Promise<Result
 }
 
 export async function cancelBookingAsProvider(bookingId: string, reason: string): Promise<Result> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
   const { error } = await (await createClient()).rpc("cancel_booking", { p_booking_id: bookingId, p_reason: reason.slice(0, 500) });
   if (error) return { error: dbErrorMessage(error, "Could not cancel this booking.") };
@@ -183,7 +183,7 @@ export async function cancelBookingAsProvider(bookingId: string, reason: string)
  * or the provider records a cash/Venmo payment and marks it complete.
  */
 export async function completeAndRequestPayment(bookingId: string): Promise<Result & { ok?: boolean }> {
-  const { user, business } = await requireProvider();
+  const { user, business } = await requireManager();
   if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
   const supabase = await createClient();
   const { data: b } = await supabase.from("bookings").select("id, status, job_id, business_id").eq("id", bookingId).single();

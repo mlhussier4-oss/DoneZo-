@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { timingLabel } from "@/config/marketplace";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { cn } from "@/lib/utils";
@@ -31,7 +31,7 @@ const bidBadge: Record<string, { label: string; tone: "primary" | "success" | "n
 };
 
 export default async function ProviderMarketplacePage({ searchParams }: PageProps<"/provider/marketplace">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   // Server-side guard: CRM-only providers cannot reach marketplace pages even by typing the URL.
   if (!business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   const params = await searchParams;

@@ -24,7 +24,7 @@ export function providerNav(marketplaceEnabled: boolean, unread = 0): NavItem[] 
   if (marketplaceEnabled) items.push({ href: "/provider/marketplace", label: "Marketplace", icon: "store" });
   items.push({ href: "/provider/notifications", label: "Notifications", icon: "bell", badge: unread });
   items.push(
-    { href: "/provider/employees", label: "Employees", icon: "userCog" },
+    { href: "/provider/employees", label: "Team", icon: "userCog" },
     { href: "/provider/reports", label: "Reports", icon: "chart" },
     { href: "/provider/settings", label: "Business settings", icon: "settings" },
   );
@@ -42,3 +42,13 @@ export const adminNav: NavItem[] = [
   { href: "/admin/reports", label: "Support reports", icon: "flag" },
   { href: "/admin/audit-log", label: "Audit log", icon: "log" },
 ];
+
+/** Employees see only their own work (permissions are enforced in the database too). */
+export function employeeNav(unread = 0): NavItem[] {
+  return [
+    { href: "/provider/my-jobs", label: "My jobs", icon: "briefcase" },
+    { href: "/provider/calendar", label: "Calendar", icon: "calendar" },
+    { href: "/provider/route", label: "Route", icon: "map" },
+    { href: "/provider/notifications", label: "Notifications", icon: "bell", badge: unread },
+  ];
+}

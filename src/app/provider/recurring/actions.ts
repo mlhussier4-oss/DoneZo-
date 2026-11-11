@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { parseMoneyToCents } from "@/lib/format";
 import { dbErrorMessage, zodErrors, type ActionState } from "@/lib/forms";
@@ -26,6 +26,7 @@ const schema = z
     startTime: z.string().regex(/^\d{2}:\d{2}$/, "Choose a start time."),
     durationMinutes: z.coerce.number().int().min(5, "At least 5 minutes.").max(1440),
     endDate: z.union([z.literal(""), date]).transform((v) => v || null),
+    defaultAssignee: optionalUuid.optional(),
   })
   .superRefine((v, ctx) => {
     if (parseMoneyToCents(v.price || "0") === null) ctx.addIssue({ code: "custom", path: ["price"], message: "Enter a price like 45 or 45.50." });
@@ -49,11 +50,12 @@ function columns(v: z.infer<typeof schema>) {
     start_time: v.startTime,
     duration_minutes: v.durationMinutes,
     end_date: v.endDate,
+    default_assignee: v.defaultAssignee ?? null,
   };
 }
 
 export async function createSchedule(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return zodErrors(parsed.error);
   const supabase = await createClient();
@@ -67,19 +69,30 @@ export async function createSchedule(_prev: ActionState, fd: FormData): Promise<
 }
 
 export async function updateSchedule(scheduleId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(scheduleId).success) return { status: "error", message: "Unknown service." };
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return zodErrors(parsed.error);
   const supabase = await createClient();
+  const { data: before } = await supabase.from("recurring_schedules").select("default_assignee, business_id").eq("id", scheduleId).single();
   const { error } = await supabase.from("recurring_schedules").update(columns(parsed.data)).eq("id", scheduleId);
   if (error) return { status: "error", message: dbErrorMessage(error, "Could not save changes.") };
+  const next = parsed.data.defaultAssignee ?? null;
+  if (before && before.default_assignee !== next) {
+    // Hand the upcoming, untouched visits over to the new default person.
+    const { data: upcoming } = await supabase.from("jobs").select("id")
+      .eq("recurring_schedule_id", scheduleId).eq("is_detached", false).in("status", ["new", "scheduled"])
+      .gte("scheduled_start", new Date().toISOString());
+    const ids = (upcoming ?? []).map((j) => j.id);
+    if (ids.length && before.default_assignee) await supabase.from("job_assignments").delete().in("job_id", ids).eq("user_id", before.default_assignee);
+    if (ids.length && next) await supabase.from("job_assignments").upsert(ids.map((job_id) => ({ job_id, user_id: next, business_id: before.business_id })), { onConflict: "job_id,user_id", ignoreDuplicates: true });
+  }
   refresh();
   return { status: "success", message: "Saved. Upcoming visits that haven't been started or changed by hand were updated." };
 }
 
 export async function setScheduleStatus(scheduleId: string, status: "active" | "paused" | "canceled"): Promise<void> {
-  await requireProvider();
+  await requireManager();
   if (!uuid.safeParse(scheduleId).success || !["active", "paused", "canceled"].includes(status)) return;
   const supabase = await createClient();
   await supabase.from("recurring_schedules").update({ status }).eq("id", scheduleId);

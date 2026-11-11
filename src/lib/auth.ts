@@ -113,8 +113,17 @@ export async function requireProvider(): Promise<{ user: CurrentUser; business: 
   const user = await requireRole("provider");
   const business = await getCurrentBusiness();
   if (!business) {
-    // A provider without a business should not exist; fail safe.
-    throw new Error("Your provider account has no business attached. Please contact support.");
+    // E.g. an employee who was removed from their team. Sign them out with an explanation.
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login?error=no_business");
   }
   return { user, business };
+}
+
+/** Owners and managers only. Employees are sent to their own job list. */
+export async function requireManager(): Promise<{ user: CurrentUser; business: CurrentBusiness }> {
+  const ctx = await requireProvider();
+  if (ctx.business.memberRole === "employee") redirect("/provider/my-jobs");
+  return ctx;
 }

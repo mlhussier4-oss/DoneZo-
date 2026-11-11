@@ -24,6 +24,7 @@ export type ScheduleDefaults = {
   startTime?: string;
   durationMinutes?: number;
   endDate?: string | null;
+  defaultAssignee?: string | null;
 };
 
 export function ScheduleForm({
@@ -33,6 +34,7 @@ export function ScheduleForm({
   defaults,
   submitLabel,
   lockCustomer,
+  team = [],
 }: {
   action: (prev: ActionState, fd: FormData) => Promise<ActionState>;
   customers: CustomerOption[];
@@ -40,6 +42,7 @@ export function ScheduleForm({
   defaults: ScheduleDefaults;
   submitLabel: string;
   lockCustomer?: boolean;
+  team?: { user_id: string; name: string }[];
 }) {
   const [state, formAction] = useFormAction(action, idle);
   const [frequency, setFrequency] = useState(defaults.frequency ?? "weekly");
@@ -82,6 +85,14 @@ export function ScheduleForm({
           <Input id="endDate" name="endDate" type="date" defaultValue={defaults.endDate ?? ""} />
         </Field>
       </div>
+      {team.length > 1 ? (
+        <Field label="Assign visits to (optional)" htmlFor="defaultAssignee" hint="New visits are assigned to this person automatically." error={e.defaultAssignee}>
+          <Select id="defaultAssignee" name="defaultAssignee" defaultValue={defaults.defaultAssignee ?? ""}>
+            <option value="">No one</option>
+            {team.map((m) => <option key={m.user_id} value={m.user_id}>{m.name}</option>)}
+          </Select>
+        </Field>
+      ) : null}
       <p className="text-xs text-muted-foreground">
         {frequency === "monthly"
           ? "Monthly visits fall on the same day of the month as the first visit (or the last day, in shorter months)."

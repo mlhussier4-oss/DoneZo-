@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { redirect } from "next/navigation";
 import { requireProvider } from "@/lib/auth";
 import { getDashboard } from "@/lib/crm/dashboard";
 import { addDays } from "@/lib/dates";
@@ -17,6 +18,7 @@ export const metadata: Metadata = { title: "Overview" };
 
 export default async function ProviderOverviewPage() {
   const { user, business } = await requireProvider();
+  if (business.memberRole === "employee") redirect("/provider/my-jobs");
   const tz = business.timezone;
   const d = await getDashboard(business.id);
   const supabase = await createClient();

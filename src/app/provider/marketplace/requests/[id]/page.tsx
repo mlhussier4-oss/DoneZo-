@@ -6,7 +6,7 @@ import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { timingLabel } from "@/config/marketplace";
-import { requireProvider } from "@/lib/auth";
+import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { signedRequestPhotos } from "@/lib/marketplace/queries";
@@ -21,7 +21,7 @@ type Detail = {
 };
 
 export default async function ProviderRequestPage({ params }: PageProps<"/provider/marketplace/requests/[id]">) {
-  const { business } = await requireProvider();
+  const { business } = await requireManager();
   if (!business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
