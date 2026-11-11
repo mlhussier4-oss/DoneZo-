@@ -5,7 +5,7 @@ import { Lock, MapPin } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { timingLabel } from "@/config/marketplace";
+import { timingLabel, detailLines } from "@/config/marketplace";
 import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
@@ -54,7 +54,7 @@ export default async function ProviderRequestPage({ params }: PageProps<"/provid
           <CardContent className="space-y-4">
             <p className="whitespace-pre-wrap">{r.description}</p>
             {Object.keys(r.details ?? {}).length ? (
-              <ul className="flex flex-wrap gap-2">{Object.values(r.details).map((v) => <li key={v}><Badge>{v}</Badge></li>)}</ul>
+              <ul className="flex flex-wrap gap-2">{detailLines(r.details).map((v) => <li key={v}><Badge>{v}</Badge></li>)}</ul>
             ) : null}
             {photos.length ? (
               <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">

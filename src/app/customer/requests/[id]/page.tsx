@@ -8,7 +8,7 @@ import { Rating } from "@/components/marketplace/stars";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { timingLabel } from "@/config/marketplace";
+import { detailLines, timingLabel } from "@/config/marketplace";
 import { requireRole } from "@/lib/auth";
 import { jobStatus } from "@/lib/crm/labels";
 import { uuid } from "@/lib/crm/schemas";
@@ -182,7 +182,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
             <CardContent className="space-y-3 text-sm">
               <p className="whitespace-pre-wrap">{req.description}</p>
               {Object.entries((req.details ?? {}) as Record<string, string>).length ? (
-                <p className="text-muted-foreground">{Object.values(req.details as Record<string, string>).join(" · ")}</p>
+                <p className="text-muted-foreground">{detailLines(req.details as Record<string, string>).join(" · ")}</p>
               ) : null}
               {loc ? (
                 <p className="flex gap-2 text-muted-foreground"><MapPin className="mt-0.5 size-4 shrink-0" aria-hidden />

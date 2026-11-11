@@ -228,10 +228,17 @@ export function PostJobWizard({
               <legend className="text-sm font-medium">{q.label} <span className="font-normal text-muted-foreground">(optional)</span></legend>
               <div className="flex flex-wrap gap-2">
                 {q.options.map((o) => {
-                  const on = details[q.key] === o;
+                  const picked = (details[q.key] ?? "").split(", ").filter(Boolean);
+                  const on = picked.includes(o);
                   return (
                     <button key={o} type="button" aria-pressed={on}
-                      onClick={() => setDetails((d) => { const n = { ...d }; if (on) delete n[q.key]; else n[q.key] = o; return n; })}
+                      onClick={() => setDetails((d) => {
+                        const n = { ...d };
+                        // Multi-choice questions keep every picked answer, in the order shown.
+                        const next = q.multiple ? q.options.filter((x) => (x === o ? !on : picked.includes(x))) : on ? [] : [o];
+                        if (next.length) n[q.key] = next.join(", "); else delete n[q.key];
+                        return n;
+                      })}
                       className={cn("min-h-11 cursor-pointer rounded-full border px-4 text-sm font-medium", on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card hover:bg-muted")}>
                       {o}
                     </button>

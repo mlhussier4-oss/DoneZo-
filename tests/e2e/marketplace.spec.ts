@@ -197,6 +197,31 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(slow.getByText("Not confirmed in time")).toBeVisible();
   });
 
+  test("house cleaning asks type of home, size, bathrooms and which rooms (several allowed)", async ({ page }) => {
+    await page.goto("/post-job?category=house-cleaning");
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("request-photos").setInputFiles({ name: "room.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("What needs to be done?").fill("Two-bedroom apartment, regular clean");
+    await page.getByRole("button", { name: "Apartment" }).click();
+    await page.getByRole("button", { name: "1,000–1,500 sq ft" }).click();
+    await page.getByRole("group", { name: /^Bathrooms/ }).getByRole("button", { name: "2", exact: true }).click();
+    await page.getByRole("button", { name: "Kitchen" }).click();
+    await page.getByRole("button", { name: "Living room" }).click();
+    await page.getByRole("button", { name: "Bathrooms", exact: true }).click();
+    await expect(page.getByRole("button", { name: "Kitchen" })).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: "Living room" })).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Living room" }).click(); // tap again to unselect
+    await expect(page.getByRole("button", { name: "Living room" })).toHaveAttribute("aria-pressed", "false");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("radio", { name: "Tomorrow" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Street address").fill("1 Test Ave");
+    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText(/Apartment · 1,000–1,500 sq ft · 2 · Kitchen, Bathrooms/)).toBeVisible();
+  });
+
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
     await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");
