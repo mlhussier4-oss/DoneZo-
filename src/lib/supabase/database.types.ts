@@ -153,6 +153,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"business_subscriptions": {
+                  Row: {
+                    "business_id": string,"cancel_at_period_end": boolean,"created_at": string,"current_period_end": string | null,"status": Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id": string | null,"stripe_subscription_id": string | null,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "business_id": string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"updated_at"?: string
+                  }
+                  Update: {
+                    "business_id"?: string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "business_subscriptions_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: true
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"businesses": {
                   Row: {
                     "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"name": string,"phone": string | null,"plan_id": string,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
@@ -489,14 +509,14 @@ isOneToOne: false
                   ]
                 },"payment_records": {
                   Row: {
-                    "amount_cents": number,"business_id": string,"created_at": string,"customer_id": string,"id": string,"invoice_id": string | null,"job_id": string | null,"method": Database["public"]['Enums']["payment_method"],"note": string | null,"received_on": string,"recorded_by": string | null,"verification": Database["public"]['Enums']["payment_verification"]
+                    "amount_cents": number,"application_fee_cents": number,"business_id": string,"created_at": string,"customer_id": string,"id": string,"invoice_id": string | null,"job_id": string | null,"method": Database["public"]['Enums']["payment_method"],"note": string | null,"payment_request_id": string | null,"received_on": string,"recorded_by": string | null,"refunded_at": string | null,"refunded_cents": number,"stripe_charge_id": string | null,"stripe_payment_intent_id": string | null,"verification": Database["public"]['Enums']["payment_verification"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "amount_cents": number,"business_id": string,"created_at"?: string,"customer_id": string,"id"?: string,"invoice_id"?: string | null,"job_id"?: string | null,"method": Database["public"]['Enums']["payment_method"],"note"?: string | null,"received_on"?: string,"recorded_by"?: string | null,"verification"?: Database["public"]['Enums']["payment_verification"]
+                    "amount_cents": number,"application_fee_cents"?: number,"business_id": string,"created_at"?: string,"customer_id": string,"id"?: string,"invoice_id"?: string | null,"job_id"?: string | null,"method": Database["public"]['Enums']["payment_method"],"note"?: string | null,"payment_request_id"?: string | null,"received_on"?: string,"recorded_by"?: string | null,"refunded_at"?: string | null,"refunded_cents"?: number,"stripe_charge_id"?: string | null,"stripe_payment_intent_id"?: string | null,"verification"?: Database["public"]['Enums']["payment_verification"]
                   }
                   Update: {
-                    "amount_cents"?: number,"business_id"?: string,"created_at"?: string,"customer_id"?: string,"id"?: string,"invoice_id"?: string | null,"job_id"?: string | null,"method"?: Database["public"]['Enums']["payment_method"],"note"?: string | null,"received_on"?: string,"recorded_by"?: string | null,"verification"?: Database["public"]['Enums']["payment_verification"]
+                    "amount_cents"?: number,"application_fee_cents"?: number,"business_id"?: string,"created_at"?: string,"customer_id"?: string,"id"?: string,"invoice_id"?: string | null,"job_id"?: string | null,"method"?: Database["public"]['Enums']["payment_method"],"note"?: string | null,"payment_request_id"?: string | null,"received_on"?: string,"recorded_by"?: string | null,"refunded_at"?: string | null,"refunded_cents"?: number,"stripe_charge_id"?: string | null,"stripe_payment_intent_id"?: string | null,"verification"?: Database["public"]['Enums']["payment_verification"]
                   }
                   Relationships: [
                     {
@@ -517,6 +537,32 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "jobs"
       referencedColumns: ["business_id","customer_id","id"]
+    },{
+      foreignKeyName: "payment_records_payment_request_id_fkey"
+      columns: ["payment_request_id"]
+isOneToOne: false
+      referencedRelation: "payment_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"payment_requests": {
+                  Row: {
+                    "amount_cents": number,"application_fee_cents": number,"business_id": string,"checkout_session_id": string,"checkout_url": string,"created_at": string,"created_by": string | null,"expires_at": string | null,"failure_message": string | null,"id": string,"invoice_id": string,"paid_at": string | null,"status": Database["public"]['Enums']["payment_request_status"],"stripe_account_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_cents": number,"application_fee_cents": number,"business_id": string,"checkout_session_id": string,"checkout_url": string,"created_at"?: string,"created_by"?: string | null,"expires_at"?: string | null,"failure_message"?: string | null,"id"?: string,"invoice_id": string,"paid_at"?: string | null,"status"?: Database["public"]['Enums']["payment_request_status"],"stripe_account_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "amount_cents"?: number,"application_fee_cents"?: number,"business_id"?: string,"checkout_session_id"?: string,"checkout_url"?: string,"created_at"?: string,"created_by"?: string | null,"expires_at"?: string | null,"failure_message"?: string | null,"id"?: string,"invoice_id"?: string,"paid_at"?: string | null,"status"?: Database["public"]['Enums']["payment_request_status"],"stripe_account_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "payment_requests_business_id_invoice_id_fkey"
+      columns: ["business_id","invoice_id"]
+isOneToOne: false
+      referencedRelation: "invoices"
+      referencedColumns: ["business_id","id"]
     }
                   ]
                 },"plan_features": {
@@ -541,14 +587,28 @@ isOneToOne: false
                   ]
                 },"plans": {
                   Row: {
-                    "code": string,"created_at": string,"description": string | null,"id": string,"is_active": boolean,"is_default": boolean,"name": string,"sort_order": number,"updated_at": string
+                    "code": string,"created_at": string,"description": string | null,"id": string,"is_active": boolean,"is_default": boolean,"name": string,"price_cents": number | null,"sort_order": number,"stripe_lookup_key": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name": string,"sort_order"?: number,"updated_at"?: string
+                    "code": string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name": string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "code"?: string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name"?: string,"sort_order"?: number,"updated_at"?: string
+                    "code"?: string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name"?: string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"updated_at"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
+                },"platform_settings": {
+                  Row: {
+                    "card_fee_bps": number,"id": boolean,"subscription_price_cents": number,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "card_fee_bps"?: number,"id"?: boolean,"subscription_price_cents"?: number,"updated_at"?: string
+                  }
+                  Update: {
+                    "card_fee_bps"?: number,"id"?: boolean,"subscription_price_cents"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -795,6 +855,40 @@ isOneToOne: false
       referencedColumns: ["zip"]
     }
                   ]
+                },"stripe_accounts": {
+                  Row: {
+                    "business_id": string,"charges_enabled": boolean,"created_at": string,"details_submitted": boolean,"disabled_reason": string | null,"payouts_enabled": boolean,"requirements_due": (string)[],"status": Database["public"]['Enums']["stripe_account_status"],"stripe_account_id": string,"updated_at": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "business_id": string,"charges_enabled"?: boolean,"created_at"?: string,"details_submitted"?: boolean,"disabled_reason"?: string | null,"payouts_enabled"?: boolean,"requirements_due"?: (string)[],"status"?: Database["public"]['Enums']["stripe_account_status"],"stripe_account_id": string,"updated_at"?: string
+                  }
+                  Update: {
+                    "business_id"?: string,"charges_enabled"?: boolean,"created_at"?: string,"details_submitted"?: boolean,"disabled_reason"?: string | null,"payouts_enabled"?: boolean,"requirements_due"?: (string)[],"status"?: Database["public"]['Enums']["stripe_account_status"],"stripe_account_id"?: string,"updated_at"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "stripe_accounts_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: true
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"stripe_events": {
+                  Row: {
+                    "account": string | null,"error": string | null,"id": string,"livemode": boolean,"processed_at": string | null,"received_at": string,"type": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "account"?: string | null,"error"?: string | null,"id": string,"livemode": boolean,"processed_at"?: string | null,"received_at"?: string,"type": string
+                  }
+                  Update: {
+                    "account"?: string | null,"error"?: string | null,"id"?: string,"livemode"?: boolean,"processed_at"?: string | null,"received_at"?: string,"type"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"support_reports": {
                   Row: {
                     "admin_note": string | null,"booking_id": string | null,"category": string,"created_at": string,"id": string,"message": string,"reporter_id": string,"request_id": string | null,"resolved_at": string | null,"status": string
@@ -915,6 +1009,19 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"admin_set_card_fee":
+{ Args: { "p_bps": number }; Returns: {
+              "card_fee_bps": number,
+"id": boolean,
+"subscription_price_cents": number,
+"updated_at": string
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "platform_settings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "admin_set_user_suspended":
 { Args: { "p_reason": string,"p_suspended": boolean,"p_user_id": string }; Returns: {
               "created_at": string,
@@ -974,6 +1081,9 @@ isOneToOne: false
                            },
 "business_entitlements":
 { Args: { "p_business_id": string }; Returns: Json
+                           },
+"business_has_access":
+{ Args: { "p_business_id": string }; Returns: boolean
                            },
 "business_public_stats":
 { Args: { "p_business_id": string }; Returns: Json
@@ -1099,6 +1209,9 @@ isOneToOne: false
 "current_app_role":
 { Args: Record<PropertyKey, never>; Returns: Database["public"]['Enums']["app_role"]
                            },
+"current_user_bid_on":
+{ Args: { "p_request_id": string }; Returns: boolean
+                           },
 "current_user_can_see_request":
 { Args: { "p_request_id": string }; Returns: boolean
                            },
@@ -1147,6 +1260,11 @@ isOneToOne: false
                            },
 "has_business_role":
 { Args: { "p_business_id": string,"p_roles": (Database["public"]['Enums']["business_member_role"])[] }; Returns: boolean
+                           },
+"invoice_for_payment":
+{ Args: { "p_token": string }; Returns: {
+              "balance_cents": number,"business_id": string,"business_name": string,"invoice_id": string,"number": number,"source": Database["public"]['Enums']["job_source"],"status": Database["public"]['Enums']["invoice_status"],"stripe_account_id": string,"stripe_status": Database["public"]['Enums']["stripe_account_status"]
+            }[]
                            },
 "is_admin":
 { Args: Record<PropertyKey, never>; Returns: boolean
@@ -1273,6 +1391,15 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"stripe_mark_payment_request":
+{ Args: { "p_checkout_session_id": string,"p_message": string,"p_status": Database["public"]['Enums']["payment_request_status"] }; Returns: undefined
+                           },
+"stripe_record_checkout_paid":
+{ Args: { "p_amount_cents": number,"p_charge_id": string,"p_checkout_session_id": string,"p_payment_intent_id": string }; Returns: string
+                           },
+"stripe_record_refund":
+{ Args: { "p_payment_intent_id": string,"p_refunded_total_cents": number }; Returns: undefined
+                           },
 "void_invoice":
 { Args: { "p_invoice_id": string }; Returns: {
               "amount_paid_cents": number,
@@ -1327,7 +1454,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "app_role": "customer"|"provider"|"admin","bid_status": "submitted"|"withdrawn"|"accepted"|"closed","booking_status": "active"|"completed"|"canceled","business_member_role": "owner"|"manager"|"employee","change_order_status": "pending"|"approved"|"declined"|"withdrawn","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled","request_status": "open"|"booked"|"canceled"|"expired","request_timing": "asap"|"tomorrow"|"within_3_days"|"this_week"|"specific_date"
+            "app_role": "customer"|"provider"|"admin","bid_status": "submitted"|"withdrawn"|"accepted"|"closed","booking_status": "active"|"completed"|"canceled","business_member_role": "owner"|"manager"|"employee","change_order_status": "pending"|"approved"|"declined"|"withdrawn","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void"|"refunded","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_request_status": "open"|"paid"|"failed"|"expired"|"canceled","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled","request_status": "open"|"booked"|"canceled"|"expired","request_timing": "asap"|"tomorrow"|"within_3_days"|"this_week"|"specific_date","stripe_account_status": "onboarding_incomplete"|"pending_verification"|"active"|"restricted","subscription_status": "incomplete"|"incomplete_expired"|"trialing"|"active"|"past_due"|"canceled"|"unpaid"|"paused"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1447,7 +1574,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["customer", "provider", "admin"],"bid_status": ["submitted", "withdrawn", "accepted", "closed"],"booking_status": ["active", "completed", "canceled"],"business_member_role": ["owner", "manager", "employee"],"change_order_status": ["pending", "approved", "declined", "withdrawn"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"],"request_status": ["open", "booked", "canceled", "expired"],"request_timing": ["asap", "tomorrow", "within_3_days", "this_week", "specific_date"]
+            "app_role": ["customer", "provider", "admin"],"bid_status": ["submitted", "withdrawn", "accepted", "closed"],"booking_status": ["active", "completed", "canceled"],"business_member_role": ["owner", "manager", "employee"],"change_order_status": ["pending", "approved", "declined", "withdrawn"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void", "refunded"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_request_status": ["open", "paid", "failed", "expired", "canceled"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"],"request_status": ["open", "booked", "canceled", "expired"],"request_timing": ["asap", "tomorrow", "within_3_days", "this_week", "specific_date"],"stripe_account_status": ["onboarding_incomplete", "pending_verification", "active", "restricted"],"subscription_status": ["incomplete", "incomplete_expired", "trialing", "active", "past_due", "canceled", "unpaid", "paused"]
           }
         }
 } as const
