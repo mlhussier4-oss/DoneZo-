@@ -27,8 +27,9 @@ async function wonJob(p: Provider) {
   await customer.client.from("service_request_locations").insert({ request_id: req!.id, line1: "1 Market St", city: "Austin", state: "TX", phone: "512-555-0101" });
   const { data: bid, error: bidError } = await p.client.from("bids").insert({ request_id: req!.id, business_id: p.businessId, price_cents: 7000, included: "Mow and edge", availability: "Friday" }).select().single();
   expect(bidError).toBeNull();
-  const { error } = await customer.client.rpc("accept_bid", { p_bid_id: bid!.id });
+  const { data: pending, error } = await customer.client.rpc("accept_bid", { p_bid_id: bid!.id });
   expect(error).toBeNull();
+  expect((await p.client.rpc("confirm_booking", { p_booking_id: pending!.id, p_arrival_at: new Date(Date.now() + 86_400_000).toISOString() })).error).toBeNull();
   const { data: job } = await p.client.from("jobs").select("id, customer_id, source").eq("business_id", p.businessId).single();
   expect(job!.source).toBe("marketplace");
   return job!;
