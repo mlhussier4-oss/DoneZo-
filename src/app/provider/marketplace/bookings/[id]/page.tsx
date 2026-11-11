@@ -13,7 +13,9 @@ import { uuid } from "@/lib/crm/schemas";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { getThread } from "@/lib/marketplace/queries";
 import { createClient } from "@/lib/supabase/server";
+import { defaultArrival } from "@/lib/crm/time";
 import { ChangeOrderForm, CompleteAndRequestPaymentButton, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
+import { ConfirmPanel } from "./confirm-panel";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -36,6 +38,10 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
   const addr = c?.crm_customer_addresses?.[0];
   const pending = changes?.find((x) => x.status === "pending");
   const tz = business.timezone;
+  const waiting = b.status === "pending";
+  const lost = b.status === "lapsed";
+  const arrival = defaultArrival(tz);
+  const statusLabel = waiting ? "Confirm now" : lost ? "Lost" : b.status;
 
   return (
     <>
@@ -44,8 +50,8 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">{b.service_requests?.service_categories?.name} for {c?.full_name}</h1>
-              <Badge tone={b.status === "active" ? "primary" : b.status === "completed" ? "success" : "danger"} className="capitalize">{b.status}</Badge>
+              <h1 className="text-2xl font-semibold tracking-tight">{b.service_requests?.service_categories?.name}{c?.full_name ? ` for ${c.full_name}` : ` in ${b.service_requests?.zip ?? ""}`}</h1>
+              <Badge tone={b.status === "active" ? "primary" : b.status === "completed" ? "success" : waiting ? "accent" : "danger"} className="capitalize">{statusLabel}</Badge>
             </div>
             <p className="mt-1 text-lg font-medium">{formatMoney(b.agreed_price_cents)} <span className="text-sm font-normal text-muted-foreground">agreed price{b.agreed_price_cents !== b.original_price_cents ? ` (originally ${formatMoney(b.original_price_cents)})` : ""}</span></p>
           </div>
@@ -54,15 +60,23 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
       </div>
 
       {b.status === "canceled" ? <Alert tone="error" className="mb-6">This booking was canceled{b.cancel_reason ? `: ${b.cancel_reason}` : "."}</Alert> : null}
+      {waiting && b.confirm_by ? (
+        <div className="mb-6"><ConfirmPanel bookingId={b.id} confirmBy={b.confirm_by} serverNow={new Date().toISOString()} defaultDate={arrival.date} defaultTime={arrival.time} /></div>
+      ) : null}
+      {lost ? (
+        <Alert tone="info" className="mb-6">
+          {b.cancel_reason === "dropped" ? "The customer chose to move on, so this job went to another bid." : "This job wasn't confirmed in time, so it went back to the customer."} Keep an eye on your job board for new ones.
+        </Alert>
+      ) : null}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
-          <Card>
+          {!lost ? <Card>
             <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
             <CardContent>
               <MessageThread bookingId={b.id} currentUserId={user.id} otherPartyName={c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
             </CardContent>
-          </Card>
+          </Card> : null}
           <Card>
             <CardHeader><CardTitle>Agreed scope</CardTitle></CardHeader>
             <CardContent className="space-y-3 text-sm">

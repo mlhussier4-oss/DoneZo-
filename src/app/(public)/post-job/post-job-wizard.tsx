@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Check, MailCheck, X } from "lucide-react";
+import { ArrowLeft, Camera, Check, X } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { sendEmailCodeInline, verifyEmailCodeInline } from "../../(auth)/actions";
 import { checkZip, createRequest, registerRequestPhotos } from "./actions";
 
 type Category = { id: string; slug: string; name: string; icon: string; description: string | null };
@@ -48,10 +47,6 @@ export function PostJobWizard({
   const [city, setCity] = useState("Austin");
   const [phone, setPhone] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
-  const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [code, setCode] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [pending, start] = useTransition();
@@ -116,22 +111,18 @@ export function PostJobWizard({
       }
       await registerRequestPhotos(result.id, uploaded);
     }
-    router.push(`/customer/requests/${result.id}?posted=1`);
+    // Straight to the dashboard, where bids appear live under the job (owner decision 2026-11-12).
+    router.push(`/customer?posted=${result.id}`);
   }
 
   function submit() {
     start(async () => {
       if (signedInRole === "customer") return post();
       if (signedInRole) { setError("You're signed in with a provider or admin account. Sign out, then post the job as a customer."); return; }
-      if (!codeSent) {
-        const r = await sendEmailCodeInline(email.trim(), fullName.trim());
-        if (!r.ok) { setError(r.message); return; }
-        setCodeSent(true);
-        return;
-      }
-      const v = await verifyEmailCodeInline(email.trim(), code.trim());
-      if (!v.ok) { setError(v.message); return; }
-      if (v.role !== "customer") { setError("That email belongs to a provider or admin account. Use a different email to post a job."); return; }
+      // No email, password or card: a private guest account is created on this device (owner decision 2026-11-12).
+      setStatus("Posting your job…");
+      const { error: signInError } = await createBrowserSupabase().auth.signInAnonymously();
+      if (signInError) { setStatus(undefined); setError("We couldn't post your job just now. Please try again in a minute."); return; }
       await post();
     });
   }
@@ -309,26 +300,7 @@ export function PostJobWizard({
             ))}
           </dl>
 
-          {signedInRole === null ? (
-            <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-              <p className="font-semibold">Where should we send your bids?</p>
-              {!codeSent ? (
-                <>
-                  <Field label="Email" htmlFor="post-email"><Input id="post-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" /></Field>
-                  <Field label="Your first name (optional)" htmlFor="post-name"><Input id="post-name" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="given-name" /></Field>
-                  <p className="text-xs text-muted-foreground">No password and no card. We&apos;ll email you a 6-digit code to confirm it&apos;s you.</p>
-                </>
-              ) : (
-                <>
-                  <Alert tone="info" className="flex gap-2"><MailCheck className="mt-0.5 size-4 shrink-0" aria-hidden />We sent a code to {email}.</Alert>
-                  <Field label="6-digit code" htmlFor="post-code">
-                    <Input id="post-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" autoFocus className="text-center text-lg tracking-[0.5em]" />
-                  </Field>
-                </>
-              )}
-            </div>
-          ) : null}
-          <p className="text-sm text-muted-foreground">No card needed. You&apos;ll only pay the provider you choose, after the job is done.</p>
+          <p className="text-sm text-muted-foreground">No email, password or card needed. Bids appear live on your dashboard, and you only pay the provider you choose, after the job is done.</p>
           {signedInRole === null ? <p className="mt-2 text-xs text-muted-foreground">By posting you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p> : null}
         </section>
       ) : null}
@@ -348,7 +320,7 @@ export function PostJobWizard({
             </Button>
           ) : (
             <Button size="lg" variant="accent" className="w-full" disabled={pending || Boolean(status && !error)} onClick={submit}>
-              {pending || (status && !error) ? (status ?? "Please wait…") : signedInRole === null && !codeSent ? "Email me a code" : signedInRole === null ? "Confirm and post job" : "Post job"}
+              {pending || (status && !error) ? (status ?? "Please wait…") : "Post job"}
             </Button>
           )}
         </div>

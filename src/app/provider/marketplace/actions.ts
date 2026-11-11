@@ -234,3 +234,38 @@ export async function completeAndRequestPayment(bookingId: string): Promise<Resu
   refresh();
   return { ok: true };
 }
+
+// ---------------------------------------------------------------- live booking (owner decision 2026-11-12)
+const arrivalSchema = z.object({ date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), time: z.string().regex(/^\d{2}:\d{2}$/) });
+
+/** Confirm a job the customer picked, with the arrival time. The database checks the 5-minute deadline. */
+export async function confirmBooking(bookingId: string, date: string, time: string): Promise<Result & { lapsed?: boolean }> {
+  const { business } = await requireMarketplace();
+  const parsed = arrivalSchema.safeParse({ date, time });
+  if (!uuid.safeParse(bookingId).success || !parsed.success) return { error: "Choose the arrival date and time." };
+  const { zonedToUtcIso } = await import("@/lib/format");
+  const { data, error } = await (await createClient()).rpc("confirm_booking", {
+    p_booking_id: bookingId, p_arrival_at: zonedToUtcIso(parsed.data.date, parsed.data.time, business.timezone),
+  });
+  if (error) return { error: dbErrorMessage(error, "Could not confirm. Please try again.") };
+  refresh();
+  if (data?.status === "lapsed") return { lapsed: true, error: "Time ran out, so this job went back to the customer." };
+  return {};
+}
+
+/** Jobs waiting for this business to confirm, for the alert shown on every provider page. */
+export async function pendingConfirmations(): Promise<{ serverNow: string; items: { id: string; confirmBy: string; label: string }[] }> {
+  const { business } = await requireManager();
+  const { data } = await (await createClient())
+    .from("bookings")
+    .select("id, confirm_by, agreed_price_cents, service_requests(zip, service_categories(name))")
+    .eq("business_id", business.id).eq("status", "pending").order("confirm_by");
+  return {
+    serverNow: new Date().toISOString(),
+    items: (data ?? []).map((b) => ({
+      id: b.id,
+      confirmBy: b.confirm_by!,
+      label: `${b.service_requests?.service_categories?.name ?? "Job"} in ${b.service_requests?.zip ?? ""} · $${(b.agreed_price_cents / 100).toFixed(2)}`,
+    })),
+  };
+}

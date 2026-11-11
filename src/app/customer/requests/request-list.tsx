@@ -13,7 +13,7 @@ export type RequestRow = {
   expires_at: string;
   service_categories: { name: string; icon: string } | null;
   bids: { status: string }[];
-  bookings: { status: string } | null;
+  bookings: { status: string; created_at: string }[];
 };
 
 export function requestState(r: RequestRow): { label: string; tone: "primary" | "success" | "neutral" | "danger" | "warning" } {
@@ -22,9 +22,11 @@ export function requestState(r: RequestRow): { label: string; tone: "primary" | 
     const n = r.bids.filter((b) => b.status === "submitted").length;
     return n ? { label: `${n} ${n === 1 ? "bid" : "bids"}`, tone: "warning" } : { label: "Waiting for bids", tone: "primary" };
   }
+  if (r.status === "pending") return { label: "Waiting for confirmation", tone: "warning" };
   if (r.status === "booked") {
-    if (r.bookings?.status === "completed") return { label: "Completed", tone: "success" };
-    if (r.bookings?.status === "canceled") return { label: "Booking canceled", tone: "danger" };
+    const current = [...(r.bookings ?? [])].filter((b) => b.status !== "lapsed").sort((a, b) => b.created_at.localeCompare(a.created_at))[0];
+    if (current?.status === "completed") return { label: "Completed", tone: "success" };
+    if (current?.status === "canceled") return { label: "Booking canceled", tone: "danger" };
     return { label: "Booked", tone: "success" };
   }
   return r.status === "canceled" ? { label: "Canceled", tone: "danger" } : { label: "Expired", tone: "neutral" };
@@ -52,4 +54,4 @@ export function RequestList({ rows }: { rows: RequestRow[] }) {
   );
 }
 
-export const requestListSelect = "id, status, timing, created_at, expires_at, service_categories(name, icon), bids(status), bookings(status)";
+export const requestListSelect = "id, status, timing, created_at, expires_at, service_categories(name, icon), bids(status), bookings(status, created_at)";

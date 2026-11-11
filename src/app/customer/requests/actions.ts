@@ -59,3 +59,32 @@ export async function submitReview(bookingId: string, rating: number, comment: s
   refresh();
   return {};
 }
+
+/** Live booking: add 10 minutes for the chosen provider (allowed from 2:00 left). */
+export async function extendProvider(bookingId: string): Promise<Result> {
+  await requireRole("customer");
+  if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
+  const { data, error } = await (await createClient()).rpc("extend_booking", { p_booking_id: bookingId });
+  if (error) return { error: dbErrorMessage(error, "Could not add time. Please try again.") };
+  refresh();
+  return data?.status === "lapsed" ? { error: "Time had already run out. Choose another bid." } : {};
+}
+
+/** Live booking: drop the provider who hasn't confirmed, and go back to the other bids. */
+export async function dropProvider(bookingId: string): Promise<Result> {
+  await requireRole("customer");
+  if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
+  const { error } = await (await createClient()).rpc("drop_pending_booking", { p_booking_id: bookingId });
+  if (error) return { error: dbErrorMessage(error, "Could not drop this provider. Please try again.") };
+  refresh();
+  return {};
+}
+
+/** Called when the countdown reaches zero; the database decides (using its own clock). */
+export async function checkDeadline(bookingId: string): Promise<Result> {
+  await requireRole("customer", "provider");
+  if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
+  await (await createClient()).rpc("check_booking_deadline", { p_booking_id: bookingId });
+  refresh();
+  return {};
+}

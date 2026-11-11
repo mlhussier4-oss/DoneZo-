@@ -24,7 +24,7 @@ export type BidCardData = {
 
 export type CustomerBooking = {
   id: string;
-  status: "active" | "completed" | "canceled";
+  status: "pending" | "active" | "completed" | "canceled";
   agreed_price_cents: number;
   original_price_cents: number;
   scope: string;
@@ -32,6 +32,13 @@ export type CustomerBooking = {
   completed_at: string | null;
   canceled_at: string | null;
   cancel_reason: string | null;
+  /** Live booking: the provider must confirm before this time. */
+  confirm_by: string | null;
+  confirmed_at: string | null;
+  arrival_at: string | null;
+  extensions: number;
+  /** Server time when this was read, to keep the countdown in step with the database's clock. */
+  server_now: string;
   business: { id: string; name: string; phone: string | null; email: string | null; logo_path: string | null; accepted_payment_methods: string[] };
   job: { status: string; scheduled_start: string | null; scheduled_end: string | null } | null;
   invoices: { number: number; status: string; total_cents: number; amount_paid_cents: number; token: string }[];

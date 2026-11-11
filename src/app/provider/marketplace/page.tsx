@@ -28,6 +28,7 @@ const bidBadge: Record<string, { label: string; tone: "primary" | "success" | "n
   accepted: { label: "Won", tone: "success" },
   withdrawn: { label: "Withdrawn", tone: "neutral" },
   closed: { label: "Not chosen", tone: "neutral" },
+  lapsed: { label: "Not confirmed in time", tone: "danger" },
 };
 
 export default async function ProviderMarketplacePage({ searchParams }: PageProps<"/provider/marketplace">) {
@@ -144,7 +145,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                   <span className="tabular-nums">{formatMoney(b.agreed_price_cents)}</span>
-                  <Badge tone={b.status === "active" ? "primary" : b.status === "completed" ? "success" : "danger"} className="capitalize">{b.status}</Badge>
+                  <Badge tone={b.status === "active" ? "primary" : b.status === "completed" ? "success" : b.status === "pending" ? "accent" : "danger"} className="capitalize">{b.status === "pending" ? "Confirm now" : b.status === "lapsed" ? "Lost" : b.status}</Badge>
                 </div>
               </Link>
             ))}
