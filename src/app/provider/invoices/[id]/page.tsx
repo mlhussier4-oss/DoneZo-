@@ -14,6 +14,9 @@ import { siteUrl } from "@/lib/env";
 import { formatDate, formatMoney, localDateKey } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { DeletePaymentButton, InvoiceButtons, RecordPaymentForm } from "./invoice-actions";
+import { CreateCardLinkButton } from "./card-payment";
+import { RefundButton } from "../../payments/payment-buttons";
+import { cardPaymentLabel, cardPaymentState } from "@/lib/payments/invoice-payments";
 
 export const metadata: Metadata = { title: "Invoice" };
 
@@ -28,14 +31,17 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
     .eq("id", id)
     .single();
   if (!inv) notFound();
-  const { data: payments } = await supabase
-    .from("payment_records")
-    .select("id, amount_cents, method, verification, received_on, note")
-    .eq("invoice_id", id)
-    .order("received_on");
+  const [{ data: payments }, { data: requests }, { data: acct }] = await Promise.all([
+    supabase.from("payment_records")
+      .select("id, amount_cents, method, verification, received_on, note, refunded_cents, application_fee_cents")
+      .eq("invoice_id", id).order("received_on"),
+    supabase.from("payment_requests").select("status, failure_message, created_at").eq("invoice_id", id).order("created_at", { ascending: false }),
+    supabase.from("stripe_accounts").select("status").eq("business_id", business.id).maybeSingle(),
+  ]);
+  const cardState = cardPaymentState({ stripeActive: acct?.status === "active", invoiceStatus: inv.status, requests: requests ?? [] });
 
   const balance = inv.total_cents - inv.amount_paid_cents;
-  const editable = inv.status === "draft" || inv.status === "sent";
+  const editable = (inv.status === "draft" || inv.status === "sent") && inv.source !== "marketplace";
   const lines = [...inv.invoice_line_items].sort((a, b) => a.position - b.position).map((l) => ({ ...l, amount_cents: l.amount_cents ?? 0 }));
 
   return (
@@ -98,6 +104,22 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
           </Card>
 
           <Card>
+            <CardHeader><CardTitle className="text-base">Card payment</CardTitle></CardHeader>
+            <CardContent className="space-y-3 text-sm">
+              <p className="flex flex-wrap items-center gap-2">Status: <Badge tone={cardState === "paid" ? "success" : cardState === "failed" ? "danger" : cardState === "link_sent" ? "warning" : "neutral"}>{cardPaymentLabel[cardState]}</Badge></p>
+              {cardState === "failed" && requests?.[0]?.failure_message ? <p className="text-destructive">{requests[0].failure_message}</p> : null}
+              {cardState === "unavailable" ? (
+                <p className="text-muted-foreground">Connect Stripe on the <Link href="/provider/payments" className="text-primary hover:underline">Payments page</Link> so customers can pay by card.</p>
+              ) : (inv.status === "sent" || inv.status === "partially_paid") && balance > 0 ? (
+                <>
+                  <p className="text-muted-foreground">Your customer link has a &ldquo;Pay by card&rdquo; button. Card payments are confirmed by Stripe, then marked paid here automatically.</p>
+                  <CreateCardLinkButton invoiceId={inv.id} />
+                </>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          <Card>
             <CardHeader><CardTitle className="text-base">Payments</CardTitle></CardHeader>
             <CardContent className="space-y-4">
               {payments?.length ? (
@@ -109,8 +131,8 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
                         <VerificationBadge verification={p.verification} />
                       </div>
                       <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
-                        <span>{formatDate(p.received_on)}{p.note ? ` · ${p.note}` : ""}</span>
-                        {p.verification === "provider_recorded" ? <DeletePaymentButton paymentId={p.id} /> : null}
+                        <span>{formatDate(p.received_on)}{p.note ? ` · ${p.note}` : ""}{p.refunded_cents ? ` · ${formatMoney(p.refunded_cents)} refunded` : ""}</span>
+                        {p.verification === "provider_recorded" ? <DeletePaymentButton paymentId={p.id} /> : p.refunded_cents < p.amount_cents ? <RefundButton paymentId={p.id} amountLabel={formatMoney(p.amount_cents - p.refunded_cents)} /> : null}
                       </div>
                     </li>
                   ))}

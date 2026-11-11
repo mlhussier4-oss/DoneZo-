@@ -82,7 +82,7 @@ export default function ForProvidersPage() {
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Pricing hasn&apos;t been set yet. During the beta, every feature is included at no charge.
+        One plan: $9.99/month, everything included, cancel any time. A 10% fee applies to card payments your customers make through DoneZo; no fee on cash, Venmo or Cash App.
       </p>
     </div>
   );

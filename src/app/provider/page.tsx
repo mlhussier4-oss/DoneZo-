@@ -28,6 +28,7 @@ export default async function ProviderOverviewPage() {
     .lt("scheduled_start", zonedToUtcIso(addDays(d.today, 1), "00:00", tz))
     .neq("status", "canceled")
     .order("scheduled_start");
+  const { data: stripeAcct } = await supabase.from("stripe_accounts").select("status").eq("business_id", business.id).maybeSingle();
   const firstName = user.fullName?.split(" ")[0];
   const isEmpty = d.active_customers === 0;
 
@@ -86,8 +87,8 @@ export default async function ProviderOverviewPage() {
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Active customers</span><span className="font-medium">{d.active_customers}</span></div>
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Marketplace</span>{business.marketplaceEnabled ? <Badge tone="success">On</Badge> : <Badge>Off</Badge>}</div>
-            <div className="flex items-center justify-between"><span className="text-muted-foreground">Card payments</span><Badge>Not connected</Badge></div>
-            <div className="flex items-center justify-between"><span className="text-muted-foreground">Plan</span><Badge tone="primary">Free beta</Badge></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Card payments</span>{stripeAcct?.status === "active" ? <Badge tone="success">On</Badge> : <Badge>{stripeAcct ? "Setup incomplete" : "Not connected"}</Badge>}</div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Plan</span><Badge tone="primary">$9.99/month</Badge></div>
             <Link href="/provider/settings" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-1" })}>Business settings</Link>
           </CardContent>
         </Card>

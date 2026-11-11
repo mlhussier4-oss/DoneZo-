@@ -180,3 +180,37 @@ export async function deletePayment(paymentId: string): Promise<Result> {
   refresh();
   return {};
 }
+
+/** Create (or reuse) a Stripe card payment link for the invoice's balance. */
+export async function createCardPaymentLink(invoiceId: string): Promise<{ url?: string; error?: string }> {
+  const { user, business } = await requireProvider();
+  if (!uuid.safeParse(invoiceId).success) return { error: "Unknown invoice." };
+  const supabase = await createClient();
+  const [{ data: inv }, { data: acct }] = await Promise.all([
+    supabase.from("invoices").select("id, business_id, number, status, total_cents, amount_paid_cents, public_token").eq("id", invoiceId).single(),
+    supabase.from("stripe_accounts").select("stripe_account_id, status").eq("business_id", business.id).maybeSingle(),
+  ]);
+  if (!inv || inv.business_id !== business.id) return { error: "Unknown invoice." };
+  if (!["sent", "partially_paid"].includes(inv.status)) return { error: "Mark the invoice as sent first." };
+  if (!acct || acct.status !== "active") return { error: "Connect Stripe on the Payments page to take card payments." };
+  try {
+    const { getOrCreateInvoiceCheckout } = await import("@/lib/payments/checkout");
+    const url = await getOrCreateInvoiceCheckout(
+      {
+        invoiceId: inv.id,
+        businessId: business.id,
+        number: inv.number,
+        balanceCents: inv.total_cents - inv.amount_paid_cents,
+        businessName: business.name,
+        stripeAccountId: acct.stripe_account_id,
+        publicToken: inv.public_token,
+      },
+      user.id,
+    );
+    refresh();
+    return { url };
+  } catch (err) {
+    console.error("card link failed", err);
+    return { error: "We couldn't reach Stripe. Please try again." };
+  }
+}

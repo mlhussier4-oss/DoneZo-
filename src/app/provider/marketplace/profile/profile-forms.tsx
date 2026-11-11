@@ -60,7 +60,7 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
             </label>
           ))}
         </div>
-        <p className="text-xs text-muted-foreground">Card payments through DoneZo start once you connect Stripe (coming soon).</p>
+        <p className="text-xs text-muted-foreground">Card payments through DoneZo need Stripe connected on your Payments page.</p>
       </fieldset>
       <Field label="About your business" htmlFor="description" hint="Shown on your public profile." error={e.description}>
         <Textarea id="description" name="description" defaultValue={values.description} maxLength={2000} />

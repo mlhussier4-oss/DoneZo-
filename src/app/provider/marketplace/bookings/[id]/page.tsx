@@ -13,7 +13,7 @@ import { uuid } from "@/lib/crm/schemas";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { getThread } from "@/lib/marketplace/queries";
 import { createClient } from "@/lib/supabase/server";
-import { ChangeOrderForm, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
+import { ChangeOrderForm, CompleteAndRequestPaymentButton, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -72,6 +72,14 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           </Card>
         </div>
         <aside className="space-y-6">
+          {b.status === "active" && b.jobs && !["awaiting_payment", "completed", "canceled"].includes(b.jobs.status) ? (
+            <Card className="border-primary/30">
+              <CardHeader><CardTitle className="text-base">Finished the job?</CardTitle></CardHeader>
+              <CardContent><CompleteAndRequestPaymentButton bookingId={b.id} /></CardContent>
+            </Card>
+          ) : b.jobs?.status === "awaiting_payment" ? (
+            <Alert tone="info">Waiting for the customer&apos;s payment. You&apos;ll be notified when Stripe confirms it.</Alert>
+          ) : null}
           <Card>
             <CardHeader><CardTitle className="text-base">Customer</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">

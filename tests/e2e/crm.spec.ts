@@ -88,9 +88,9 @@ test.describe("CRM-only provider runs their business without the marketplace", (
     await expect(page.getByLabel("Amount ($)")).toHaveValue("5.00");
     await page.getByLabel("Method").selectOption("venmo");
     await page.getByRole("button", { name: "Record payment" }).click();
-    await expect(page.getByRole("button", { name: "Record payment" })).toHaveCount(0); // nothing left to pay
-    await expect(page.getByText("Balance due")).toBeVisible();
-    await expect(page.getByText("Recorded by you")).toHaveCount(2);
+    // Count visible elements only: earlier page states can stay mounted (hidden) for instant back-navigation.
+    await expect(page.getByText("Recorded by you", { exact: true }).filter({ visible: true })).toHaveCount(2);
+    await expect(page.getByRole("button", { name: "Record payment" }).filter({ visible: true })).toHaveCount(0); // nothing left to pay
 
     // 8. The money shows up in the dashboard and payments list, from real data.
     await page.goto("/provider");

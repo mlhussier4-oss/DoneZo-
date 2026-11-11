@@ -176,3 +176,61 @@ export async function cancelBookingAsProvider(bookingId: string, reason: string)
   refresh();
   return {};
 }
+
+/**
+ * Blueprint §18: the provider finishes a marketplace job and sends the customer a secure payment
+ * request. The job waits in "Awaiting payment" until Stripe confirms (then it completes itself),
+ * or the provider records a cash/Venmo payment and marks it complete.
+ */
+export async function completeAndRequestPayment(bookingId: string): Promise<Result & { ok?: boolean }> {
+  const { user, business } = await requireProvider();
+  if (!uuid.safeParse(bookingId).success) return { error: "Unknown booking." };
+  const supabase = await createClient();
+  const { data: b } = await supabase.from("bookings").select("id, status, job_id, business_id").eq("id", bookingId).single();
+  if (!b || b.business_id !== business.id || !b.job_id) return { error: "Unknown booking." };
+  if (b.status !== "active") return { error: "This booking isn't active." };
+
+  const { error: jobError } = await supabase.from("jobs").update({ status: "awaiting_payment" }).eq("id", b.job_id);
+  if (jobError) return { error: dbErrorMessage(jobError, "Could not update the job.") };
+
+  let { data: inv } = await supabase
+    .from("invoices").select("id, number, status, total_cents, amount_paid_cents, public_token")
+    .eq("job_id", b.job_id).neq("status", "void").order("created_at", { ascending: false }).limit(1).maybeSingle();
+  if (!inv) {
+    const { data: created, error } = await supabase.rpc("create_invoice_for_job", { p_job_id: b.job_id });
+    if (error || !created) return { error: dbErrorMessage(error, "Could not create the invoice.") };
+    inv = created;
+  }
+  if (inv!.status === "draft") {
+    const { data: sent, error } = await supabase.rpc("send_invoice", { p_invoice_id: inv!.id });
+    if (error || !sent) return { error: dbErrorMessage(error, "Could not send the invoice.") };
+    inv = sent;
+  }
+  const balance = inv!.total_cents - inv!.amount_paid_cents;
+  const { siteUrl } = await import("@/lib/env");
+  const { formatMoney } = await import("@/lib/format");
+  const link = siteUrl(`/i/${inv!.public_token}`).toString();
+
+  const { data: acct } = await supabase.from("stripe_accounts").select("stripe_account_id, status").eq("business_id", business.id).maybeSingle();
+  const cardsOn = acct?.status === "active" && balance > 0;
+  if (cardsOn) {
+    try {
+      const { getOrCreateInvoiceCheckout } = await import("@/lib/payments/checkout");
+      await getOrCreateInvoiceCheckout(
+        { invoiceId: inv!.id, businessId: business.id, number: inv!.number, balanceCents: balance, businessName: business.name, stripeAccountId: acct!.stripe_account_id, publicToken: inv!.public_token },
+        user.id,
+      );
+    } catch (err) {
+      console.error("checkout for completion failed", err);
+      return { error: "The job is marked complete, but we couldn't reach Stripe for the payment link. Try again in a moment." };
+    }
+  }
+  const body = balance > 0
+    ? `The job is done! Here's your invoice for ${formatMoney(balance)}: ${link}${cardsOn ? " You can pay securely by card there." : ""}`
+    : `The job is done! Your invoice: ${link}`;
+  const { error: msgError } = await supabase.from("messages").insert({ booking_id: b.id, body });
+  if (msgError) return { error: "The invoice is ready, but the message couldn't be sent." };
+  // Text messages (with the customer's consent) are sent once an SMS provider is set up (not configured yet).
+  refresh();
+  return { ok: true };
+}

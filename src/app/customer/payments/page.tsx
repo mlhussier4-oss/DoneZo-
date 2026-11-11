@@ -16,7 +16,7 @@ export default async function CustomerPaymentsPage() {
   const { data: invoices } = await (await createClient()).rpc("customer_invoices");
   return (
     <>
-      <PageHeader title="Payments" description="Invoices from providers you've hired. Paying by card online is coming soon; for now, pay your provider directly." />
+      <PageHeader title="Payments" description="Invoices from providers you've hired. Open one to pay by card, if your provider takes cards, or pay them directly." />
       {!invoices?.length ? <EmptyState icon={Receipt} title="No invoices yet">Your provider sends an invoice after the job is done.</EmptyState> : (
         <Card className="divide-y divide-border">
           {invoices.map((i) => (

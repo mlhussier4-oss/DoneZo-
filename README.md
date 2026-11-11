@@ -76,6 +76,29 @@ npm run typecheck
 npm run db:types         # regenerate TypeScript types after changing the database
 ```
 
+## Stripe (payments)
+
+DoneZo uses Stripe in **test mode** (pretend money) until the owner approves going live.
+
+- **$9.99/month subscription** (Stripe Billing on DoneZo's own account). Providers can't use the CRM or marketplace without it; this is enforced in the database too.
+- **Card payments** go straight to each provider's own Stripe account (Stripe Connect **direct charges**, created with Stripe's Accounts v2). DoneZo's **10% fee** is taken automatically as an application fee and is refunded with refunds.
+- **Payments are only marked paid when Stripe's signed webhook confirms them.** Duplicate webhooks are ignored.
+
+### Setting up Stripe locally
+1. Put your test secret key in `.env.local` as `STRIPE_SECRET_KEY` (see `.env.example`).
+2. To receive webhooks on your computer, install the [Stripe CLI](https://docs.stripe.com/stripe-cli) and run:
+   ```bash
+   stripe listen --forward-to 127.0.0.1:3000/api/stripe/webhook --forward-connect-to 127.0.0.1:3000/api/stripe/webhook
+   ```
+   and copy the `whsec_...` secret it prints into `STRIPE_WEBHOOK_SECRET`.
+3. When deployed, create webhook endpoints in the Stripe Dashboard pointing at `https://<your-domain>/api/stripe/webhook` for these events:
+   `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`,
+   `charge.refunded`, `account.updated`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`
+   (the account/charge/checkout ones on the **Connected accounts** endpoint).
+
+### Automated tests and Stripe
+Browser tests never touch real Stripe. They run against Stripe's official local simulator (`npm run stripe:mock`, needs Docker) and send webhook events signed the same way Stripe signs them.
+
 ## Environment variables
 
 | Name | Where it's used | Secret? |
@@ -85,6 +108,9 @@ npm run db:types         # regenerate TypeScript types after changing the databa
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Browser and server (safe to expose; Row Level Security protects data) | No |
 | `SUPABASE_SECRET_KEY` | Admin script and tests only. **Never** in browser code, never committed | **Yes** |
 | `MAILPIT_URL` | Tests read emails from the local inbox | No |
+| `STRIPE_SECRET_KEY` | Server only: talks to Stripe (test key) | **Yes** |
+| `STRIPE_WEBHOOK_SECRET`, `STRIPE_CONNECT_WEBHOOK_SECRET` | Server only: verifies Stripe webhooks | **Yes** |
+| `STRIPE_ALLOW_LIVE` | Must be `true` to allow live payments (owner approval) | No |
 
 `.env.local` is ignored by git. Never commit real keys.
 

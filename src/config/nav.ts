@@ -38,6 +38,7 @@ export const adminNav: NavItem[] = [
   { href: "/admin/categories", label: "Service categories", icon: "tags" },
   { href: "/admin/marketplace", label: "Marketplace", icon: "briefcase" },
   { href: "/admin/service-areas", label: "Service areas", icon: "map" },
+  { href: "/admin/payments", label: "Payments", icon: "card" },
   { href: "/admin/reports", label: "Support reports", icon: "flag" },
   { href: "/admin/audit-log", label: "Audit log", icon: "log" },
 ];

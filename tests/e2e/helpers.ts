@@ -39,7 +39,7 @@ export function extractConfirmLink(html: string): string {
 
 export async function signUpProvider(
   page: Page,
-  opts: { usage: "crm" | "marketplace"; businessName: string; email: string; password?: string },
+  opts: { usage: "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean },
 ) {
   const password = opts.password ?? "Correct-horse-9";
   await page.goto("/signup/provider");
@@ -53,8 +53,32 @@ export async function signUpProvider(
 
   const email = await latestEmail(opts.email);
   await page.goto(extractConfirmLink(email.html));
+  // New providers must subscribe first (owner decision). Unless a test is about that,
+  // activate the subscription the way Stripe's webhook would, then continue.
+  await expect(page).toHaveURL(atPath("/subscribe"));
+  if (opts.subscribe === false) return { password };
+  await activateSubscriptionFor(opts.email);
+  await page.goto("/provider");
   await expect(page).toHaveURL(atPath("/provider"));
   return { password };
+}
+
+function serviceClient() {
+  return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
+}
+
+export async function businessIdForEmail(email: string): Promise<string> {
+  const db = serviceClient();
+  const { data: profile } = await db.from("profiles").select("id").eq("email", email).single();
+  const { data: member } = await db.from("business_members").select("business_id").eq("user_id", profile!.id).single();
+  return member!.business_id;
+}
+
+export async function activateSubscriptionFor(email: string) {
+  const businessId = await businessIdForEmail(email);
+  await serviceClient().from("business_subscriptions").upsert({ business_id: businessId, status: "active" });
 }
 
 export async function signInWithCode(page: Page, email: string, opts: { path?: string; fullName?: string } = {}) {

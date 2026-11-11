@@ -2,7 +2,33 @@
 
 Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
 
-Next up: **Phase 4 — Payments (Stripe Connect, test mode).**
+Next up: **Phase 5 — Advanced business management** (employees, permissions, job assignment, advanced reports, optional route planning).
+
+## Phase 4 — Payments ✅ (built and tested 2026-11-11, Stripe test mode)
+
+### Works
+- **Required $9.99/month subscription** (owner decision): new providers land on a Subscribe page after confirming their email and pay on Stripe's secure checkout. Every provider page is locked until Stripe confirms; the database also refuses changes, bids and new bookings for businesses without an active subscription. Past-due (card being retried) keeps access; canceled locks it again without deleting anything. Providers manage their card, receipts and cancellation on Stripe's billing page ("Manage billing").
+- **Connect Stripe** (Stripe Connect, Accounts v2, direct charges): providers sign up on Stripe's hosted pages (DoneZo never sees bank details). Status shown as **Not connected / Onboarding incomplete / Pending verification / Active / Restricted**; card payments only appear once Stripe says the account can accept them.
+- **Card payments with DoneZo's 10% fee** on every card payment (CRM and marketplace, owner decision): "Pay by card" on the customer's invoice link, or a payment link the provider creates. The fee is set by admins (default 10%, logged).
+- **Mark Complete & Send Payment** for marketplace jobs: one tap moves the job to Awaiting payment, sends the invoice at the agreed price and posts the payment link in the customer chat (which notifies the customer). The verified payment completes the job, notifies both sides and opens the review.
+- **Only verified Stripe webhooks mark anything paid**; returning to the success page shows "confirming" instead. Signatures are checked, duplicate events ignored, failed events retried by Stripe.
+- **Statuses:** Not requested / Payment link sent: awaiting payment / Payment failed / Paid / Refunded.
+- **Refunds** from the invoice or Payments page refund DoneZo's fee too, and show once Stripe confirms.
+- **Card vs. cash are kept separate:** "Verified by Stripe" vs. "Recorded by you"; no fee on cash, Venmo, Cash App or check.
+- **Payouts shown separately** from payments ("Deposited", "On its way"…), with a link to the provider's own Stripe dashboard.
+- **Admin Payments page:** active subscriptions, card volume, DoneZo fees earned after refunds, recent card payments, fee setting.
+- **Safety lock:** DoneZo refuses live Stripe keys and live events unless `STRIPE_ALLOW_LIVE=true` is set with the owner's approval.
+
+### Tests
+- Database: 11 new tests (101 total with helper tests) — paid-access gate (blocked, past-due, canceled, unsubscribed providers can't bid or be hired), providers can't grant themselves a subscription or Stripe account, verified payment with 10% fee recorded once even if Stripe repeats the event, failed links never show paid, partial and full refunds, providers can't fake or edit Stripe payments, webhook-only functions locked down, event ids stored once, fee setting admin-only.
+- Browser (against Stripe's local simulator with Stripe-signed webhooks): 4 new tests (25 total) — subscribe gate and cancellation; card link → customer pays → forged signature rejected → duplicate ignored → paid → fee → refund; cash-only provider; marketplace Mark Complete & Send Payment → payment completes the job.
+- **Checked against the owner's real Stripe test account:** subscription checkout (customer, $9.99 price and checkout page created) and Connect onboarding (connected account created with Accounts v2; status read back as "Onboarding incomplete").
+
+### Not yet done / notes
+- **End-to-end with real Stripe** still needs a person to click through Stripe's hosted pages (enter test card 4242 4242 4242 4242, fill in a test provider's onboarding) and a webhook connection (Stripe CLI locally, or the dashboard once deployed). Steps are in the README.
+- Text (SMS) payment links aren't sent yet; the link goes in the app chat and the invoice page.
+- Stripe may report Accounts v2 changes with newer-style events; DoneZo also re-checks a provider's status with Stripe whenever their Payments page is opened, so it stays correct either way.
+- Legal/financial review of the payment setup is still required before live mode.
 
 ## Phase 3 — Customer marketplace ✅ (built and tested 2026-11-11)
 

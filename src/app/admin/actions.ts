@@ -102,3 +102,13 @@ export async function resolveReport(reportId: string, note: string): Promise<Adm
   refresh();
   return { status: "success" };
 }
+
+export async function setCardFee(_prev: AdminState, formData: FormData): Promise<AdminState> {
+  await requireRole("admin");
+  const pct = Number(String(formData.get("percent") ?? "").replace("%", ""));
+  if (!Number.isFinite(pct) || pct < 0 || pct > 30) return { status: "error", message: "Enter a percentage between 0 and 30." };
+  const { error } = await (await createClient()).rpc("admin_set_card_fee", { p_bps: Math.round(pct * 100) });
+  if (error) return { status: "error", message: "Could not save the fee." };
+  refresh();
+  return { status: "success", message: "Saved. New card payment links use this fee." };
+}

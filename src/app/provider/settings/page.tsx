@@ -4,12 +4,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PageHeader } from "@/components/ui/page-header";
 import { requireProvider } from "@/lib/auth";
 import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
+import { ManageBillingButton } from "../../subscribe/subscribe-buttons";
+import { formatDate } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Business settings" };
 
 export default async function ProviderSettingsPage() {
   const { business } = await requireProvider();
   const canManage = business.memberRole !== "employee";
+  const { data: sub } = await (await createClient())
+    .from("business_subscriptions")
+    .select("status, current_period_end, cancel_at_period_end")
+    .eq("business_id", business.id)
+    .maybeSingle();
 
   return (
     <>
@@ -47,11 +55,17 @@ export default async function ProviderSettingsPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Plan</CardTitle>
+            <div className="flex items-center gap-3">
+              <CardTitle>Subscription</CardTitle>
+              <Badge tone={sub?.status === "past_due" ? "warning" : "success"}>{sub?.status === "past_due" ? "Payment overdue" : "Active"}</Badge>
+            </div>
             <CardDescription>
-              You&apos;re on the free beta plan with every feature included. Subscription pricing hasn&apos;t been set yet.
+              DoneZo Standard, $9.99/month.
+              {sub?.current_period_end ? ` ${sub.cancel_at_period_end ? "Ends" : "Renews"} ${formatDate(sub.current_period_end)}.` : ""}
+              {sub?.status === "past_due" ? " Stripe couldn't charge your card; update it to keep access." : ""}
             </CardDescription>
           </CardHeader>
+          <CardContent>{canManage ? <ManageBillingButton /> : <p className="text-sm text-muted-foreground">Only the owner can manage billing.</p>}</CardContent>
         </Card>
       </div>
     </>

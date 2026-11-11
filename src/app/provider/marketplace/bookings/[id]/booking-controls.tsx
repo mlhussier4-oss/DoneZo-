@@ -8,7 +8,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
 import { idle } from "@/lib/forms";
-import { cancelBookingAsProvider, proposeChangeOrder, withdrawChangeOrder } from "../../actions";
+import { cancelBookingAsProvider, completeAndRequestPayment, proposeChangeOrder, withdrawChangeOrder } from "../../actions";
 
 export function ChangeOrderForm({ bookingId }: { bookingId: string }) {
   const [state, form] = useFormAction(proposeChangeOrder.bind(null, bookingId), idle);
@@ -50,5 +50,21 @@ export function ProviderCancelBookingButton({ bookingId }: { bookingId: string }
       </Button>
       {error ? <Alert tone="error">{error}</Alert> : null}
     </>
+  );
+}
+
+export function CompleteAndRequestPaymentButton({ bookingId }: { bookingId: string }) {
+  const [pending, start] = useTransition();
+  const [result, setResult] = useState<{ error?: string; ok?: boolean }>();
+  if (result?.ok) return <Alert tone="success">Done. The customer has the invoice and a secure payment link in your messages.</Alert>;
+  return (
+    <div className="space-y-2">
+      <Button className="w-full" disabled={pending}
+        onClick={() => confirm("Mark this job complete and send the customer the invoice and payment link?") && start(async () => setResult(await completeAndRequestPayment(bookingId)))}>
+        {pending ? "Sending…" : "Mark complete & send payment"}
+      </Button>
+      <p className="text-xs text-muted-foreground">Add completion photos on the job first if you like. The job is marked paid only when Stripe confirms the payment.</p>
+      {result?.error ? <Alert tone="error">{result.error}</Alert> : null}
+    </div>
   );
 }
