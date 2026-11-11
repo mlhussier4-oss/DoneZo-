@@ -4,7 +4,7 @@ import { employeeNav, providerNav } from "@/config/nav";
 import { redirect } from "next/navigation";
 import { requireProvider } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { unreadCount } from "@/lib/marketplace/notifications";
+import { newJobCount, unreadCount } from "@/lib/marketplace/notifications";
 import { PendingAlert } from "@/components/marketplace/pending-alert";
 
 async function ProviderShell({ children }: { children: React.ReactNode }) {
@@ -13,10 +13,10 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
   // Paid access (owner decision 2026-11-11). Also enforced in the database for every change.
   const { data: hasAccess } = await (await createClient()).rpc("business_has_access", { p_business_id: business.id });
   if (!hasAccess) redirect("/subscribe");
-  const unread = await unreadCount(user.id);
+  const [unread, newJobs] = await Promise.all([unreadCount(user.id), newJobCount(user.id)]);
   return (
     <AppShell
-      nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread, business.hasCrm)}
+      nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread, business.hasCrm, newJobs)}
       areaLabel="Business"
       homeHref={business.memberRole === "employee" ? "/provider/my-jobs" : business.hasCrm ? "/provider" : "/provider/marketplace"}
       userLabel={business.name}

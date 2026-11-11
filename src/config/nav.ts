@@ -12,11 +12,11 @@ export function customerNav(unread = 0): NavItem[] {
 }
 
 /** Provider navigation (Blueprint §10). Marketplace appears only when enabled; business tools only on Pro. */
-export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = true): NavItem[] {
+export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = true, newJobs = 0): NavItem[] {
   if (!hasCrm) {
     // DoneZo Basic: the marketplace plan.
     return [
-      { href: "/provider/marketplace", label: "Marketplace", icon: "store" },
+      { href: "/provider/marketplace", label: "Marketplace", icon: "store", badge: newJobs, badgeTone: "alert" },
       { href: "/provider/calendar", label: "Calendar", icon: "calendar" },
       { href: "/provider/payments", label: "Payments", icon: "card" },
       { href: "/provider/notifications", label: "Notifications", icon: "bell", badge: unread },
@@ -32,7 +32,7 @@ export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = tr
     { href: "/provider/invoices", label: "Invoices", icon: "invoice" },
     { href: "/provider/payments", label: "Payments", icon: "card" },
   ];
-  if (marketplaceEnabled) items.push({ href: "/provider/marketplace", label: "Marketplace", icon: "store" });
+  if (marketplaceEnabled) items.push({ href: "/provider/marketplace", label: "Marketplace", icon: "store", badge: newJobs, badgeTone: "alert" });
   items.push({ href: "/provider/notifications", label: "Notifications", icon: "bell", badge: unread });
   items.push(
     { href: "/provider/employees", label: "Team", icon: "userCog" },
