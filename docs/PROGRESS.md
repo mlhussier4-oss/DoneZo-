@@ -4,10 +4,10 @@
 **Live:** https://donezo.org (private test, Stripe test mode). The newest work below is on branch `claude/project-setup` and goes live after merging into `main` and applying the two new database migrations to the live project.
 
 **Built 2026-11-12, tested, not yet live:**
-- **Fast posting:** homeowners post a job with **no email, password or card**. A private guest account is created on their device.
+- **Fast posting:** homeowners post a job with **no email, password or card**. A private guest account is created on their device. **At least one photo is required.**
 - **Live bids:** the customer dashboard shows each job with a **Bids drop-down that fills in live** (every few seconds, no refresh, no emails).
 - **Live booking:**
-  - Picking a bid notifies the provider and **opens the chat under the job**.
+  - Picking a bid notifies the provider. The **chat opens under the job only after the provider confirms** the job and price.
   - The provider sees an **alert with a chime on every page** and has **5:00 to confirm with an arrival time**.
   - From **2:00 left** the customer can **add 10 minutes** (repeatable) or **drop the provider**. If time runs out, the provider loses the job and the other bids remain.
   - The full address reaches the provider only when they confirm. A provider who lapses loses access to the chat.

@@ -3,7 +3,8 @@
 --  * From 2:00 left the customer can add 10 minutes (repeatable) or drop the provider.
 --  * Time runs out or the customer drops them -> booking LAPSED, the other bids are still there to pick.
 --  * The customer's full address reaches the provider only when they confirm (customer records are created then).
---  * Chat opens as soon as the customer picks the bid. A lapsed provider can no longer read or send messages.
+--  * Chat opens only once the provider confirms (owner decision 2026-11-12), so nothing the customer shares can
+--    reach a provider who then lets the time run out. A lapsed provider can no longer read or send messages.
 
 alter table public.bookings
   add column confirm_by   timestamptz,
@@ -250,7 +251,7 @@ select cron.schedule('expire-pending-bookings', '* * * * *', 'select public.expi
 revoke all on function public.extend_booking(uuid), public.drop_pending_booking(uuid), public.check_booking_deadline(uuid) from public, anon;
 grant execute on function public.extend_booking(uuid), public.drop_pending_booking(uuid), public.check_booking_deadline(uuid) to authenticated;
 
--- Chat: open while pending or booked; a lapsed provider can't read or send any more.
+-- Chat: opens when the provider confirms; never while waiting, and a lapsed provider can't read or send.
 create or replace function public.is_booking_participant(p_booking_id uuid)
 returns boolean
 language sql
@@ -272,6 +273,9 @@ security definer
 set search_path = ''
 as $$
 begin
+  if exists (select 1 from public.bookings where id = new.booking_id and status = 'pending') then
+    raise exception 'The chat opens once the provider confirms the job.' using errcode = 'P0001';
+  end if;
   if exists (select 1 from public.bookings where id = new.booking_id and status = 'lapsed') then
     raise exception 'This conversation has ended.' using errcode = 'P0001';
   end if;

@@ -4,9 +4,10 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-12 — Photos are required** when posting a job (at least one; 2–3 suggested). The service choice stays a one-tap first step; from a homepage service card the homeowner lands straight on the photos.
 - **2026-11-12 — Fast posting and live booking** (replaces the 2026-11-10 "email code at Post Job" decision):
   - Homeowners post a job **without entering an email**. They land on their dashboard, where bids appear **live** under the job (no bid emails).
-  - **Picking a bid** notifies the provider immediately and opens a **chat under the job**. The homeowner shares their details there; the provider confirms with an **arrival time**.
+  - **Picking a bid** notifies the provider immediately. The provider must **confirm the job and price with an arrival time**. **Only then** does a **chat open under the job** (owner refinement, same day), so nothing the homeowner shares can reach a provider who lets the time run out.
   - The provider has **5 minutes** to confirm, shown as a **live countdown**. From **2:00 left** the homeowner can **add 10 minutes** or **drop the provider**. If time runs out, the provider loses the job and the homeowner can pick another bid; the other bids stay available until a provider confirms.
 - **2026-11-11 — Look:** professional navy and gray, with yellow on buttons.
 - **2026-11-11 — Support address:** support@donezo.org.

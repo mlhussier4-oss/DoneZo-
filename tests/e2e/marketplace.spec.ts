@@ -93,19 +93,17 @@ test.describe("marketplace: post → bid → accept → message → change → c
     const waiting = page.getByTestId("waiting-panel");
     await expect(waiting.getByText("Waiting for Alpha Lawn Co to confirm")).toBeVisible();
     await expect(waiting.getByRole("timer")).toHaveText(/^[45]:\d\d$/);
-    // The chat opens right away; the customer shares their details.
-    await page.getByLabel("Message", { exact: true }).fill("Hi, I'm Riley. Gate code is 4512");
-    await page.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(page.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible();
+    // No chat yet: it opens only once the provider commits (owner decision 2026-11-12).
+    await expect(page.getByLabel("Message", { exact: true })).toHaveCount(0);
 
-    // 5. Alpha is alerted on any page, sees the message, and confirms with an arrival time.
+    // 5. Alpha is alerted on any page and confirms the job and price with an arrival time.
     await alpha.goto("/provider/marketplace?tab=bids");
     const alert = alpha.getByTestId("pending-alert");
     await expect(alert).toBeVisible({ timeout: 15_000 });
     await alert.getByRole("link").first().click();
     const confirmPanel = alpha.getByTestId("confirm-panel");
     await expect(confirmPanel.getByRole("timer")).toHaveText(/^[45]:\d\d$/);
-    await expect(alpha.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible();
+    await expect(alpha.getByLabel("Message", { exact: true })).toHaveCount(0); // no chat before confirming
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toHaveCount(0); // address only after confirming
     await confirmPanel.getByRole("button", { name: "Confirm job" }).click();
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toBeVisible();
@@ -114,9 +112,13 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await bravo.goto("/provider/marketplace?tab=bids");
     await expect(bravo.getByText("Not chosen")).toBeVisible();
 
-    // 6. The customer sees the confirmation live; chat continues both ways.
+    // 6. The customer sees the confirmation live, and the chat opens under the job for both sides.
     await expect(page.getByText("Alpha Lawn Co confirmed · $65.00")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/^Arriving /)).toBeVisible();
+    await page.getByLabel("Message", { exact: true }).fill("Hi, I'm Riley. Gate code is 4512");
+    await page.getByRole("button", { name: "Send", exact: true }).click();
+    await expect(page.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible();
+    await expect(alpha.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible({ timeout: 15_000 });
     await alpha.getByLabel("Message", { exact: true }).fill("Thanks Riley, see you then!");
     await alpha.getByRole("button", { name: "Send", exact: true }).click();
     await expect(page.getByText("Thanks Riley, see you then!")).toBeVisible({ timeout: 15_000 });
@@ -191,7 +193,11 @@ test.describe("marketplace: post → bid → accept → message → change → c
 
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
     await page.goto("/post-job?category=lawn-mowing");
-    await page.getByRole("button", { name: "Skip for now" }).click();
+    await page.waitForLoadState("networkidle");
+    // Photos are required: no way past this step without one (owner decision 2026-11-12).
+    await expect(page.getByRole("button", { name: "Add a photo to continue" })).toBeDisabled();
+    await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("What needs to be done?").fill("Mow the lawn");
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "As soon as possible" }).click();

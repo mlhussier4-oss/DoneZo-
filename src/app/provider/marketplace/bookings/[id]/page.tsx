@@ -71,7 +71,7 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
 
       <div className="grid gap-6 lg:grid-cols-[1fr_22rem]">
         <div className="space-y-6">
-          {!lost ? <Card>
+          {!lost && !waiting ? <Card>
             <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
             <CardContent>
               <MessageThread bookingId={b.id} currentUserId={user.id} otherPartyName={c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />

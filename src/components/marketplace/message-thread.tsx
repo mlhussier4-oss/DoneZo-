@@ -36,12 +36,25 @@ export function MessageThread({
 
   useEffect(() => {
     const supabase = createBrowserSupabase();
-    const channel = supabase
-      .channel(`messages:${bookingId}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `booking_id=eq.${bookingId}` }, () => router.refresh())
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    let stopped = false;
+    // Listen as the signed-in person: load the session first, or the database's privacy rules
+    // (which only let the two parties see the chat) would deliver nothing.
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (stopped) return;
+      if (data.session) await supabase.realtime.setAuth(data.session.access_token);
+      channel = supabase
+        .channel(`messages:${bookingId}`)
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: `booking_id=eq.${bookingId}` }, () => router.refresh())
+        .subscribe();
+    })();
+    // Safety net if the live connection drops (e.g. a phone switching networks).
+    const poll = setInterval(() => { if (document.visibilityState === "visible") router.refresh(); }, 10_000);
     return () => {
-      supabase.removeChannel(channel);
+      stopped = true;
+      clearInterval(poll);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [bookingId, router]);
 

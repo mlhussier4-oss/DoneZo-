@@ -11,6 +11,7 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
+import { cancelRequest } from "../../customer/requests/actions";
 import { checkZip, createRequest, registerRequestPhotos } from "./actions";
 
 type Category = { id: string; slug: string; name: string; icon: string; description: string | null };
@@ -92,6 +93,7 @@ export function PostJobWizard({
       timing: timing as Timing,
       preferredDate: timing === "specific_date" ? preferredDate : null,
       zip: zip.trim(),
+      photoCount: photos.length,
       line1,
       line2,
       city,
@@ -108,6 +110,13 @@ export function PostJobWizard({
         const path = `${result.userId}/${result.id}/${crypto.randomUUID()}.${EXT[p.file.type]}`;
         const { error: upErr } = await supabase.storage.from("request-photos").upload(path, p.file, { contentType: p.file.type });
         if (!upErr) uploaded.push(path);
+      }
+      if (!uploaded.length) {
+        // A job without photos never goes out (owner decision 2026-11-12).
+        await cancelRequest(result.id);
+        setStatus(undefined);
+        setError("Your photos didn't upload, so the job wasn't posted. Check your connection and try again.");
+        return;
       }
       await registerRequestPhotos(result.id, uploaded);
     }
@@ -129,7 +138,7 @@ export function PostJobWizard({
 
   const canContinue = [
     Boolean(category),
-    true,
+    photos.length > 0, // photos are required (owner decision 2026-11-12)
     description.trim().length > 0,
     Boolean(timing) && (timing !== "specific_date" || Boolean(preferredDate)),
     zip.trim().length === 5,
@@ -183,7 +192,7 @@ export function PostJobWizard({
       {step === 1 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Add photos</h1>
-          <p className="text-muted-foreground">Photos help providers give you an accurate price. Optional, up to {MAX_PHOTOS}.</p>
+          <p className="text-muted-foreground">Add at least one photo of the job (2 or 3 is best) so providers can give you an accurate price. Up to {MAX_PHOTOS}.</p>
           <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-input bg-card px-4 py-10 text-center hover:border-primary hover:bg-primary-soft">
             <Camera className="size-8 text-primary" aria-hidden />
             <span className="font-semibold">Take or choose photos</span>
@@ -312,7 +321,7 @@ export function PostJobWizard({
         <div className="sticky bottom-0 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
           {step < 4 ? (
             <Button size="lg" className="w-full" disabled={!canContinue} onClick={() => go(step + 1)}>
-              {step === 1 && !photos.length ? "Skip for now" : "Continue"}
+              {step === 1 && !photos.length ? "Add a photo to continue" : "Continue"}
             </Button>
           ) : step === 4 ? (
             <Button size="lg" className="w-full" disabled={!canContinue || pending} onClick={nextFromLocation}>

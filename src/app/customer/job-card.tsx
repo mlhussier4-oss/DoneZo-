@@ -27,7 +27,7 @@ export type LiveRequest = {
 
 /**
  * One job on the customer's dashboard (owner decision 2026-11-12): bids arrive live in a drop-down under the job;
- * picking one starts the provider's 5-minute confirmation, with the chat right here.
+ * picking one starts the provider's 5-minute confirmation. The chat opens under the job only once they confirm.
  */
 export function JobCard({ req, bids, booking, thread, userId }: {
   req: LiveRequest; bids: BidCardData[]; booking: CustomerBooking | null; thread: ThreadMessage[]; userId: string;
@@ -92,7 +92,7 @@ export function JobCard({ req, bids, booking, thread, userId }: {
           </div>
         ) : null}
 
-        {booking && (waiting || confirmed) ? (
+        {booking && confirmed ? (
           <section aria-label={`Chat with ${booking.business.name}`} className="rounded-lg border border-border">
             <p className="flex items-center gap-2 border-b border-border px-4 py-2 text-sm font-semibold"><MessageSquare className="size-4 text-primary" aria-hidden />Chat with {booking.business.name}</p>
             <div className="p-3">

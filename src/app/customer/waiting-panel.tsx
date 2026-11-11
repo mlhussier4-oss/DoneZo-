@@ -20,7 +20,7 @@ export function WaitingPanel({ bookingId, providerName, confirmBy, serverNow }: 
           <Clock className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <div>
             <p className="font-semibold">Waiting for {providerName} to confirm</p>
-            <p className="text-sm text-muted-foreground">They&apos;ve been notified. Share your details in the chat below; they&apos;ll confirm with an arrival time.</p>
+            <p className="text-sm text-muted-foreground">They&apos;ve been notified and must confirm your job and price with an arrival time. Once they do, a chat opens here so you can share your details.</p>
           </div>
         </div>
         <CountdownClock seconds={left} />

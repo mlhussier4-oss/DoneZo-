@@ -278,7 +278,7 @@ describe("accepting a bid", () => {
 });
 
 describe("messaging", () => {
-  it("opens as soon as the customer picks a bid, and only between the customer and the chosen provider", async () => {
+  it("opens only once the chosen provider confirms, and only between the customer and that provider", async () => {
     const winner = await provider();
     const loser = await provider();
     const c = await customer();
@@ -290,6 +290,10 @@ describe("messaging", () => {
     expect((await c.client.from("bookings").select("id").eq("request_id", r.id)).data).toEqual([]);
 
     const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: winning.id });
+    // Picked but not confirmed yet: no chat in either direction (owner decision 2026-11-12).
+    expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code is 1234" })).error?.message).toMatch(/once the provider confirms/);
+    expect((await winner.client.from("messages").insert({ booking_id: booking.id, body: "Hi!" })).error).not.toBeNull();
+    expect((await winner.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 86_400_000).toISOString() })).error).toBeNull();
     expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code is 1234" })).error).toBeNull();
     expect((await winner.client.from("messages").insert({ booking_id: booking.id, body: "Thanks, see you Thursday" })).error).toBeNull();
     expect((await loser.client.from("messages").insert({ booking_id: booking.id, body: "Pick me instead" })).error).not.toBeNull();
@@ -458,10 +462,10 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     expect((await c.client.rpc("extend_booking", { p_booking_id: booking.id })).data.extensions).toBe(2);
   });
 
-  it("time running out: the provider loses the job and the chat, the customer picks another bid", async () => {
+  it("time running out: the provider loses the job, never got the customer's details, and the customer picks another bid", async () => {
     const { c, chosen, backup, r, second, booking } = await picked();
-    expect((await chosen.client.from("messages").insert({ booking_id: booking.id, body: "On my way soon" })).error).toBeNull();
-    expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code 1234" })).error).toBeNull();
+    // Nothing can be shared while waiting.
+    expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code 1234" })).error).not.toBeNull();
     await setSecondsLeft(booking.id, -5);
     // Confirming late fails and lapses the booking.
     const late = await chosen.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
@@ -469,7 +473,7 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     expect(late.data.status).toBe("lapsed");
     expect((await c.client.from("bookings").select("status").eq("id", booking.id).single()).data?.status).toBe("lapsed");
     expect((await c.client.from("service_requests").select("status").eq("id", r.id).single()).data?.status).toBe("open");
-    // The lapsed provider can no longer read the chat (where the gate code was shared) or send anything.
+    // The lapsed provider has no chat and no customer record.
     expect((await chosen.client.from("messages").select("id").eq("booking_id", booking.id)).data).toEqual([]);
     expect((await chosen.client.from("messages").insert({ booking_id: booking.id, body: "Wait!" })).error).not.toBeNull();
     expect((await chosen.client.from("crm_customers").select("id").eq("profile_id", c.id)).data).toEqual([]);
@@ -504,9 +508,9 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     const b = await bid(p, r.id);
     const { data: booking, error: acceptError } = await anon.rpc("accept_bid", { p_bid_id: b.id });
     expect(acceptError).toBeNull();
-    expect((await anon.from("messages").insert({ booking_id: booking.id, body: "Hi! I'm Sam, 512-555-0123" })).error).toBeNull();
     const confirmed = await p.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
     expect(confirmed.error).toBeNull();
+    expect((await anon.from("messages").insert({ booking_id: booking.id, body: "Hi! I'm Sam, 512-555-0123" })).error).toBeNull();
     expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("DoneZo customer");
   });
 });
