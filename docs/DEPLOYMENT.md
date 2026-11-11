@@ -1,6 +1,20 @@
 # Deploying DoneZo
 
-**Domain: donezo.org** (bought by the owner on Cloudflare, 2026-11-11). **Status: not deployed.** Nothing here has been done yet. Putting DoneZo online needs the owner's approval
+**Domain: donezo.org** (bought by the owner on Cloudflare, 2026-11-11).
+
+## Status (private test, free plans, Stripe test mode)
+| Step | State |
+|---|---|
+| Supabase project `DoneZo1` (US East) | ✅ all migrations applied; security audit and permissions match the tested setup |
+| Supabase sign-in settings | ✅ site URL, password rules, 15-min codes; ⏳ email templates need custom SMTP (Resend) first |
+| Vercel project `donezo-` | ✅ builds from `main`; settings added (Supabase, webhook secrets, private-test mode) |
+| Stripe test-mode webhooks for https://donezo.org/api/stripe/webhook | ✅ subscriptions + connected accounts |
+| `STRIPE_SECRET_KEY` in Vercel | ⏳ owner pastes the test key (sk_test_…) |
+| DNS in Cloudflare | ⏳ owner adds 2 records (below) |
+| Resend sending domain + Supabase SMTP | ⏳ owner (Resend → Domains, then Integrations → Supabase) |
+| First admin account | ⏳ after the site is reachable |
+
+Earlier text:  Putting DoneZo online needs the owner's approval
 because it creates paid accounts and makes the site public (CLAUDE.md rule 9). Stripe stays in **test mode**
 until the owner separately approves live payments.
 
@@ -27,7 +41,7 @@ Total to start: **about $45–$65/month** plus the domain.
 ## One-time setup (in this order)
 
 1. **Supabase project**: create a project in a US region. In *Project settings → API*, copy the URL, the publishable key and the secret key.
-2. **Database**: from this repository, link and push migrations:
+2. **Database**: from this repository, link and push migrations (or apply them through the Management API, as done for the private test). Note: Supabase cloud projects give broad table permissions by default; migration `20261118000000_explicit_privileges.sql` resets them to the tested set, so always run every migration:
    `npx supabase link --project-ref <ref>` then `npx supabase db push`. This creates every table, rule, function, scheduled job (pg_cron) and storage bucket, plus the ZIP-code and service-category reference data. No test data is included.
 3. **Supabase Auth settings** (dashboard → Authentication):
    - Site URL = `https://donezo.org`; add `https://donezo.org/auth/confirm` to Redirect URLs.
