@@ -10,3 +10,8 @@ export function splitByNow<T>(items: T[], getDate: (item: T) => string | null, i
   const rest = items.filter((i) => !upcoming.includes(i));
   return { upcoming, rest };
 }
+
+/** The moment `days` days ago, as an ISO timestamp (kept out of components so render stays pure). */
+export function isoDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString();
+}

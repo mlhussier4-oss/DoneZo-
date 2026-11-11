@@ -1134,6 +1134,14 @@ isOneToOne: false
 "business_public_stats":
 { Args: { "p_business_id": string }; Returns: Json
                            },
+"business_report":
+{ Args: { "p_business_id": string,"p_from": string,"p_to": string }; Returns: Json
+                           },
+"business_report_payments":
+{ Args: { "p_business_id": string,"p_from": string,"p_to": string }; Returns: {
+              "amount_cents": number,"customer": string,"fee_cents": number,"invoice_number": number,"job_title": string,"method": Database["public"]['Enums']["payment_method"],"note": string,"received_on": string,"refunded_cents": number,"verification": Database["public"]['Enums']["payment_verification"]
+            }[]
+                           },
 "business_today":
 { Args: { "p_business_id": string }; Returns: string
                            },

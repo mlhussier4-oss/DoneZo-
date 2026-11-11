@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireProvider } from "@/lib/auth";
+import { isoDaysAgo } from "@/lib/crm/time";
 import { formatDateTime, localDateKey } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
@@ -16,7 +17,7 @@ export default async function MyJobsPage() {
   const { user, business } = await requireProvider();
   const tz = business.timezone;
   const supabase = await createClient();
-  const since = new Date(Date.now() - 14 * 86_400_000).toISOString();
+  const since = isoDaysAgo(14);
   const { data: assigned } = await supabase.from("job_assignments").select("job_id").eq("user_id", user.id).eq("business_id", business.id);
   const ids = (assigned ?? []).map((a) => a.job_id);
   const { data: jobs } = ids.length
