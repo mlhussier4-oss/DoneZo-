@@ -13,7 +13,7 @@ export const metadata: Metadata = { title: "Team" };
 const roleHelp = {
   owner: "Everything, including billing, Stripe and the team.",
   manager: "Runs the business day to day: customers, jobs, invoices, payments, reports, marketplace. Not billing or Stripe.",
-  employee: "Sees only the jobs assigned to them, with the customer's name, address and phone. Can start and complete jobs and add notes and photos.",
+  employee: "Sees only the jobs assigned to them: the customer's name, address and phone, and the job's price. No invoices, payments or reports. Can start and complete jobs and add notes and photos.",
 };
 
 export default async function TeamPage() {

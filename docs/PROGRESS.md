@@ -2,7 +2,40 @@
 
 Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
 
-Next up: **Phase 5 — Advanced business management** (employees, permissions, job assignment, advanced reports, optional route planning).
+Next up: **Phase 6 — Launch preparation** (waiting for the owner's go-ahead).
+
+## Phase 5 — Advanced business management ✅ (built and tested 2026-11-11)
+
+### Works
+- **Team page** (menu: Team). The owner invites managers or employees; managers invite employees. The person gets an email naming the business, clicks it, chooses a password and joins. They join only when they accept, not when the email is sent. Pending invites show as "Invited" and can be canceled. Owners can change roles and remove people; removed people lose access immediately and their past work stays in the records.
+- **Roles, enforced in the database:** owner (everything); manager (day-to-day running: customers, jobs, invoices, payments, reports, marketplace; not billing or Stripe); employee (only jobs assigned to them, with the customer's name, address and phone; may start or complete those jobs, add notes and photos; no invoices, payments, reports, customer list or marketplace).
+- **Job assignment:** managers tick team members on a job page. Assigned people get a notification. Recurring services can have a default person; new visits are assigned to them automatically, and changing the default hands over upcoming untouched visits.
+- **My jobs** (employees' home): today, coming up and recent jobs, with a Directions link on each job.
+- **Calendar:** filter by person or "Unassigned"; each visit shows the initials of who's assigned.
+- **Jobs list** shows who's assigned.
+- **Route planning** (optional tool): a day's stops in suggested order (shortest drive, estimated from ZIP code centers and starting from the business's home ZIP if it has one) or by appointment time, plus an "Open in Google Maps" button for turn-by-turn directions. No paid maps service. The estimate is clearly labelled as one.
+- **Advanced reports:** presets (this month, last month, last 30 days, last 3 months, this year) or any custom dates. The report shows:
+  - revenue net of refunds, split into Stripe-verified card and provider-recorded payments;
+  - the DoneZo fee and the amount invoiced;
+  - completed jobs, average job value and new customers;
+  - revenue over time (by day, week or month);
+  - revenue by payment method and by service;
+  - completed jobs by team member;
+  - top customers;
+  - unpaid invoices by age (not yet due, 1–30, 31–60, over 60 days late), listing the oldest.
+- **CSV download** of every payment in the range, ready for a spreadsheet.
+- **Fix:** the overview dashboard now subtracts refunds from revenue.
+
+### Tests
+- Database: 105 tests, including invitations (forged or mismatched tokens are rejected; people join only on acceptance), what employees can and cannot see or change, report figures, aging buckets, and reports refused for employees and other businesses.
+- Unit: 19 tests (route ordering and Google Maps link, report date ranges, CSV escaping).
+- Browser: 26 tests. The new one covers the whole flow: invite, accept by email, assign, the employee sees only their job and completes it, they're blocked from everything else, the report credits them, CSV download, and the route.
+
+### Not yet done / notes
+- Employees can see a job's price. See "Waiting for the owner".
+- Route order is a straight-line estimate between ZIP code centers; Google Maps gives real roads and times. Google links take up to 10 stops.
+- No time tracking or payroll (not in the Blueprint).
+
 
 ## Phase 4 — Payments ✅ (built and tested 2026-11-11, Stripe test mode)
 

@@ -183,3 +183,35 @@ describe("managers", () => {
     expect((await o.client.rpc("set_member_role", { p_business_id: o.businessId, p_user_id: m2.id, p_role: "employee" })).error).toBeNull();
   });
 });
+
+describe("accepting an invitation", () => {
+  it("an invited login joins only once they confirm (accept) the invite, and can be cancelled before that", async () => {
+    const o = await owner();
+    const admin = adminClient();
+    const email = `pending-${crypto.randomUUID()}@example.com`;
+    const { data: inv } = await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: email, p_full_name: "Pending Pat", p_role: "employee" });
+    // What sending the invite does: an unconfirmed login carrying the token.
+    const { data: created } = await admin.auth.admin.createUser({ email, user_metadata: { invite_token: inv.token } });
+    const id = created.user!.id;
+    expect((await admin.from("business_members").select("user_id").eq("user_id", id)).data).toEqual([]);
+    expect((await admin.rpc("is_unaccepted_invitee", { p_email: email })).data).toBe(id);
+    // Not callable by signed-in users.
+    expect((await o.client.rpc("is_unaccepted_invitee", { p_email: email })).error).not.toBeNull();
+
+    // Accepting = Supabase confirming their email.
+    await admin.auth.admin.updateUserById(id, { email_confirm: true });
+    expect((await admin.from("business_members").select("business_id, role").eq("user_id", id)).data).toEqual([{ business_id: o.businessId, role: "employee" }]);
+    expect((await admin.from("business_invitations").select("accepted_at").eq("id", inv.id).single()).data?.accepted_at).not.toBeNull();
+    expect((await admin.rpc("is_unaccepted_invitee", { p_email: email })).data).toBeNull();
+  });
+
+  it("an existing account can't be invited, but a never-accepted invitee can be invited again", async () => {
+    const o = await owner();
+    const existing = await createUser({ role: "customer" });
+    expect((await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: existing.email, p_full_name: "", p_role: "employee" })).error?.message).toMatch(/already has a DoneZo account/);
+    const email = `again-${crypto.randomUUID()}@example.com`;
+    const { data: inv } = await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: email, p_full_name: "", p_role: "employee" });
+    await adminClient().auth.admin.createUser({ email, user_metadata: { invite_token: inv.token } });
+    expect((await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: email, p_full_name: "", p_role: "employee" })).error).toBeNull();
+  });
+});

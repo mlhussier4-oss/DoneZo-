@@ -120,6 +120,8 @@ Browser tests never touch real Stripe. They run against Stripe's official local 
 - Tables are not exposed to the API automatically; each has explicit, minimal grants (`supabase/migrations/`).
 - Role changes, the marketplace switch and admin actions go through database functions that check permissions themselves. Admin actions are written to an append-only audit log.
 - Pages check the user's role on the server; the menu hiding a link is never the only protection.
+- Team roles: `is_business_member` means owner or manager; `is_business_staff` means anyone on the team. Employees reach jobs only through `job_assignments`, and a trigger limits what they may change on a job.
+- Invitations: the invited person joins only when they confirm the invite email (`handle_user_confirmed` trigger). Restart Supabase after editing an email template in `supabase/templates/`.
 
 ## Project layout
 

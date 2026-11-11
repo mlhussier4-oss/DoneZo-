@@ -17,7 +17,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-_Nothing right now._
+- **Should employees see job prices?** Right now an employee sees the price on the jobs assigned to them, but no invoices, payments or reports. Hiding the price is a database change (about half a day). Recommendation: hide it if your crews are paid hourly; keep it if they're paid by the job.
 
 ## Defaults in use until the owner says otherwise
 
@@ -32,6 +32,11 @@ _Nothing right now._
 - Reviews go from customer to provider only.
 - Invoice tax is a rate the provider enters (no automatic tax calculation).
 - "Verified" badges are granted by an admin after a manual document check.
+
+- Team members (managers and employees) are included in the $9.99/month plan, with no limit on how many.
+- Invitations expire after 7 days. An email that already has a DoneZo account can't be invited; the person should use a different email for work.
+- An employee's job report counts each completed job they were assigned to. If two people did the job, its price is split evenly between them.
+- Reports count revenue on the day a payment was received, minus refunds.
 
 ## Business risk noted (no change made)
 

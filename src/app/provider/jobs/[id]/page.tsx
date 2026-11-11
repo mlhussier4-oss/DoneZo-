@@ -133,7 +133,7 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
             <CardHeader><CardTitle className="text-base">Assigned to</CardTitle></CardHeader>
             <CardContent>
               {isManager ? (
-                team.length > 1 ? <AssigneePicker key={assignedIds.join()} jobId={job.id} team={team} assigned={assignedIds} />
+                team.length > 1 ? <AssigneePicker jobId={job.id} team={team} assigned={assignedIds} />
                   : <p className="text-sm text-muted-foreground">Add employees on the <Link href="/provider/employees" className="text-primary hover:underline">Team</Link> page to assign jobs.</p>
               ) : <p className="text-sm">{assignedNames.join(", ") || "—"}</p>}
             </CardContent>

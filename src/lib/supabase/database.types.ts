@@ -1006,6 +1006,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"accept_invitation_for":
+{ Args: { "p_email": string,"p_full_name": string,"p_meta": Json,"p_user_id": string }; Returns: undefined
+                           },
 "admin_resolve_report":
 { Args: { "p_note": string,"p_report_id": string }; Returns: {
               "admin_note": string | null,
@@ -1362,6 +1365,9 @@ isOneToOne: false
                            },
 "is_business_staff":
 { Args: { "p_business_id": string }; Returns: boolean
+                           },
+"is_unaccepted_invitee":
+{ Args: { "p_email": string }; Returns: string
                            },
 "marketplace_feed":
 { Args: Record<PropertyKey, never>; Returns: {

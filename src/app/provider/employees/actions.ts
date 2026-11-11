@@ -26,8 +26,10 @@ export async function inviteTeamMember(_prev: ActionState, fd: FormData): Promis
   });
   if (error || !inv) return { status: "error", message: dbErrorMessage(error, "Could not create the invitation.") };
 
-  const { error: mailError } = await createServiceClient().auth.admin.inviteUserByEmail(v.email, {
-    data: { invite_token: inv.token, full_name: v.fullName || null },
+  const service = createServiceClient();
+  await removeUnacceptedLogin(service, v.email); // an earlier, never-accepted invite: start fresh
+  const { error: mailError } = await service.auth.admin.inviteUserByEmail(v.email, {
+    data: { invite_token: inv.token, full_name: v.fullName || null, business_name: business.name },
     redirectTo: siteUrl("/account/update-password?welcome=1").toString(),
   });
   if (mailError) {
@@ -38,13 +40,22 @@ export async function inviteTeamMember(_prev: ActionState, fd: FormData): Promis
   return { status: "success", message: `Invitation sent to ${v.email}.` };
 }
 
+/** Supabase creates a login when an invite is sent. If it was never accepted, delete it (it has no data). */
+async function removeUnacceptedLogin(service: ReturnType<typeof createServiceClient>, email: string) {
+  const { data: userId } = await service.rpc("is_unaccepted_invitee", { p_email: email });
+  if (userId) await service.auth.admin.deleteUser(userId);
+}
+
 const uuid = z.string().uuid();
 
 export async function revokeInvite(id: string): Promise<{ error?: string }> {
   await requireManager();
   if (!uuid.safeParse(id).success) return { error: "Unknown invitation." };
-  const { error } = await (await createClient()).rpc("revoke_invitation", { p_invitation_id: id });
-  if (error) return { error: dbErrorMessage(error, "Could not cancel the invitation.") };
+  const supabase = await createClient();
+  const { data: inv } = await supabase.from("business_invitations").select("email").eq("id", id).maybeSingle();
+  const { error } = await supabase.rpc("revoke_invitation", { p_invitation_id: id });
+  if (error || !inv) return { error: dbErrorMessage(error, "Could not cancel the invitation.") };
+  await removeUnacceptedLogin(createServiceClient(), inv.email);
   refresh();
   return {};
 }
