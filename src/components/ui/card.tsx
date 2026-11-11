@@ -13,8 +13,9 @@ export function CardHeader({ className, ...props }: React.ComponentProps<"div">)
   return <div className={cn("space-y-1 p-5 pb-0 sm:p-6 sm:pb-0", className)} {...props} />;
 }
 
-export function CardTitle({ className, ...props }: React.ComponentProps<"h3">) {
-  return <h3 className={cn("text-lg font-semibold tracking-tight", className)} {...props} />;
+/** Card heading. Pass `as="h1"` when the card is the page's main content (e.g. sign-in pages). */
+export function CardTitle({ className, as: Tag = "h3", ...props }: React.ComponentProps<"h3"> & { as?: "h1" | "h2" | "h3" }) {
+  return <Tag className={cn("text-lg font-semibold tracking-tight", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }: React.ComponentProps<"p">) {

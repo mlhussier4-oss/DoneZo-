@@ -9,7 +9,7 @@ export default function CustomerSignupPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Create your account</CardTitle>
+        <CardTitle as="h1" className="text-2xl">Create your account</CardTitle>
         <CardDescription>
           Just your email. You can also skip this and create your account when you post your first job.
         </CardDescription>

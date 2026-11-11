@@ -9,7 +9,7 @@ export default function ForgotPasswordPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Reset your password</CardTitle>
+        <CardTitle as="h1" className="text-2xl">Reset your password</CardTitle>
         <CardDescription>For provider and admin accounts. Customers sign in with an email code instead.</CardDescription>
       </CardHeader>
       <CardContent>

@@ -16,7 +16,7 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Set up your business</CardTitle>
+        <CardTitle as="h1" className="text-2xl">Set up your business</CardTitle>
         <CardDescription>$9.99/month for everything. You&apos;ll subscribe after confirming your email.</CardDescription>
       </CardHeader>
       <CardContent>

@@ -48,7 +48,7 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">{ended ? "Your subscription has ended" : `Activate ${business.name}`}</CardTitle>
+        <CardTitle as="h1" className="text-2xl">{ended ? "Your subscription has ended" : `Activate ${business.name}`}</CardTitle>
         <CardDescription>
           {ended
             ? `Subscribe again to get back to your customers, jobs and invoices. Nothing has been deleted.${sub?.current_period_end ? ` Access ended ${formatDate(sub.current_period_end)}.` : ""}`

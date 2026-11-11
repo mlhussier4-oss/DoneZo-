@@ -31,7 +31,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
+        <CardTitle as="h1" className="text-2xl">Welcome back</CardTitle>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<div className="h-64" />}>

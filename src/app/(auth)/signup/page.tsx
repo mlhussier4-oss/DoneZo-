@@ -13,7 +13,7 @@ export default function SignupChooserPage() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-2xl">Create an account</CardTitle>
+        <CardTitle as="h1" className="text-2xl">Create an account</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {options.map((o) => (
