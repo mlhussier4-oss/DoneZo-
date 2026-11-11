@@ -4,6 +4,13 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-11 — Two provider plans** (replaces the single $9.99 plan, and changes the Blueprint's business-tools-only option):
+  - **DoneZo Basic, $9.99/month:** marketplace only. Includes the profile, job board, sealed bids, the jobs they win (scheduling, messages, photos, completion), card payments for marketplace jobs with payouts, and a simple calendar of marketplace jobs.
+  - **DoneZo Pro, $19.99/month:** marketplace plus all business tools: customer database, recurring services, estimates and invoices for their own customers, recorded cash/Venmo/check payments, reports and CSV, route planning, and team members.
+  - Providers who only want business tools buy Pro and can keep the marketplace switched off; marketplace participation is still never forced.
+  - The 10% card fee is the same on both plans. No trial.
+  - Upgrading takes effect immediately, with Stripe charging the prorated difference. Downgrading takes effect at the next billing date.
+  - After a downgrade, business records are kept but hidden until the provider upgrades again.
 - **2026-11-11 — Employees see job prices** on jobs assigned to them (no change for now).
 - **2026-11-11 — Paid access:** providers must have an active paid subscription to use DoneZo, both the CRM and the marketplace. **$9.99/month, one price for everyone, no free trial** (paid at sign-up). Replaces the earlier free-beta default.
 - **2026-11-11 — Card fee: 10% of every card payment made through DoneZo**, marketplace jobs *and* providers' own (CRM) customers. **This changes Blueprint rule 8** ("no marketplace commissions on CRM-only payments") at the owner's request. Still no fee on cash, Venmo, Cash App or check.

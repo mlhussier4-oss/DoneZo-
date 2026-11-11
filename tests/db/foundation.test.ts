@@ -47,13 +47,14 @@ describe("sign-up creates the right kind of account", () => {
     expect(business?.marketplace_enabled_at).not.toBeNull();
   });
 
-  it("every new business is placed on the default plan with entitlements", async () => {
+  it("every new business is placed on the default plan (Pro) with entitlements", async () => {
     const provider = await createUser({ role: "provider", business_name: "Plan Check" });
     const businessId = await businessIdFor(provider.id);
     const { data, error } = await provider.client.rpc("business_entitlements", { p_business_id: businessId });
     expect(error).toBeNull();
     expect(data.crm_customers).toEqual({ enabled: true, limit: null });
-    expect(data.marketplace).toBeUndefined(); // marketplace is never a paid plan feature
+    expect(data.crm).toEqual({ enabled: true, limit: null });
+    expect(data.marketplace).toEqual({ enabled: true, limit: null }); // both plans include the marketplace
   });
 
   it("cannot sign up as an admin by tampering with sign-up data", async () => {

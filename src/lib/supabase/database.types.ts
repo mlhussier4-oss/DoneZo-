@@ -647,14 +647,14 @@ isOneToOne: false
                   ]
                 },"platform_settings": {
                   Row: {
-                    "card_fee_bps": number,"id": boolean,"subscription_price_cents": number,"updated_at": string
+                    "card_fee_bps": number,"id": boolean,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "card_fee_bps"?: number,"id"?: boolean,"subscription_price_cents"?: number,"updated_at"?: string
+                    "card_fee_bps"?: number,"id"?: boolean,"updated_at"?: string
                   }
                   Update: {
-                    "card_fee_bps"?: number,"id"?: boolean,"subscription_price_cents"?: number,"updated_at"?: string
+                    "card_fee_bps"?: number,"id"?: boolean,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1063,7 +1063,6 @@ isOneToOne: false
 { Args: { "p_bps": number }; Returns: {
               "card_fee_bps": number,
 "id": boolean,
-"subscription_price_cents": number,
 "updated_at": string
             }
                           SetofOptions: {
@@ -1135,6 +1134,9 @@ isOneToOne: false
 "business_has_access":
 { Args: { "p_business_id": string }; Returns: boolean
                            },
+"business_has_crm":
+{ Args: { "p_business_id": string }; Returns: boolean
+                           },
 "business_public_stats":
 { Args: { "p_business_id": string }; Returns: Json
                            },
@@ -1145,6 +1147,14 @@ isOneToOne: false
 { Args: { "p_business_id": string,"p_from": string,"p_to": string }; Returns: {
               "amount_cents": number,"customer": string,"fee_cents": number,"invoice_number": number,"job_title": string,"method": Database["public"]['Enums']["payment_method"],"note": string,"received_on": string,"refunded_cents": number,"verification": Database["public"]['Enums']["payment_verification"]
             }[]
+                           },
+"business_report_payments_unchecked":
+{ Args: { "p_business_id": string,"p_from": string,"p_to": string }; Returns: {
+              "amount_cents": number,"customer": string,"fee_cents": number,"invoice_number": number,"job_title": string,"method": Database["public"]['Enums']["payment_method"],"note": string,"received_on": string,"refunded_cents": number,"verification": Database["public"]['Enums']["payment_verification"]
+            }[]
+                           },
+"business_report_unchecked":
+{ Args: { "p_business_id": string,"p_from": string,"p_to": string }; Returns: Json
                            },
 "business_today":
 { Args: { "p_business_id": string }; Returns: string
@@ -1390,6 +1400,9 @@ isOneToOne: false
 "notify_business":
 { Args: { "p_body": string,"p_business_id": string,"p_kind": string,"p_link": string,"p_title": string }; Returns: undefined
                            },
+"plan_has_feature":
+{ Args: { "p_business_id": string,"p_feature": string }; Returns: boolean
+                           },
 "remove_member":
 { Args: { "p_business_id": string,"p_user_id": string }; Returns: undefined
                            },
@@ -1434,6 +1447,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"set_business_plan_by_lookup_key":
+{ Args: { "p_business_id": string,"p_lookup_key": string }; Returns: undefined
+                           },
 "set_estimate_status":
 { Args: { "p_estimate_id": string,"p_status": Database["public"]['Enums']["estimate_status"] }; Returns: {
               "business_id": string,
@@ -1494,6 +1510,9 @@ isOneToOne: false
       } },
 "set_member_role":
 { Args: { "p_business_id": string,"p_role": Database["public"]['Enums']["business_member_role"],"p_user_id": string }; Returns: undefined
+                           },
+"signup_plan_id":
+{ Args: { "p_meta": Json }; Returns: string
                            },
 "stripe_mark_payment_request":
 { Args: { "p_checkout_session_id": string,"p_message": string,"p_status": Database["public"]['Enums']["payment_request_status"] }; Returns: undefined
