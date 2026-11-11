@@ -28,6 +28,11 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
     { key: "bedrooms", label: "Bedrooms", options: ["1", "2", "3", "4+"] },
     { key: "type", label: "Type of clean", options: ["Standard", "Deep clean", "Move-out"] },
   ],
+  "turf-installation": [
+    { key: "area", label: "About how big?", options: ["Under 500 sq ft", "500–1,000 sq ft", "1,000–2,500 sq ft", "Over 2,500 sq ft"] },
+    { key: "current_ground", label: "What's there now?", options: ["Grass", "Dirt", "Gravel or rock", "Concrete"] },
+    { key: "use", label: "Mainly for", options: ["Front yard", "Back yard", "Pet area", "Putting green"] },
+  ],
 };
 
 export const launchAreaName = "Austin, TX";

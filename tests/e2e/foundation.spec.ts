@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 import { atPath, createAdminUser, deleteTestCategories, signInAsAdmin, signInWithCode, signUpProvider, uniqueEmail } from "./helpers";
 
 test.describe("public site", () => {
-  test("homepage shows the promise and the five launch categories", async ({ page }) => {
+  test("homepage shows the promise and every service", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Post a job. Receive bids. Choose your provider.");
-    for (const name of ["Junk removal", "Lawn mowing", "Pet waste pickup", "Pressure washing", "House cleaning"]) {
+    for (const name of ["Junk removal", "Lawn mowing", "Pet waste pickup", "Pressure washing", "House cleaning", "Turf installation"]) {
       await expect(page.getByRole("link", { name: new RegExp(name) })).toBeVisible();
     }
   });

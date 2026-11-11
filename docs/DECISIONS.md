@@ -4,6 +4,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-12 — New service: Turf installation** (artificial turf for yards, pet areas and putting greens). Optional questions: size, what's there now, main use. Providers who offer it tick it in their marketplace profile.
 - **2026-11-12 — Photos are required** when posting a job (at least one; 2–3 suggested). The service choice stays a one-tap first step; from a homepage service card the homeowner lands straight on the photos.
 - **2026-11-12 — Fast posting and live booking** (replaces the 2026-11-10 "email code at Post Job" decision):
   - Homeowners post a job **without entering an email**. They land on their dashboard, where bids appear **live** under the job (no bid emails).
