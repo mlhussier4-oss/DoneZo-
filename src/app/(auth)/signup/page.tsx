@@ -22,7 +22,7 @@ export default function SignupChooserPage() {
             href={o.href}
             className="flex items-center gap-4 rounded-lg border border-border p-4 transition-colors hover:border-primary hover:bg-primary-soft"
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-cta">
               <o.icon className="size-5" aria-hidden />
             </span>
             <span className="flex-1">

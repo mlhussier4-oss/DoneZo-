@@ -219,11 +219,17 @@ test.describe("marketplace completion payment (Blueprint §18)", () => {
     const { data: req } = await customer.from("service_requests").insert({ category_id: cat!.id, description: "Mow please", timing: "asap", zip: "78745" }).select().single();
     await customer.from("service_request_locations").insert({ request_id: req!.id, line1: "9 Oak Ln", city: "Austin", state: "TX" });
     const { data: bid } = await admin.from("bids").insert({ request_id: req!.id, business_id: businessId, price_cents: 8000, included: "Mow", availability: "Today" }).select().single();
-    const { data: booking } = await customer.rpc("accept_bid", { p_bid_id: bid!.id });
+    const { data: pending } = await customer.rpc("accept_bid", { p_bid_id: bid!.id });
     expect(cu?.user?.id).toBeTruthy();
 
-    // The provider finishes the job and sends the payment request.
-    await page.goto(`/provider/marketplace/bookings/${booking.id}`);
+    // The provider confirms within the 5 minutes (owner decision 2026-11-12)…
+    await page.goto(`/provider/marketplace/bookings/${pending.id}`);
+    await page.getByTestId("confirm-panel").getByRole("button", { name: "Confirm job" }).click();
+    await expect(page.getByTestId("confirm-panel")).toHaveCount(0);
+    const { data: booking } = await admin.from("bookings").select("id, job_id").eq("id", pending.id).single();
+
+    // …then finishes the job and sends the payment request.
+    await page.goto(`/provider/marketplace/bookings/${booking!.id}`);
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: "Mark complete & send payment" }).click();
     // The page refreshes into its "waiting for payment" state once the request is sent.
@@ -232,9 +238,9 @@ test.describe("marketplace completion payment (Blueprint §18)", () => {
     await expect(page.getByText(/The job is done! Here's your invoice for \$80\.00/)).toBeVisible();
     await expect(page.getByText("Waiting for the customer's payment")).toBeVisible();
 
-    const { data: job } = await admin.from("jobs").select("status").eq("id", booking.job_id).single();
+    const { data: job } = await admin.from("jobs").select("status").eq("id", booking!.job_id!).single();
     expect(job?.status).toBe("awaiting_payment");
-    const { data: inv } = await admin.from("invoices").select("id, status, total_cents, source").eq("job_id", booking.job_id).single();
+    const { data: inv } = await admin.from("invoices").select("id, status, total_cents, source").eq("job_id", booking!.job_id!).single();
     expect(inv).toMatchObject({ status: "sent", total_cents: 8000, source: "marketplace" });
     const { data: pr } = await admin.from("payment_requests").select("checkout_session_id, application_fee_cents").eq("invoice_id", inv!.id).single();
     expect(pr?.application_fee_cents).toBe(800);
@@ -245,8 +251,8 @@ test.describe("marketplace completion payment (Blueprint §18)", () => {
       data: { object: { id: pr!.checkout_session_id, object: "checkout.session", mode: "payment", payment_status: "paid", payment_intent: `pi_mkt_${Date.now()}`, amount_total: 8000, livemode: false } },
     });
     expect(res.status()).toBe(200);
-    expect((await admin.from("jobs").select("status").eq("id", booking.job_id).single()).data?.status).toBe("completed");
-    expect((await admin.from("bookings").select("status").eq("id", booking.id).single()).data?.status).toBe("completed");
+    expect((await admin.from("jobs").select("status").eq("id", booking!.job_id!).single()).data?.status).toBe("completed");
+    expect((await admin.from("bookings").select("status").eq("id", booking!.id).single()).data?.status).toBe("completed");
     const { data: notes } = await customer.from("notifications").select("kind").in("kind", ["payment_confirmed", "job_completed"]);
     expect(notes?.map((n) => n.kind).sort()).toEqual(["job_completed", "payment_confirmed"]);
   });

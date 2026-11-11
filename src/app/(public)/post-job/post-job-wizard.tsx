@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Camera, Check, MailCheck, X } from "lucide-react";
+import { ArrowLeft, Camera, Check, X } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Field, Input, Textarea } from "@/components/ui/input";
 import { categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { sendEmailCodeInline, verifyEmailCodeInline } from "../../(auth)/actions";
+import { cancelRequest } from "../../customer/requests/actions";
 import { checkZip, createRequest, registerRequestPhotos } from "./actions";
 
 type Category = { id: string; slug: string; name: string; icon: string; description: string | null };
@@ -48,10 +48,6 @@ export function PostJobWizard({
   const [city, setCity] = useState("Austin");
   const [phone, setPhone] = useState("");
   const [smsConsent, setSmsConsent] = useState(false);
-  const [email, setEmail] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [code, setCode] = useState("");
-  const [codeSent, setCodeSent] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [pending, start] = useTransition();
@@ -97,6 +93,7 @@ export function PostJobWizard({
       timing: timing as Timing,
       preferredDate: timing === "specific_date" ? preferredDate : null,
       zip: zip.trim(),
+      photoCount: photos.length,
       line1,
       line2,
       city,
@@ -114,31 +111,34 @@ export function PostJobWizard({
         const { error: upErr } = await supabase.storage.from("request-photos").upload(path, p.file, { contentType: p.file.type });
         if (!upErr) uploaded.push(path);
       }
+      if (!uploaded.length) {
+        // A job without photos never goes out (owner decision 2026-11-12).
+        await cancelRequest(result.id);
+        setStatus(undefined);
+        setError("Your photos didn't upload, so the job wasn't posted. Check your connection and try again.");
+        return;
+      }
       await registerRequestPhotos(result.id, uploaded);
     }
-    router.push(`/customer/requests/${result.id}?posted=1`);
+    // Straight to the dashboard, where bids appear live under the job (owner decision 2026-11-12).
+    router.push(`/customer?posted=${result.id}`);
   }
 
   function submit() {
     start(async () => {
       if (signedInRole === "customer") return post();
       if (signedInRole) { setError("You're signed in with a provider or admin account. Sign out, then post the job as a customer."); return; }
-      if (!codeSent) {
-        const r = await sendEmailCodeInline(email.trim(), fullName.trim());
-        if (!r.ok) { setError(r.message); return; }
-        setCodeSent(true);
-        return;
-      }
-      const v = await verifyEmailCodeInline(email.trim(), code.trim());
-      if (!v.ok) { setError(v.message); return; }
-      if (v.role !== "customer") { setError("That email belongs to a provider or admin account. Use a different email to post a job."); return; }
+      // No email, password or card: a private guest account is created on this device (owner decision 2026-11-12).
+      setStatus("Posting your job…");
+      const { error: signInError } = await createBrowserSupabase().auth.signInAnonymously();
+      if (signInError) { setStatus(undefined); setError("We couldn't post your job just now. Please try again in a minute."); return; }
       await post();
     });
   }
 
   const canContinue = [
     Boolean(category),
-    true,
+    photos.length > 0, // photos are required (owner decision 2026-11-12)
     description.trim().length > 0,
     Boolean(timing) && (timing !== "specific_date" || Boolean(preferredDate)),
     zip.trim().length === 5,
@@ -178,7 +178,7 @@ export function PostJobWizard({
                     category?.id === c.id ? "border-primary ring-1 ring-primary" : "border-border",
                   )}
                 >
-                  <span className="flex size-11 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                  <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-cta">
                     <CategoryIcon name={c.icon} className="size-6" />
                   </span>
                   <span className="font-semibold">{c.name}</span>
@@ -192,7 +192,7 @@ export function PostJobWizard({
       {step === 1 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Add photos</h1>
-          <p className="text-muted-foreground">Photos help providers give you an accurate price. Optional, up to {MAX_PHOTOS}.</p>
+          <p className="text-muted-foreground">Add at least one photo of the job (2 or 3 is best) so providers can give you an accurate price. Up to {MAX_PHOTOS}.</p>
           <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-input bg-card px-4 py-10 text-center hover:border-primary hover:bg-primary-soft">
             <Camera className="size-8 text-primary" aria-hidden />
             <span className="font-semibold">Take or choose photos</span>
@@ -309,26 +309,7 @@ export function PostJobWizard({
             ))}
           </dl>
 
-          {signedInRole === null ? (
-            <div className="space-y-3 rounded-lg border border-border bg-card p-4">
-              <p className="font-semibold">Where should we send your bids?</p>
-              {!codeSent ? (
-                <>
-                  <Field label="Email" htmlFor="post-email"><Input id="post-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" /></Field>
-                  <Field label="Your first name (optional)" htmlFor="post-name"><Input id="post-name" value={fullName} onChange={(e) => setFullName(e.target.value)} autoComplete="given-name" /></Field>
-                  <p className="text-xs text-muted-foreground">No password and no card. We&apos;ll email you a 6-digit code to confirm it&apos;s you.</p>
-                </>
-              ) : (
-                <>
-                  <Alert tone="info" className="flex gap-2"><MailCheck className="mt-0.5 size-4 shrink-0" aria-hidden />We sent a code to {email}.</Alert>
-                  <Field label="6-digit code" htmlFor="post-code">
-                    <Input id="post-code" value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" autoFocus className="text-center text-lg tracking-[0.5em]" />
-                  </Field>
-                </>
-              )}
-            </div>
-          ) : null}
-          <p className="text-sm text-muted-foreground">No card needed. You&apos;ll only pay the provider you choose, after the job is done.</p>
+          <p className="text-sm text-muted-foreground">No email, password or card needed. Bids appear live on your dashboard, and you only pay the provider you choose, after the job is done.</p>
           {signedInRole === null ? <p className="mt-2 text-xs text-muted-foreground">By posting you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p> : null}
         </section>
       ) : null}
@@ -340,7 +321,7 @@ export function PostJobWizard({
         <div className="sticky bottom-0 -mx-4 mt-6 border-t border-border bg-background/95 px-4 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:p-0">
           {step < 4 ? (
             <Button size="lg" className="w-full" disabled={!canContinue} onClick={() => go(step + 1)}>
-              {step === 1 && !photos.length ? "Skip for now" : "Continue"}
+              {step === 1 && !photos.length ? "Add a photo to continue" : "Continue"}
             </Button>
           ) : step === 4 ? (
             <Button size="lg" className="w-full" disabled={!canContinue || pending} onClick={nextFromLocation}>
@@ -348,7 +329,7 @@ export function PostJobWizard({
             </Button>
           ) : (
             <Button size="lg" variant="accent" className="w-full" disabled={pending || Boolean(status && !error)} onClick={submit}>
-              {pending || (status && !error) ? (status ?? "Please wait…") : signedInRole === null && !codeSent ? "Email me a code" : signedInRole === null ? "Confirm and post job" : "Post job"}
+              {pending || (status && !error) ? (status ?? "Please wait…") : "Post job"}
             </Button>
           )}
         </div>

@@ -54,7 +54,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/provider
         <nav className="flex gap-1 overflow-x-auto rounded-lg bg-muted p-1 text-sm" aria-label="Date range">
           {rangePresets.map((p) => (
             <Link key={p.value} href={`/provider/reports?range=${p.value}`} aria-current={range.preset === p.value ? "page" : undefined}
-              className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", range.preset === p.value ? "bg-card shadow-sm" : "text-muted-foreground")}>
+              className={cn("shrink-0 rounded-md px-3 py-1.5 font-medium", range.preset === p.value ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>
               {p.label}
             </Link>
           ))}

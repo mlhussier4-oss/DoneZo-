@@ -111,7 +111,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/provide
           <nav className="flex gap-1 rounded-lg bg-muted p-1 text-sm" aria-label="Calendar view">
             {(["day", "week", "month"] as const).map((v) => (
               <Link key={v} href={link(v, date)} aria-current={view === v ? "page" : undefined}
-                className={cn("rounded-md px-3 py-1 font-medium capitalize", view === v ? "bg-card shadow-sm" : "text-muted-foreground")}>
+                className={cn("rounded-md px-3 py-1 font-medium capitalize", view === v ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>
                 {v}
               </Link>
             ))}

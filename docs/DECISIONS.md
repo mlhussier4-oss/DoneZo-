@@ -4,6 +4,14 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-12 — Photos are required** when posting a job (at least one; 2–3 suggested). The service choice stays a one-tap first step; from a homepage service card the homeowner lands straight on the photos.
+- **2026-11-12 — Fast posting and live booking** (replaces the 2026-11-10 "email code at Post Job" decision):
+  - Homeowners post a job **without entering an email**. They land on their dashboard, where bids appear **live** under the job (no bid emails).
+  - **Picking a bid** notifies the provider immediately. The provider must **confirm the job and price with an arrival time**. **Only then** does a **chat open under the job** (owner refinement, same day), so nothing the homeowner shares can reach a provider who lets the time run out.
+  - The provider has **5 minutes** to confirm, shown as a **live countdown**. From **2:00 left** the homeowner can **add 10 minutes** or **drop the provider**. If time runs out, the provider loses the job and the homeowner can pick another bid; the other bids stay available until a provider confirms.
+- **2026-11-11 — Look:** professional navy and gray, with yellow on buttons.
+- **2026-11-11 — Support address:** support@donezo.org.
+- **2026-11-11 — Bids:** customers see all bids under their job listing on their dashboard, not by email.
 - **2026-11-11 — Domain: donezo.org** (bought on Cloudflare by the owner). Start on free hosting plans for a private test; upgrade before charging real providers.
 - **2026-11-11 — Two provider plans** (replaces the single $9.99 plan, and changes the Blueprint's business-tools-only option):
   - **DoneZo Basic, $9.99/month:** marketplace only. Includes the profile, job board, sealed bids, the jobs they win (scheduling, messages, photos, completion), card payments for marketplace jobs with payouts, and a simple calendar of marketplace jobs.

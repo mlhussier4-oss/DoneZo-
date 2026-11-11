@@ -54,6 +54,15 @@ async function bid(p: Provider, requestId: string, priceCents = 6000) {
   return data;
 }
 
+/** Customer picks the bid, then the provider confirms with an arrival time (owner decision 2026-11-12). */
+async function hire(c: TestUser, p: Provider, bidId: string) {
+  const { data: pending, error } = await c.client.rpc("accept_bid", { p_bid_id: bidId });
+  if (error) throw error;
+  const { data: booking, error: confirmError } = await p.client.rpc("confirm_booking", { p_booking_id: pending.id, p_arrival_at: new Date(Date.now() + 86_400_000).toISOString() });
+  if (confirmError) throw confirmError;
+  return booking;
+}
+
 async function feedIds(p: Provider) {
   const { data, error } = await p.client.rpc("marketplace_feed");
   if (error) throw error;
@@ -193,7 +202,7 @@ describe("sealed bids", () => {
 });
 
 describe("accepting a bid", () => {
-  it("creates the booking, locks the price, closes other bids and adds the customer to the winner's CRM only", async () => {
+  it("picking a bid starts a 5-minute confirmation; confirming books it, closes other bids and adds the customer to the winner's CRM only", async () => {
     const winner = await provider({ name: "Winner" });
     const loser = await provider({ name: "Loser" });
     const c = await customer();
@@ -204,26 +213,44 @@ describe("accepting a bid", () => {
     // Someone else can't accept on the customer's behalf.
     expect((await loser.client.rpc("accept_bid", { p_bid_id: losing.id })).error).not.toBeNull();
 
-    const { data: booking, error } = await c.client.rpc("accept_bid", { p_bid_id: winning.id });
+    const { data: pending, error } = await c.client.rpc("accept_bid", { p_bid_id: winning.id });
     expect(error).toBeNull();
-    expect(booking.agreed_price_cents).toBe(6500);
-    expect(booking.scope).toContain("Mow, edge, blow clippings");
+    expect(pending.status).toBe("pending");
+    expect(pending.agreed_price_cents).toBe(6500);
+    expect(pending.scope).toContain("Mow, edge, blow clippings");
+    const secondsLeft = (Date.parse(pending.confirm_by) - Date.now()) / 1000;
+    expect(secondsLeft).toBeGreaterThan(280);
+    expect(secondsLeft).toBeLessThanOrEqual(301);
+    expect((await c.client.from("service_requests").select("status").eq("id", r.id).single()).data?.status).toBe("pending");
+    // While pending: the other bid stays open, the job leaves the feed, and nobody gets the address yet.
+    expect((await loser.client.from("bids").select("status").eq("id", losing.id).single()).data?.status).toBe("submitted");
+    const bystander = await provider({ name: "Bystander" });
+    expect(await feedIds(bystander)).not.toContain(r.id);
+    expect((await winner.client.from("crm_customers").select("id").eq("profile_id", c.id)).data).toEqual([]);
+    expect((await c.client.rpc("accept_bid", { p_bid_id: losing.id })).error?.message).toMatch(/waiting for a provider/);
+    // Only the chosen provider can confirm.
+    expect((await loser.client.rpc("confirm_booking", { p_booking_id: pending.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() })).error).not.toBeNull();
 
+    const arrival = new Date(Date.now() + 2 * 3_600_000).toISOString();
+    const { data: booking, error: confirmError } = await winner.client.rpc("confirm_booking", { p_booking_id: pending.id, p_arrival_at: arrival });
+    expect(confirmError).toBeNull();
+    expect(booking.status).toBe("active");
     expect((await c.client.from("service_requests").select("status").eq("id", r.id).single()).data?.status).toBe("booked");
     expect((await loser.client.from("bids").select("status").eq("id", losing.id).single()).data?.status).toBe("closed");
-    expect((await c.client.rpc("accept_bid", { p_bid_id: losing.id })).error).not.toBeNull();
 
-    // Winner's CRM now has the customer, address, phone and a marketplace job at the agreed price.
+    // Winner's CRM now has the customer, address, phone and a scheduled marketplace job at the agreed price and arrival time.
     const { data: crm } = await winner.client
       .from("crm_customers")
-      .select("full_name, phone, source, crm_customer_addresses(line1, postal_code), jobs(price_cents, source, status)")
+      .select("full_name, phone, source, crm_customer_addresses(line1, postal_code), jobs(price_cents, source, status, scheduled_start)")
       .eq("profile_id", c.id)
       .single();
     expect(crm?.full_name).toBe("Casey Homeowner");
     expect(crm?.phone).toBe("512-555-0199");
     expect(crm?.source).toBe("marketplace");
     expect(crm?.crm_customer_addresses).toEqual([{ line1: "1100 Secret Lane", postal_code: "78745" }]);
-    expect(crm?.jobs).toEqual([{ price_cents: 6500, source: "marketplace", status: "new" }]);
+    expect(crm?.jobs).toHaveLength(1);
+    expect(crm?.jobs[0]).toMatchObject({ price_cents: 6500, source: "marketplace", status: "scheduled" });
+    expect(Date.parse(crm!.jobs[0].scheduled_start!)).toBe(Date.parse(arrival));
 
     // The losing provider learns nothing about the customer.
     expect((await loser.client.from("crm_customers").select("id").eq("profile_id", c.id)).data).toEqual([]);
@@ -235,7 +262,7 @@ describe("accepting a bid", () => {
     const late = await provider();
     const c = await customer();
     const r = await postJob(c);
-    await c.client.rpc("accept_bid", { p_bid_id: (await bid(a, r.id)).id });
+    await hire(c, a, (await bid(a, r.id)).id);
     await expect(bid(late, r.id)).rejects.toBeTruthy();
     expect(await feedIds(late)).not.toContain(r.id);
   });
@@ -251,7 +278,7 @@ describe("accepting a bid", () => {
 });
 
 describe("messaging", () => {
-  it("exists only after acceptance, and only between the customer and the chosen provider", async () => {
+  it("opens only once the chosen provider confirms, and only between the customer and that provider", async () => {
     const winner = await provider();
     const loser = await provider();
     const c = await customer();
@@ -263,6 +290,10 @@ describe("messaging", () => {
     expect((await c.client.from("bookings").select("id").eq("request_id", r.id)).data).toEqual([]);
 
     const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: winning.id });
+    // Picked but not confirmed yet: no chat in either direction (owner decision 2026-11-12).
+    expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code is 1234" })).error?.message).toMatch(/once the provider confirms/);
+    expect((await winner.client.from("messages").insert({ booking_id: booking.id, body: "Hi!" })).error).not.toBeNull();
+    expect((await winner.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 86_400_000).toISOString() })).error).toBeNull();
     expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code is 1234" })).error).toBeNull();
     expect((await winner.client.from("messages").insert({ booking_id: booking.id, body: "Thanks, see you Thursday" })).error).toBeNull();
     expect((await loser.client.from("messages").insert({ booking_id: booking.id, body: "Pick me instead" })).error).not.toBeNull();
@@ -281,7 +312,7 @@ describe("the agreed price only changes with the customer's approval", () => {
     const p = await provider();
     const c = await customer();
     const r = await postJob(c);
-    const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: (await bid(p, r.id, 6000)).id });
+    const booking = await hire(c, p, (await bid(p, r.id, 6000)).id);
     return { p, c, r, booking };
   }
 
@@ -338,7 +369,7 @@ describe("reviews", () => {
     const p = await provider();
     const c = await customer();
     const r = await postJob(c);
-    const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: (await bid(p, r.id)).id });
+    const booking = await hire(c, p, (await bid(p, r.id)).id);
 
     expect((await c.client.from("reviews").insert({ booking_id: booking.id, rating: 5 })).error).not.toBeNull();
 
@@ -376,7 +407,7 @@ describe("reviews can't be pointed at another business", () => {
     const other = await provider();
     const c = await customer();
     const r = await postJob(c);
-    const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: (await bid(p, r.id)).id });
+    const booking = await hire(c, p, (await bid(p, r.id)).id);
     await p.client.from("jobs").update({ status: "completed" }).eq("id", booking.job_id);
     const { data } = await c.client
       .from("reviews")
@@ -401,5 +432,85 @@ describe("public provider profiles", () => {
     expect((await p.client.rpc("admin_set_business_verified", { p_business_id: p.businessId, p_verified: true, p_note: "" })).error).not.toBeNull();
     const { data } = await adminClient().from("businesses").select("verified_at").eq("id", p.businessId).single();
     expect(data?.verified_at).toBeNull();
+  });
+});
+
+describe("live booking: the 5-minute confirmation window (owner decision 2026-11-12)", () => {
+  async function picked() {
+    const chosen = await provider({ name: "Chosen" });
+    const backup = await provider({ name: "Backup" });
+    const c = await customer();
+    const r = await postJob(c);
+    const first = await bid(chosen, r.id, 6000);
+    const second = await bid(backup, r.id, 6500);
+    const { data: booking } = await c.client.rpc("accept_bid", { p_bid_id: first.id });
+    return { chosen, backup, c, r, first, second, booking };
+  }
+  const setSecondsLeft = (bookingId: string, seconds: number) =>
+    adminClient().from("bookings").update({ confirm_by: new Date(Date.now() + seconds * 1000).toISOString() }).eq("id", bookingId);
+
+  it("the customer can add 10 minutes only once 2:00 or less is left, and again later", async () => {
+    const { c, chosen, booking } = await picked();
+    expect((await c.client.rpc("extend_booking", { p_booking_id: booking.id })).error?.message).toMatch(/2 minutes or less/);
+    expect((await chosen.client.rpc("extend_booking", { p_booking_id: booking.id })).error).not.toBeNull(); // provider can't extend
+    await setSecondsLeft(booking.id, 90);
+    const { data: once, error } = await c.client.rpc("extend_booking", { p_booking_id: booking.id });
+    expect(error).toBeNull();
+    expect(once.extensions).toBe(1);
+    expect((Date.parse(once.confirm_by) - Date.now()) / 1000).toBeGreaterThan(680); // 1:30 + 10:00
+    await setSecondsLeft(booking.id, 30);
+    expect((await c.client.rpc("extend_booking", { p_booking_id: booking.id })).data.extensions).toBe(2);
+  });
+
+  it("time running out: the provider loses the job, never got the customer's details, and the customer picks another bid", async () => {
+    const { c, chosen, backup, r, second, booking } = await picked();
+    // Nothing can be shared while waiting.
+    expect((await c.client.from("messages").insert({ booking_id: booking.id, body: "Gate code 1234" })).error).not.toBeNull();
+    await setSecondsLeft(booking.id, -5);
+    // Confirming late fails and lapses the booking.
+    const late = await chosen.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
+    expect(late.error).toBeNull();
+    expect(late.data.status).toBe("lapsed");
+    expect((await c.client.from("bookings").select("status").eq("id", booking.id).single()).data?.status).toBe("lapsed");
+    expect((await c.client.from("service_requests").select("status").eq("id", r.id).single()).data?.status).toBe("open");
+    // The lapsed provider has no chat and no customer record.
+    expect((await chosen.client.from("messages").select("id").eq("booking_id", booking.id)).data).toEqual([]);
+    expect((await chosen.client.from("messages").insert({ booking_id: booking.id, body: "Wait!" })).error).not.toBeNull();
+    expect((await chosen.client.from("crm_customers").select("id").eq("profile_id", c.id)).data).toEqual([]);
+    // The customer moves on to the next bid.
+    const next = await hire(c, backup, second.id);
+    expect(next.status).toBe("active");
+    expect((await c.client.rpc("customer_booking", { p_request_id: r.id })).data.business.name).toMatch(/^Backup/);
+  });
+
+  it("the customer can drop a provider who hasn't confirmed; the minute job lapses forgotten ones", async () => {
+    const { c, chosen, backup, booking } = await picked();
+    expect((await backup.client.rpc("drop_pending_booking", { p_booking_id: booking.id })).error).not.toBeNull();
+    expect((await c.client.rpc("drop_pending_booking", { p_booking_id: booking.id })).error).toBeNull();
+    expect((await chosen.client.from("bids").select("status").eq("id", booking.bid_id).single()).data?.status).toBe("lapsed");
+    const { data: notes } = await chosen.client.from("notifications").select("kind").eq("kind", "booking_lapsed");
+    expect(notes?.length).toBeGreaterThan(0);
+
+    const other = await picked();
+    await setSecondsLeft(other.booking.id, -60);
+    expect((await adminClient().rpc("expire_pending_bookings")).error).toBeNull();
+    expect((await other.c.client.from("bookings").select("status").eq("id", other.booking.id).single()).data?.status).toBe("lapsed");
+  });
+
+  it("anonymous homeowners (no email) can post, pick a bid and chat", async () => {
+    const p = await provider();
+    const anon = anonClient();
+    const { data: auth, error } = await anon.auth.signInAnonymously();
+    expect(error).toBeNull();
+    const { data: profile } = await anon.from("profiles").select("role, email").eq("id", auth.user!.id).single();
+    expect(profile).toEqual({ role: "customer", email: null });
+    const r = await postJob({ id: auth.user!.id, email: "", client: anon });
+    const b = await bid(p, r.id);
+    const { data: booking, error: acceptError } = await anon.rpc("accept_bid", { p_bid_id: b.id });
+    expect(acceptError).toBeNull();
+    const confirmed = await p.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
+    expect(confirmed.error).toBeNull();
+    expect((await anon.from("messages").insert({ booking_id: booking.id, body: "Hi! I'm Sam, 512-555-0123" })).error).toBeNull();
+    expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("DoneZo customer");
   });
 });

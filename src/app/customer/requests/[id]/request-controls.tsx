@@ -26,11 +26,11 @@ export function AcceptBidButton({ bidId, businessName, priceCents }: { bidId: st
         className="w-full"
         disabled={pending}
         onClick={() => {
-          if (confirm(`Hire ${businessName} for ${formatMoney(priceCents)}?\n\nThey'll get your address and phone number so you can arrange the visit. You pay after the work is done.`))
+          if (confirm(`Choose ${businessName} for ${formatMoney(priceCents)}?\n\nThey'll be notified right away and have 5 minutes to confirm with an arrival time. You can chat with them below. You pay after the work is done.`))
             run(() => acceptBid(bidId));
         }}
       >
-        {pending ? "Booking…" : `Choose ${businessName}`}
+        {pending ? "Notifying them…" : `Choose ${businessName}`}
       </Button>
       {error ? <Alert tone="error">{error}</Alert> : null}
     </div>

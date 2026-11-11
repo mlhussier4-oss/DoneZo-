@@ -6,8 +6,10 @@ export const buttonVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-sm",
-        accent: "bg-accent text-accent-foreground hover:bg-accent-hover shadow-sm",
+        primary: "bg-cta text-cta-foreground font-semibold hover:bg-cta-hover shadow-sm",
+        accent: "bg-cta text-cta-foreground font-semibold hover:bg-cta-hover shadow-sm",
+        /** Quieter button for use on navy backgrounds. */
+        onDark: "border border-white/30 text-white hover:bg-white/10",
         outline: "border border-input bg-card text-foreground hover:bg-muted",
         ghost: "text-foreground hover:bg-muted",
         destructive: "bg-destructive text-white hover:bg-destructive-hover",

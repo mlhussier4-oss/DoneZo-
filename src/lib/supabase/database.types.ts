@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"bookings": {
                   Row: {
-                    "agreed_price_cents": number,"bid_id": string,"business_id": string,"cancel_reason": string | null,"canceled_at": string | null,"canceled_by": string | null,"completed_at": string | null,"created_at": string,"crm_customer_id": string | null,"customer_id": string,"id": string,"job_id": string | null,"original_price_cents": number,"request_id": string,"scope": string,"status": Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents": number,"arrival_at": string | null,"bid_id": string,"business_id": string,"cancel_reason": string | null,"canceled_at": string | null,"canceled_by": string | null,"completed_at": string | null,"confirm_by": string | null,"confirmed_at": string | null,"created_at": string,"crm_customer_id": string | null,"customer_id": string,"extensions": number,"id": string,"job_id": string | null,"original_price_cents": number,"request_id": string,"scope": string,"status": Database["public"]['Enums']["booking_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "agreed_price_cents": number,"bid_id": string,"business_id": string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id": string,"id"?: string,"job_id"?: string | null,"original_price_cents": number,"request_id": string,"scope": string,"status"?: Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents": number,"arrival_at"?: string | null,"bid_id": string,"business_id": string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id": string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents": number,"request_id": string,"scope": string,"status"?: Database["public"]['Enums']["booking_status"]
                   }
                   Update: {
-                    "agreed_price_cents"?: number,"bid_id"?: string,"business_id"?: string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id"?: string,"id"?: string,"job_id"?: string | null,"original_price_cents"?: number,"request_id"?: string,"scope"?: string,"status"?: Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents"?: number,"arrival_at"?: string | null,"bid_id"?: string,"business_id"?: string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id"?: string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents"?: number,"request_id"?: string,"scope"?: string,"status"?: Database["public"]['Enums']["booking_status"]
                   }
                   Relationships: [
                     {
@@ -108,7 +108,7 @@ isOneToOne: false
     },{
       foreignKeyName: "bookings_request_id_fkey"
       columns: ["request_id"]
-isOneToOne: true
+isOneToOne: false
       referencedRelation: "service_requests"
       referencedColumns: ["id"]
     }
@@ -984,15 +984,19 @@ isOneToOne: false
             "accept_bid":
 { Args: { "p_bid_id": string }; Returns: {
               "agreed_price_cents": number,
+"arrival_at": string | null,
 "bid_id": string,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
 "canceled_by": string | null,
 "completed_at": string | null,
+"confirm_by": string | null,
+"confirmed_at": string | null,
 "created_at": string,
 "crm_customer_id": string | null,
 "customer_id": string,
+"extensions": number,
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
@@ -1162,15 +1166,19 @@ isOneToOne: false
 "cancel_booking":
 { Args: { "p_booking_id": string,"p_reason": string }; Returns: {
               "agreed_price_cents": number,
+"arrival_at": string | null,
 "bid_id": string,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
 "canceled_by": string | null,
 "completed_at": string | null,
+"confirm_by": string | null,
+"confirmed_at": string | null,
 "created_at": string,
 "crm_customer_id": string | null,
 "customer_id": string,
+"extensions": number,
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
@@ -1207,9 +1215,41 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"check_booking_deadline":
+{ Args: { "p_booking_id": string }; Returns: Database["public"]['Enums']["booking_status"]
+                           },
 "clear_future_recurring_jobs":
 { Args: { "p_schedule_id": string }; Returns: number
                            },
+"confirm_booking":
+{ Args: { "p_arrival_at": string,"p_booking_id": string }; Returns: {
+              "agreed_price_cents": number,
+"arrival_at": string | null,
+"bid_id": string,
+"business_id": string,
+"cancel_reason": string | null,
+"canceled_at": string | null,
+"canceled_by": string | null,
+"completed_at": string | null,
+"confirm_by": string | null,
+"confirmed_at": string | null,
+"created_at": string,
+"crm_customer_id": string | null,
+"customer_id": string,
+"extensions": number,
+"id": string,
+"job_id": string | null,
+"original_price_cents": number,
+"request_id": string,
+"scope": string,
+"status": Database["public"]['Enums']["booking_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "bookings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "convert_estimate_to_invoice":
 { Args: { "p_estimate_id": string }; Returns: {
               "amount_paid_cents": number,
@@ -1328,9 +1368,44 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"drop_pending_booking":
+{ Args: { "p_booking_id": string }; Returns: undefined
+                           },
+"expire_pending_bookings":
+{ Args: Record<PropertyKey, never>; Returns: undefined
+                           },
 "expire_requests":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
+"extend_booking":
+{ Args: { "p_booking_id": string }; Returns: {
+              "agreed_price_cents": number,
+"arrival_at": string | null,
+"bid_id": string,
+"business_id": string,
+"cancel_reason": string | null,
+"canceled_at": string | null,
+"canceled_by": string | null,
+"completed_at": string | null,
+"confirm_by": string | null,
+"confirmed_at": string | null,
+"created_at": string,
+"crm_customer_id": string | null,
+"customer_id": string,
+"extensions": number,
+"id": string,
+"job_id": string | null,
+"original_price_cents": number,
+"request_id": string,
+"scope": string,
+"status": Database["public"]['Enums']["booking_status"]
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "bookings"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "extend_recurring_jobs":
 { Args: Record<PropertyKey, never>; Returns: number
                            },
@@ -1379,6 +1454,9 @@ isOneToOne: false
                            },
 "is_unaccepted_invitee":
 { Args: { "p_email": string }; Returns: string
+                           },
+"lapse_booking":
+{ Args: { "p_booking_id": string,"p_reason": string }; Returns: undefined
                            },
 "marketplace_feed":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -1577,7 +1655,7 @@ isOneToOne: false
                            }
           }
           Enums: {
-            "app_role": "customer"|"provider"|"admin","bid_status": "submitted"|"withdrawn"|"accepted"|"closed","booking_status": "active"|"completed"|"canceled","business_member_role": "owner"|"manager"|"employee","change_order_status": "pending"|"approved"|"declined"|"withdrawn","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void"|"refunded","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_request_status": "open"|"paid"|"failed"|"expired"|"canceled","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled","request_status": "open"|"booked"|"canceled"|"expired","request_timing": "asap"|"tomorrow"|"within_3_days"|"this_week"|"specific_date","stripe_account_status": "onboarding_incomplete"|"pending_verification"|"active"|"restricted","subscription_status": "incomplete"|"incomplete_expired"|"trialing"|"active"|"past_due"|"canceled"|"unpaid"|"paused"
+            "app_role": "customer"|"provider"|"admin","bid_status": "submitted"|"withdrawn"|"accepted"|"closed"|"lapsed","booking_status": "pending"|"active"|"completed"|"canceled"|"lapsed","business_member_role": "owner"|"manager"|"employee","change_order_status": "pending"|"approved"|"declined"|"withdrawn","customer_source": "direct"|"marketplace","estimate_status": "draft"|"sent"|"accepted"|"declined"|"converted","invoice_status": "draft"|"sent"|"partially_paid"|"paid"|"void"|"refunded","job_source": "direct"|"marketplace","job_status": "new"|"scheduled"|"in_progress"|"awaiting_payment"|"completed"|"canceled","payment_method": "cash"|"venmo"|"cash_app"|"check"|"card"|"other","payment_request_status": "open"|"paid"|"failed"|"expired"|"canceled","payment_verification": "provider_recorded"|"stripe_verified","recurrence_frequency": "weekly"|"biweekly"|"monthly"|"custom","recurrence_status": "active"|"paused"|"canceled","request_status": "open"|"pending"|"booked"|"canceled"|"expired","request_timing": "asap"|"tomorrow"|"within_3_days"|"this_week"|"specific_date","stripe_account_status": "onboarding_incomplete"|"pending_verification"|"active"|"restricted","subscription_status": "incomplete"|"incomplete_expired"|"trialing"|"active"|"past_due"|"canceled"|"unpaid"|"paused"
           }
           CompositeTypes: {
             [_ in never]: never
@@ -1697,7 +1775,7 @@ export const Constants = {
           }
         },"public": {
           Enums: {
-            "app_role": ["customer", "provider", "admin"],"bid_status": ["submitted", "withdrawn", "accepted", "closed"],"booking_status": ["active", "completed", "canceled"],"business_member_role": ["owner", "manager", "employee"],"change_order_status": ["pending", "approved", "declined", "withdrawn"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void", "refunded"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_request_status": ["open", "paid", "failed", "expired", "canceled"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"],"request_status": ["open", "booked", "canceled", "expired"],"request_timing": ["asap", "tomorrow", "within_3_days", "this_week", "specific_date"],"stripe_account_status": ["onboarding_incomplete", "pending_verification", "active", "restricted"],"subscription_status": ["incomplete", "incomplete_expired", "trialing", "active", "past_due", "canceled", "unpaid", "paused"]
+            "app_role": ["customer", "provider", "admin"],"bid_status": ["submitted", "withdrawn", "accepted", "closed", "lapsed"],"booking_status": ["pending", "active", "completed", "canceled", "lapsed"],"business_member_role": ["owner", "manager", "employee"],"change_order_status": ["pending", "approved", "declined", "withdrawn"],"customer_source": ["direct", "marketplace"],"estimate_status": ["draft", "sent", "accepted", "declined", "converted"],"invoice_status": ["draft", "sent", "partially_paid", "paid", "void", "refunded"],"job_source": ["direct", "marketplace"],"job_status": ["new", "scheduled", "in_progress", "awaiting_payment", "completed", "canceled"],"payment_method": ["cash", "venmo", "cash_app", "check", "card", "other"],"payment_request_status": ["open", "paid", "failed", "expired", "canceled"],"payment_verification": ["provider_recorded", "stripe_verified"],"recurrence_frequency": ["weekly", "biweekly", "monthly", "custom"],"recurrence_status": ["active", "paused", "canceled"],"request_status": ["open", "pending", "booked", "canceled", "expired"],"request_timing": ["asap", "tomorrow", "within_3_days", "this_week", "specific_date"],"stripe_account_status": ["onboarding_incomplete", "pending_verification", "active", "restricted"],"subscription_status": ["incomplete", "incomplete_expired", "trialing", "active", "past_due", "canceled", "unpaid", "paused"]
           }
         }
 } as const

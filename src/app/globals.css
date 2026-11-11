@@ -6,34 +6,39 @@
  * Light theme only for now; dark mode can be added by redefining these tokens.
  */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Owner's palette (2026-11-11): professional navy and gray, yellow on buttons. */
+  --background: #f3f5f8;       /* cool light gray page */
+  --foreground: #14213d;       /* deep navy text */
   --card: #ffffff;
-  --card-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-  --border: #e2e8f0;
-  --input: #cbd5e1;
+  --card-foreground: #14213d;
+  --muted: #e9edf2;
+  --muted-foreground: #4a5568;
+  --border: #d9dfe7;
+  --input: #c2cad6;
 
-  --primary: #1d4ed8;          /* trustworthy blue */
-  --primary-hover: #1e40af;
+  --primary: #1c2e4a;          /* navy: header, sidebar, links, highlights */
+  --primary-hover: #13213a;
   --primary-foreground: #ffffff;
-  --primary-soft: #eff6ff;
+  --primary-soft: #e6ebf3;
 
-  --accent: #ea580c;           /* call-to-action orange */
-  --accent-hover: #c2410c;
-  --accent-foreground: #ffffff;
-  --accent-soft: #fff7ed;
+  --cta: #f5c21b;              /* yellow: every button you press */
+  --cta-hover: #e3ae06;
+  --cta-foreground: #14213d;   /* navy on yellow: 9:1 contrast */
+
+  --accent: #f5c21b;           /* yellow highlights (unread counts, "Marketplace" badges) */
+  --accent-hover: #7a5a00;     /* dark gold, readable on the pale yellow badge */
+  --accent-foreground: #14213d;
+  --accent-soft: #fdf4d3;
 
   --success: #15803d;
-  --success-soft: #f0fdf4;
+  --success-soft: #edf7f0;
   --warning: #b45309;
-  --warning-soft: #fffbeb;
-  --destructive: #dc2626;
-  --destructive-hover: #b91c1c;
-  --destructive-soft: #fef2f2;
+  --warning-soft: #fdf6e7;
+  --destructive: #c62828;
+  --destructive-hover: #a51d1d;
+  --destructive-soft: #fcefef;
 
-  --ring: #2563eb;
+  --ring: #3a5a8c;
   --radius: 0.75rem;
 }
 
@@ -50,6 +55,9 @@
   --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);
+  --color-cta: var(--cta);
+  --color-cta-hover: var(--cta-hover);
+  --color-cta-foreground: var(--cta-foreground);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-foreground: var(--accent-foreground);

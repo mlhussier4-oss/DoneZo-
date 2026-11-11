@@ -1,8 +1,30 @@
 # Build progress
 
-Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
+## ▶ Pick up here (updated 2026-11-12)
+**Live:** https://donezo.org (private test, Stripe test mode). The newest work below is on branch `claude/project-setup` and goes live after merging into `main` and applying the two new database migrations to the live project.
 
-Next up: **going live**, which waits for the owner's approval of hosting accounts and costs (see docs/DEPLOYMENT.md), plus an attorney's review of the terms and privacy pages.
+**Built 2026-11-12, tested, not yet live:**
+- **Fast posting:** homeowners post a job with **no email, password or card**. A private guest account is created on their device. **At least one photo is required.**
+- **Live bids:** the customer dashboard shows each job with a **Bids drop-down that fills in live** (every few seconds, no refresh, no emails).
+- **Live booking:**
+  - Picking a bid notifies the provider. The **chat opens under the job only after the provider confirms** the job and price.
+  - The provider sees an **alert with a chime on every page** and has **5:00 to confirm with an arrival time**.
+  - From **2:00 left** the customer can **add 10 minutes** (repeatable) or **drop the provider**. If time runs out, the provider loses the job and the other bids remain.
+  - The full address reaches the provider only when they confirm. A provider who lapses loses access to the chat.
+- **More professional look across the site:**
+  - navy selected tabs;
+  - yellow-on-navy service icons;
+  - navy-accented dashboard numbers;
+  - bolder page titles with dividers;
+  - navy focus outlines on form fields.
+- **Tests:** 145 database and unit tests and 33 browser tests pass, including the full live-booking flow and the add-time/drop flow.
+
+**Waiting on the owner:**
+1. Approve going live: merge into `main` and apply migrations `20261119000000`/`20261119000100` to the live database, plus turn on guest (anonymous) sign-in there.
+2. **Email for providers:** connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
+3. Admin account email.
+
+**Recommended next:** add a free Cloudflare Turnstile check on "Post job" so bots can't flood providers with fake jobs. Guest sign-ins are already limited to 30 per hour per internet address.
 
 ## Plans update: DoneZo Basic and DoneZo Pro ✅ (built and tested 2026-11-11)
 

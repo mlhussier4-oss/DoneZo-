@@ -1,5 +1,5 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { atPath, extractCode, latestEmail, signUpProvider, uniqueEmail } from "./helpers";
+import { atPath, serviceClient, signUpProvider, uniqueEmail } from "./helpers";
 
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
@@ -21,8 +21,8 @@ async function marketplaceProvider(browser: Browser, name: string, zip = "78704"
   return page;
 }
 
-/** A first-time visitor posts a job through the wizard and confirms with an email code. */
-async function postJobAsNewCustomer(page: Page, email: string, description: string) {
+/** A first-time visitor posts a job through the wizard: no email, password or card (owner decision 2026-11-12). */
+async function postJobAsNewCustomer(page: Page, description: string) {
   await page.goto("/post-job?category=lawn-mowing");
   await page.waitForLoadState("networkidle"); // the wizard must be interactive before a file is attached
   await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
@@ -38,14 +38,21 @@ async function postJobAsNewCustomer(page: Page, email: string, description: stri
   await page.getByLabel("Mobile phone (optional)").fill("512-555-0199");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Review and post" })).toBeVisible();
-  await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Your first name (optional)").fill("Riley");
-  await page.getByRole("button", { name: "Email me a code" }).click();
-  const code = extractCode((await latestEmail(email)).html);
-  await page.getByLabel("6-digit code").fill(code);
-  await page.getByRole("button", { name: "Confirm and post job" }).click();
-  await expect(page.getByText("Your job is posted")).toBeVisible({ timeout: 15_000 });
-  return new URL(page.url()).pathname;
+  await expect(page.getByLabel("Email")).toHaveCount(0);
+  await page.getByRole("button", { name: "Post job" }).click();
+  await expect(page.getByText("Your job is posted.")).toBeVisible({ timeout: 15_000 });
+  await expect(page).toHaveURL(/\/customer\?posted=/);
+  return new URL(page.url()).searchParams.get("posted")!;
+}
+
+async function sendBid(pro: Page, description: string, price: string, included: string, when: string) {
+  await pro.goto("/provider/marketplace");
+  await pro.getByRole("link", { name: new RegExp(description) }).click();
+  await pro.getByLabel("Your price ($)").fill(price);
+  await pro.getByLabel("What's included").fill(included);
+  await pro.getByLabel("When you can do it").fill(when);
+  await pro.getByRole("button", { name: "Send bid" }).click();
+  await expect(pro.getByText("Bid sent")).toBeVisible();
 }
 
 test.describe("marketplace: post → bid → accept → message → change → complete → review", () => {
@@ -54,13 +61,13 @@ test.describe("marketplace: post → bid → accept → message → change → c
     const alpha = await marketplaceProvider(browser, "Alpha Lawn Co");
     const bravo = await marketplaceProvider(browser, "Bravo Yard Pros");
 
-    // 1. A new customer posts a job (no card, no password).
-    const customerEmail = uniqueEmail("riley");
+    // 1. A new customer posts a job: no email, password or card. They land on their dashboard.
     const description = `Front and back yard, quarter acre, ref ${Date.now()}`;
-    const requestPath = await postJobAsNewCustomer(page, customerEmail, description);
-    await expect(page.getByText("Waiting for bids")).toBeVisible();
+    const requestId = await postJobAsNewCustomer(page, description);
+    const requestPath = `/customer/requests/${requestId}`;
+    await expect(page.getByText("Waiting for bids.")).toBeVisible();
 
-    // 2. Both providers see it on their job board, with the photo but without the address or name.
+    // 2. Both providers see it on their job board, with the photo but without the address or phone.
     for (const pro of [alpha, bravo]) {
       await pro.goto("/provider/marketplace");
       await pro.getByRole("link", { name: new RegExp(description) }).click();
@@ -68,56 +75,55 @@ test.describe("marketplace: post → bid → accept → message → change → c
       await expect(pro.getByRole("img", { name: "Customer photo 1" })).toBeVisible();
       await expect(pro.getByText("ZIP 78745")).toBeVisible();
       await expect(pro.getByText("Bluebonnet")).toHaveCount(0);
-      await expect(pro.getByText("Riley")).toHaveCount(0);
       await expect(pro.getByText("512-555-0199")).toHaveCount(0);
     }
 
     // 3. Sealed bids.
-    await alpha.getByLabel("Your price ($)").fill("65");
-    await alpha.getByLabel("What's included").fill("Mow, edge and blow front and back");
-    await alpha.getByLabel("When you can do it").fill("Thursday morning");
-    await alpha.getByRole("button", { name: "Send bid" }).click();
-    await expect(alpha.getByText("Bid sent")).toBeVisible();
-
-    await bravo.getByLabel("Your price ($)").fill("70");
-    await bravo.getByLabel("What's included").fill("Mow and edge");
-    await bravo.getByLabel("When you can do it").fill("Friday");
-    await bravo.getByRole("button", { name: "Send bid" }).click();
-    await expect(bravo.getByText("Bid sent")).toBeVisible();
+    await sendBid(alpha, description, "65", "Mow, edge and blow front and back", "Thursday morning");
+    await sendBid(bravo, description, "70", "Mow and edge", "Friday");
     await bravo.reload();
     await expect(bravo.getByText("$65.00")).toHaveCount(0); // never sees Alpha's price
 
-    // 4. The customer compares and accepts.
-    await page.goto(requestPath);
-    await expect(page.getByRole("heading", { name: "Bids (2)" })).toBeVisible();
+    // 4. Bids appear live in the drop-down under the job, without reloading. The customer picks one.
+    await expect(page.getByText("Bids (2)")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByRole("link", { name: /^Alpha Lawn Co/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Bravo Yard Pros/ })).toBeVisible();
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: "Choose Alpha Lawn Co" }).click();
-    await expect(page.getByText("Agreed price")).toBeVisible();
-    await expect(page.getByText("$65.00").first()).toBeVisible();
+    const waiting = page.getByTestId("waiting-panel");
+    await expect(waiting.getByText("Waiting for Alpha Lawn Co to confirm")).toBeVisible();
+    await expect(waiting.getByRole("timer")).toHaveText(/^[45]:\d\d$/);
+    // No chat yet: it opens only once the provider commits (owner decision 2026-11-12).
+    await expect(page.getByLabel("Message", { exact: true })).toHaveCount(0);
 
-    // 5. The winner now sees the customer's details; the other provider is told they weren't chosen.
-    await alpha.goto("/provider/marketplace?tab=bookings");
-    await alpha.getByRole("link", { name: /Riley/ }).click();
-    await expect(alpha.getByRole("heading", { level: 1, name: "Lawn mowing for Riley" })).toBeVisible();
+    // 5. Alpha is alerted on any page and confirms the job and price with an arrival time.
+    await alpha.goto("/provider/marketplace?tab=bids");
+    const alert = alpha.getByTestId("pending-alert");
+    await expect(alert).toBeVisible({ timeout: 15_000 });
+    await alert.getByRole("link").first().click();
+    const confirmPanel = alpha.getByTestId("confirm-panel");
+    await expect(confirmPanel.getByRole("timer")).toHaveText(/^[45]:\d\d$/);
+    await expect(alpha.getByLabel("Message", { exact: true })).toHaveCount(0); // no chat before confirming
+    await expect(alpha.getByText("1100 Bluebonnet Ln")).toHaveCount(0); // address only after confirming
+    await confirmPanel.getByRole("button", { name: "Confirm job" }).click();
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toBeVisible();
     await expect(alpha.getByText("512-555-0199")).toBeVisible();
+    await expect(alpha.getByTestId("confirm-panel")).toHaveCount(0);
     await bravo.goto("/provider/marketplace?tab=bids");
     await expect(bravo.getByText("Not chosen")).toBeVisible();
-    await expect(bravo.getByText(/Lawn mowing · 78745/).first()).toBeVisible();
 
-    // 6. Private messaging, both ways.
-    await alpha.getByLabel("Message", { exact: true }).fill("Hi Riley, Thursday at 9am works?");
-    await alpha.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(alpha.getByText("Hi Riley, Thursday at 9am works?")).toBeVisible();
-    await page.reload();
-    await expect(page.getByText("Hi Riley, Thursday at 9am works?")).toBeVisible();
-    await page.getByLabel("Message", { exact: true }).fill("Perfect, gate code is 4512");
+    // 6. The customer sees the confirmation live, and the chat opens under the job for both sides.
+    await expect(page.getByText("Alpha Lawn Co confirmed · $65.00")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/^Arriving /)).toBeVisible();
+    await page.getByLabel("Message", { exact: true }).fill("Hi, I'm Riley. Gate code is 4512");
     await page.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(page.getByText("Perfect, gate code is 4512")).toBeVisible();
-    await alpha.reload();
-    await expect(alpha.getByText("Perfect, gate code is 4512")).toBeVisible();
+    await expect(page.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible();
+    await expect(alpha.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible({ timeout: 15_000 });
+    await alpha.getByLabel("Message", { exact: true }).fill("Thanks Riley, see you then!");
+    await alpha.getByRole("button", { name: "Send", exact: true }).click();
+    await expect(page.getByText("Thanks Riley, see you then!")).toBeVisible({ timeout: 15_000 });
+    await page.goto(requestPath);
+    await expect(page.getByText("Agreed price")).toBeVisible();
 
     // 7. A price change needs the customer's approval.
     await alpha.getByLabel("New total price ($)").fill("80");
@@ -153,9 +159,45 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByText(/1 job completed on DoneZo/).filter({ visible: true })).toBeVisible();
   });
 
+  test("the customer can give the chosen provider 10 more minutes, or drop them and pick another bid", async ({ page, browser }) => {
+    test.setTimeout(150_000);
+    const slow = await marketplaceProvider(browser, "Slow Mow Co");
+    const backup = await marketplaceProvider(browser, "Backup Lawn Co");
+    const description = `Countdown test yard, ref ${Date.now()}`;
+    const requestId = await postJobAsNewCustomer(page, description);
+    await sendBid(slow, description, "60", "Mow", "Today");
+    await sendBid(backup, description, "62", "Mow and edge", "Tomorrow");
+    await expect(page.getByText("Bids (2)")).toBeVisible({ timeout: 15_000 });
+    page.once("dialog", (d) => d.accept());
+    await page.getByRole("button", { name: "Choose Slow Mow Co" }).click();
+    const waiting = page.getByTestId("waiting-panel");
+    await expect(waiting).toBeVisible();
+    await expect(waiting.getByRole("button", { name: "Give them 10 more minutes" })).toHaveCount(0); // not before 2:00
+
+    // Fast-forward: only 1:30 left. The options appear.
+    await serviceClient().from("bookings").update({ confirm_by: new Date(Date.now() + 90_000).toISOString() }).eq("request_id", requestId).eq("status", "pending");
+    await page.reload();
+    await waiting.getByRole("button", { name: "Give them 10 more minutes" }).click();
+    await expect(waiting.getByRole("timer")).toHaveText(/^1[01]:\d\d$/);
+
+    await serviceClient().from("bookings").update({ confirm_by: new Date(Date.now() + 60_000).toISOString() }).eq("request_id", requestId).eq("status", "pending");
+    await page.reload();
+    page.once("dialog", (d) => d.accept());
+    await waiting.getByRole("button", { name: "Drop provider" }).click();
+    // Back to the bids: only Backup's is left; the dropped provider is told.
+    await expect(page.getByText("Bids (1)")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Choose Backup Lawn Co" })).toBeVisible();
+    await slow.goto("/provider/marketplace?tab=bids");
+    await expect(slow.getByText("Not confirmed in time")).toBeVisible();
+  });
+
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
     await page.goto("/post-job?category=lawn-mowing");
-    await page.getByRole("button", { name: "Skip for now" }).click();
+    await page.waitForLoadState("networkidle");
+    // Photos are required: no way past this step without one (owner decision 2026-11-12).
+    await expect(page.getByRole("button", { name: "Add a photo to continue" })).toBeDisabled();
+    await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
     await page.getByLabel("What needs to be done?").fill("Mow the lawn");
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "As soon as possible" }).click();

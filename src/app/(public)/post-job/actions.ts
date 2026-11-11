@@ -22,6 +22,7 @@ const requestSchema = z
     timing: z.enum(["asap", "tomorrow", "within_3_days", "this_week", "specific_date"]),
     preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
     zip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP code."),
+    photoCount: z.number().int().min(1, "Add at least one photo of the job.").max(10),
     line1: z.string().trim().min(1, "Enter the street address.").max(200),
     line2: z.string().trim().max(200),
     city: z.string().trim().min(1, "Enter the city.").max(100),

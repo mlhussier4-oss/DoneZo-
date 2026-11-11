@@ -1,24 +1,25 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BadgeCheck, CalendarClock, CheckCircle2, Clock, FileText, Inbox, MapPin, Phone } from "lucide-react";
+import { CalendarClock, CheckCircle2, Clock, FileText, MapPin, Phone } from "lucide-react";
 import { MessageThread } from "@/components/marketplace/message-thread";
 import { ProviderAvatar } from "@/components/marketplace/provider-avatar";
 import { Rating } from "@/components/marketplace/stars";
 import { Alert } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { paymentMethodName, timingLabel } from "@/config/marketplace";
+import { timingLabel } from "@/config/marketplace";
 import { requireRole } from "@/lib/auth";
 import { jobStatus } from "@/lib/crm/labels";
 import { uuid } from "@/lib/crm/schemas";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
-import { getThread, publicMediaUrl, signedRequestPhotos } from "@/lib/marketplace/queries";
+import { getThread, signedRequestPhotos } from "@/lib/marketplace/queries";
 import type { BidCardData, CustomerBooking } from "@/lib/marketplace/types";
 import { createClient } from "@/lib/supabase/server";
+import { LiveRefresh } from "@/components/marketplace/live-refresh";
+import { JobCard } from "../../job-card";
 import {
-  AcceptBidButton, CancelBookingButton, CancelRequestButton, ChangeOrderDecision, ReportProblemForm, ReviewForm,
+  CancelBookingButton, CancelRequestButton, ChangeOrderDecision, ReportProblemForm, ReviewForm,
 } from "./request-controls";
 
 export const metadata: Metadata = { title: "My request" };
@@ -26,6 +27,7 @@ export const metadata: Metadata = { title: "My request" };
 const TZ = "America/Chicago";
 const statusBadge = {
   open: <Badge tone="primary">Receiving bids</Badge>,
+  pending: <Badge tone="accent">Waiting for confirmation</Badge>,
   booked: <Badge tone="success">Booked</Badge>,
   canceled: <Badge tone="danger">Canceled</Badge>,
   expired: <Badge>Expired</Badge>,
@@ -39,7 +41,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
   const supabase = await createClient();
   const { data: req } = await supabase
     .from("service_requests")
-    .select("*, service_categories(name), service_request_locations(line1, line2, city, phone), request_photos(storage_path, created_at)")
+    .select("*, service_categories(name, icon), service_request_locations(line1, line2, city, phone), request_photos(storage_path, created_at)")
     .eq("id", id)
     .single();
   if (!req) notFound();
@@ -51,7 +53,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
 
   const [{ data: bidsJson }, { data: bookingJson }] = await Promise.all([
     supabase.rpc("request_bids", { p_request_id: id }),
-    req.status === "booked" ? supabase.rpc("customer_booking", { p_request_id: id }) : Promise.resolve({ data: null }),
+    req.status === "booked" || req.status === "pending" ? supabase.rpc("customer_booking", { p_request_id: id }) : Promise.resolve({ data: null }),
   ]);
   const bids = (bidsJson ?? []) as unknown as BidCardData[];
   const booking = bookingJson as unknown as CustomerBooking | null;
@@ -77,68 +79,18 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
 
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <div className="space-y-6">
-          {/* OPEN: compare bids */}
-          {req.status === "open" && !expired ? (
-            <section aria-labelledby="bids-title" className="space-y-4">
-              <h2 id="bids-title" className="text-lg font-semibold">Bids ({bids.length})</h2>
-              {bids.length === 0 ? (
-                <EmptyState icon={Inbox} title="Waiting for bids">
-                  Providers near you have been notified. Most bids arrive within a few hours. Your request stays open until {formatDate(req.expires_at, TZ)}.
-                </EmptyState>
-              ) : (
-                <ul className="space-y-4">
-                  {bids.map((b) => (
-                    <li key={b.id}>
-                      <Card>
-                        <CardContent className="space-y-4">
-                          <div className="flex items-start gap-3">
-                            <ProviderAvatar name={b.business.name} logoPath={b.business.logo_path} />
-                            <div className="min-w-0 flex-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <Link href={`/pros/${b.business.id}`} className="font-semibold hover:text-primary">{b.business.name}</Link>
-                                {b.business.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified</Badge> : null}
-                              </div>
-                              <Rating rating={b.business.stats.rating} count={b.business.stats.review_count} />
-                              <p className="text-sm text-muted-foreground">
-                                {b.business.stats.completed_jobs} {b.business.stats.completed_jobs === 1 ? "job" : "jobs"} on DoneZo
-                                {b.business.years_experience ? ` · ${b.business.years_experience} yrs experience` : ""}
-                              </p>
-                            </div>
-                            <p className="text-2xl font-semibold tabular-nums">{formatMoney(b.price_cents)}</p>
-                          </div>
-                          <dl className="grid gap-2 text-sm sm:grid-cols-2">
-                            <div><dt className="text-muted-foreground">Included</dt><dd className="whitespace-pre-wrap">{b.included}</dd></div>
-                            <div><dt className="text-muted-foreground">Availability</dt><dd>{b.availability}</dd></div>
-                            {b.exclusions ? <div><dt className="text-muted-foreground">Not included</dt><dd>{b.exclusions}</dd></div> : null}
-                            {b.additional_charges ? <div><dt className="text-muted-foreground">Possible extra charges</dt><dd>{b.additional_charges}</dd></div> : null}
-                          </dl>
-                          {b.message ? <p className="rounded-lg bg-muted p-3 text-sm">&ldquo;{b.message}&rdquo;</p> : null}
-                          {b.business.portfolio.length ? (
-                            <div className="flex gap-2">
-                              {b.business.portfolio.map((p) => (
-                                // eslint-disable-next-line @next/next/no-img-element -- public portfolio photo
-                                <img key={p} src={publicMediaUrl(p)!} alt={`Past work by ${b.business.name}`} className="size-16 rounded-lg object-cover" />
-                              ))}
-                            </div>
-                          ) : null}
-                          {b.business.accepted_payment_methods.length ? (
-                            <p className="text-xs text-muted-foreground">Accepts: {b.business.accepted_payment_methods.map(paymentMethodName).join(", ")}</p>
-                          ) : null}
-                          <AcceptBidButton bidId={b.id} businessName={b.business.name} priceCents={b.price_cents} />
-                        </CardContent>
-                      </Card>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </section>
+          {/* OPEN or WAITING: the same live card as the dashboard (bids drop-down, countdown, chat) */}
+          {(req.status === "open" && !expired) || req.status === "pending" ? (
+            <>
+              <LiveRefresh everyMs={4000} />
+              <JobCard req={req} bids={bids} booking={booking} thread={thread} userId={user.id} />
+            </>
           ) : null}
-
           {status === "expired" ? <Alert tone="info">This request expired without a booking. You can post it again any time.</Alert> : null}
           {status === "canceled" ? <Alert tone="info">You canceled this request.</Alert> : null}
 
           {/* BOOKED */}
-          {booking ? (
+          {booking && booking.status !== "pending" ? (
             <>
               <Card>
                 <CardHeader>

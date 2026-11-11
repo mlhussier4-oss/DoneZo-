@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { requireProvider } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { unreadCount } from "@/lib/marketplace/notifications";
+import { PendingAlert } from "@/components/marketplace/pending-alert";
 
 async function ProviderShell({ children }: { children: React.ReactNode }) {
   // Server-side check: only providers reach this area. Data is also protected by RLS.
@@ -21,6 +22,7 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
       userLabel={business.name}
       userSubLabel={user.email ?? undefined}
     >
+      {business.memberRole !== "employee" && business.marketplaceEnabled ? <PendingAlert /> : null}
       {children}
     </AppShell>
   );
