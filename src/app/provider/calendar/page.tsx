@@ -73,6 +73,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/provide
     .eq("business_id", business.id)
     .gte("scheduled_start", zonedToUtcIso(from, "00:00", tz))
     .lt("scheduled_start", zonedToUtcIso(to, "00:00", tz))
+    .eq(business.hasCrm ? "business_id" : "source", business.hasCrm ? business.id : "marketplace") // Basic: marketplace jobs only
     .order("scheduled_start")
     .limit(2000);
 
@@ -125,8 +126,8 @@ export default async function CalendarPage({ searchParams }: PageProps<"/provide
               ))}
             </nav>
           ) : null}
-          {isManager && view === "day" && byDay.get(date)?.length ? <Link href={`/provider/route?date=${date}${assignee && assignee !== "unassigned" ? `&assignee=${assignee}` : ""}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Plan route</Link> : null}
-          {isManager ? <Link href={`/provider/jobs/new?date=${view === "day" ? date : today}`} className={buttonVariants({ size: "sm" })}><Plus /> New job</Link> : null}
+          {isManager && business.hasCrm && view === "day" && byDay.get(date)?.length ? <Link href={`/provider/route?date=${date}${assignee && assignee !== "unassigned" ? `&assignee=${assignee}` : ""}`} className={buttonVariants({ variant: "outline", size: "sm" })}>Plan route</Link> : null}
+          {isManager && business.hasCrm ? <Link href={`/provider/jobs/new?date=${view === "day" ? date : today}`} className={buttonVariants({ size: "sm" })}><Plus /> New job</Link> : null}
         </div>
       </div>
 

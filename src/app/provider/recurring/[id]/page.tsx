@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { JobStatusBadge } from "@/components/crm/status-badges";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { frequencyLabels } from "@/lib/crm/labels";
 import { getCategoryOptions, getCustomerOptions } from "@/lib/crm/queries";
 import { uuid } from "@/lib/crm/schemas";
@@ -19,7 +19,7 @@ import { ScheduleStatusButtons } from "./schedule-buttons";
 export const metadata: Metadata = { title: "Recurring service" };
 
 export default async function SchedulePage({ params }: PageProps<"/provider/recurring/[id]">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

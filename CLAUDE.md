@@ -13,7 +13,7 @@ DoneZo is a home-services marketplace (customers post jobs, providers send seale
 2. Marketplace participation is never required for CRM users. CRM-only and CRM + Marketplace share one provider account and one database.
 3. Customers never enter a card to post a job or accept a bid.
 4. No customer–provider messaging before a bid is accepted. Full customer addresses stay hidden from providers until then. Bids are sealed.
-5. DoneZo's fee is 10% of card payments made through DoneZo (marketplace and CRM alike — owner decision 2026-11-11, replacing Blueprint rule 8). Never a fee on cash/Venmo/Cash App/check. Providers need an active $9.99/month subscription to use the CRM or marketplace.
+5. DoneZo's fee is 10% of card payments made through DoneZo (marketplace and CRM alike — owner decision 2026-11-11, replacing Blueprint rule 8). Never a fee on cash/Venmo/Cash App/check. Providers need an active subscription: DoneZo Basic $9.99/month (marketplace only) or DoneZo Pro $19.99/month (marketplace + business tools/CRM) — owner decision 2026-11-11. Pro users may keep the marketplace switched off.
 6. A payment is "paid" only after a verified Stripe webhook. Handle duplicate webhooks safely. Keep provider-recorded external payments clearly distinct from Stripe-verified ones.
 7. No fake data or mock functionality in place of real features; clearly label anything that is a placeholder.
 8. Enforce permissions in the database (Row Level Security) and on the server, never only in the UI. One provider must never see another provider's data.

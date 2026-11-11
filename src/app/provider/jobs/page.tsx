@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getTeam } from "@/lib/crm/team";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +24,7 @@ const tabs = [
 type Tab = (typeof tabs)[number]["value"];
 
 export default async function JobsPage({ searchParams }: PageProps<"/provider/jobs">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const params = await searchParams;
   const tab: Tab = tabs.some((t) => t.value === params.tab) ? (params.tab as Tab) : "upcoming";
   const nowIso = new Date().toISOString();

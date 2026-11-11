@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getCategoryOptions, getCustomerOptions } from "@/lib/crm/queries";
 import { getTeam } from "@/lib/crm/team";
 import { localDateKey } from "@/lib/format";
@@ -11,7 +11,7 @@ import { ScheduleForm } from "../schedule-form";
 export const metadata: Metadata = { title: "New recurring service" };
 
 export default async function NewSchedulePage({ searchParams }: PageProps<"/provider/recurring/new">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const params = await searchParams;
   const [customers, categories, team] = await Promise.all([getCustomerOptions(business.id), getCategoryOptions(), getTeam(business.id)]);
   const customerId = typeof params.customer === "string" && customers.some((c) => c.id === params.customer) ? params.customer : undefined;

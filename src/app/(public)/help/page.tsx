@@ -26,11 +26,12 @@ const faqs: { group: string; items: { q: string; a: React.ReactNode }[] }[] = [
   {
     group: "Providers",
     items: [
-      { q: "What does DoneZo cost?", a: "$9.99 a month for the business tools and the marketplace, including your whole team. When a customer pays you by card through DoneZo, DoneZo keeps 10% and Stripe charges its processing fee. No DoneZo fee on cash, Venmo, Cash App or check." },
-      { q: "Do I have to use the marketplace?", a: "No. You can use DoneZo just to run your business, and switch the marketplace on or off in Business settings at any time without losing anything." },
+      { q: "What does DoneZo cost?", a: "DoneZo Basic is $9.99 a month for the marketplace. DoneZo Pro is $19.99 a month for the marketplace plus business tools for all your customers, including your whole team. When a customer pays you by card through DoneZo, DoneZo keeps 10% and Stripe charges its processing fee. No DoneZo fee on cash, Venmo, Cash App or check." },
+      { q: "Do I have to use the marketplace?", a: "No. On DoneZo Pro you can use DoneZo just to run your business, and switch the marketplace on or off in Business settings at any time without losing anything." },
+      { q: "Can I switch plans?", a: <>Yes, from <Link href="/provider/plan">Plan &amp; billing</Link>. Upgrading to Pro starts right away and you pay only the difference for the rest of the month. Switching to Basic takes effect at your next billing date; your records are kept.</> },
       { q: "When does card money reach my bank?", a: "Stripe pays out to your bank on its own schedule, usually a few business days. Your Payments page shows each payout's status." },
-      { q: "How do I add employees?", a: <>Open <Link href="/provider/employees">Team</Link> and invite them by email. Employees only see the jobs you assign them.</> },
-      { q: "How do I cancel my subscription?", a: <>Go to <Link href="/subscribe">Subscription</Link> and choose “Manage billing”. Your records stay in DoneZo.</> },
+      { q: "How do I add employees?", a: <>On DoneZo Pro, open <Link href="/provider/employees">Team</Link> and invite them by email. Employees only see the jobs you assign them.</> },
+      { q: "How do I cancel my subscription?", a: <>Go to <Link href="/provider/plan">Plan &amp; billing</Link> and choose “Manage billing”. Your records stay in DoneZo.</> },
     ],
   },
 ];

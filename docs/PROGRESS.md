@@ -4,6 +4,28 @@ Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 
 
 Next up: **going live**, which waits for the owner's approval of hosting accounts and costs (see docs/DEPLOYMENT.md), plus an attorney's review of the terms and privacy pages.
 
+## Plans update: DoneZo Basic and DoneZo Pro ✅ (built and tested 2026-11-11)
+
+### Works
+- **Sign-up offers three choices:** Basic ($9.99, the marketplace); Pro ($19.99) with the marketplace; Pro with business tools only (marketplace off).
+- **Subscribe page:** both plans side by side, with the sign-up choice highlighted.
+- **Stripe decides the plan:** the plan follows the price actually paid, so picking Pro at sign-up but paying for Basic gives Basic.
+- **Plan & billing page:** upgrade to Pro (starts now; Stripe shows and charges only the difference) or switch to Basic (from the next billing date), plus "Manage billing".
+- **Basic accounts:**
+  - get a marketplace-first menu: Marketplace, Calendar of marketplace jobs, Payments, Notifications, Plan & billing, Settings;
+  - can do everything needed for marketplace jobs: win, schedule, message, photos, complete, card or cash payment;
+  - get the upgrade page when they open a Pro page;
+  - **the database blocks** business-tool changes (own customers, own jobs, recurring visits, estimates, invoices not tied to a marketplace job, recorded payments for own customers), team invitations and reports;
+  - cannot switch the marketplace off.
+- **Downgrades** keep all records (hidden, read-only) until the provider upgrades again. Team members of a Basic business can't sign in.
+- Admin payments page shows monthly subscription revenue by plan.
+- Copy updated on the For providers, Help, Terms, Settings and Overview pages.
+
+### Tests
+- Database: 122 tests, including a Basic provider winning and getting paid for a marketplace job, every Pro tool being blocked, upgrade and downgrade, and proof that only DoneZo's server can change a plan.
+- Browser: 32 tests. The subscription test now covers choosing Basic, paying for Pro, switching to Basic, and cancelling.
+- Real Stripe test mode: both prices created. A Basic subscription upgraded to Pro was charged exactly the $10.00 difference, and Stripe accepted the "downgrade at the billing date" rule. The test objects were cleaned up.
+
 ## Phase 6 — Launch preparation ✅ (built and tested 2026-11-11; not deployed)
 
 ### Works

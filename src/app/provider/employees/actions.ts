@@ -2,7 +2,7 @@
 
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { siteUrl } from "@/lib/env";
 import { dbErrorMessage, type ActionState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -16,7 +16,7 @@ const inviteSchema = z.object({
 
 /** Create the invitation (permission-checked in the database), then send Supabase's invite email. */
 export async function inviteTeamMember(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const parsed = inviteSchema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return { status: "error", fieldErrors: { email: parsed.error.issues[0]?.message ?? "Check the form." } };
   const v = parsed.data;
@@ -49,7 +49,7 @@ async function removeUnacceptedLogin(service: ReturnType<typeof createServiceCli
 const uuid = z.string().uuid();
 
 export async function revokeInvite(id: string): Promise<{ error?: string }> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(id).success) return { error: "Unknown invitation." };
   const supabase = await createClient();
   const { data: inv } = await supabase.from("business_invitations").select("email").eq("id", id).maybeSingle();
@@ -61,7 +61,7 @@ export async function revokeInvite(id: string): Promise<{ error?: string }> {
 }
 
 export async function changeRole(userId: string, role: "manager" | "employee"): Promise<{ error?: string }> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   if (!uuid.safeParse(userId).success) return { error: "Unknown person." };
   const { error } = await (await createClient()).rpc("set_member_role", { p_business_id: business.id, p_user_id: userId, p_role: role });
   if (error) return { error: dbErrorMessage(error, "Could not change the role.") };
@@ -70,7 +70,7 @@ export async function changeRole(userId: string, role: "manager" | "employee"): 
 }
 
 export async function removeTeamMember(userId: string): Promise<{ error?: string }> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   if (!uuid.safeParse(userId).success) return { error: "Unknown person." };
   const { error } = await (await createClient()).rpc("remove_member", { p_business_id: business.id, p_user_id: userId });
   if (error) return { error: dbErrorMessage(error, "Could not remove this person.") };

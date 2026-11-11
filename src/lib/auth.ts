@@ -23,6 +23,9 @@ export type CurrentBusiness = {
   timezone: string;
   defaultTaxRateBps: number;
   memberRole: "owner" | "manager" | "employee";
+  /** The plan the business pays for. Business tools (CRM, team, reports) are Pro only; the database enforces it too. */
+  plan: { code: "basic" | "pro"; name: string; priceCents: number };
+  hasCrm: boolean;
 };
 
 /** Where each kind of user lands after signing in. */
@@ -85,7 +88,7 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
   const supabase = await createClient();
   const { data } = await supabase
     .from("business_members")
-    .select("role, businesses ( id, name, email, phone, description, marketplace_enabled, marketplace_enabled_at, timezone, default_tax_rate_bps )")
+    .select("role, businesses ( id, name, email, phone, description, marketplace_enabled, marketplace_enabled_at, timezone, default_tax_rate_bps, plans ( code, name, price_cents ) )")
     .eq("user_id", user.id)
     .order("created_at", { ascending: true })
     .limit(1)
@@ -105,6 +108,8 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
     timezone: b.timezone,
     defaultTaxRateBps: b.default_tax_rate_bps,
     memberRole: data.role as CurrentBusiness["memberRole"],
+    plan: { code: b.plans?.code === "basic" ? "basic" : "pro", name: b.plans?.name ?? "DoneZo Pro", priceCents: b.plans?.price_cents ?? 1999 },
+    hasCrm: b.plans?.code !== "basic",
   };
 });
 
@@ -118,7 +123,20 @@ export async function requireProvider(): Promise<{ user: CurrentUser; business: 
     await supabase.auth.signOut();
     redirect("/login?error=no_business");
   }
+  // Team members are a Pro feature: on Basic only the owner can sign in to the business.
+  if (business.memberRole !== "owner" && !business.hasCrm) {
+    const supabase = await createClient();
+    await supabase.auth.signOut();
+    redirect("/login?error=team_plan");
+  }
   return { user, business };
+}
+
+/** Pro business tools (owners and managers). Basic accounts see what Pro adds and how to upgrade. */
+export async function requirePro(): Promise<{ user: CurrentUser; business: CurrentBusiness }> {
+  const ctx = await requireManager();
+  if (!ctx.business.hasCrm) redirect("/provider/plan?need=pro");
+  return ctx;
 }
 
 /** Owners and managers only. Employees are sent to their own job list. */

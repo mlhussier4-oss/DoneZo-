@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getCategoryOptions, getCustomerOptions } from "@/lib/crm/queries";
 import { createJob } from "../actions";
 import { JobForm } from "../job-form";
@@ -9,7 +9,7 @@ import { JobForm } from "../job-form";
 export const metadata: Metadata = { title: "New job" };
 
 export default async function NewJobPage({ searchParams }: PageProps<"/provider/jobs/new">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const params = await searchParams;
   const [customers, categories] = await Promise.all([getCustomerOptions(business.id), getCategoryOptions()]);
   const customerId = typeof params.customer === "string" && customers.some((c) => c.id === params.customer) ? params.customer : undefined;

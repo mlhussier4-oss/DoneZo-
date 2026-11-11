@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { addressSchema, customerSchema, hasAnyAddress, noteSchema, uuid } from "@/lib/crm/schemas";
 import { dbErrorMessage, zodErrors, type ActionState } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
 const fields = (fd: FormData) => Object.fromEntries(fd) as Record<string, string>;
 
 export async function createCustomer(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const customer = customerSchema.safeParse(fields(fd));
   if (!customer.success) return zodErrors(customer.error);
   const withAddress = hasAnyAddress(fd);
@@ -46,7 +46,7 @@ export async function createCustomer(_prev: ActionState, fd: FormData): Promise<
 }
 
 export async function updateCustomer(customerId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(customerId).success) return { status: "error", message: "Unknown customer." };
   const parsed = customerSchema.safeParse(fields(fd));
   if (!parsed.success) return zodErrors(parsed.error);
@@ -65,7 +65,7 @@ export async function updateCustomer(customerId: string, _prev: ActionState, fd:
 }
 
 export async function setCustomerArchived(customerId: string, archived: boolean): Promise<void> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(customerId).success) return;
   const supabase = await createClient();
   await supabase.from("crm_customers").update({ is_archived: archived }).eq("id", customerId);
@@ -73,7 +73,7 @@ export async function setCustomerArchived(customerId: string, archived: boolean)
 }
 
 export async function addAddress(customerId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   if (!uuid.safeParse(customerId).success) return { status: "error", message: "Unknown customer." };
   const parsed = addressSchema.safeParse(fields(fd));
   if (!parsed.success) return zodErrors(parsed.error);
@@ -93,7 +93,7 @@ export async function addAddress(customerId: string, _prev: ActionState, fd: For
 }
 
 export async function makeAddressPrimary(customerId: string, addressId: string): Promise<void> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(customerId).success || !uuid.safeParse(addressId).success) return;
   const supabase = await createClient();
   await supabase.from("crm_customer_addresses").update({ is_primary: false }).eq("customer_id", customerId);
@@ -102,7 +102,7 @@ export async function makeAddressPrimary(customerId: string, addressId: string):
 }
 
 export async function deleteAddress(addressId: string): Promise<void> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(addressId).success) return;
   const supabase = await createClient();
   // Addresses used by jobs are protected by a foreign key; the delete simply fails in that case.
@@ -111,7 +111,7 @@ export async function deleteAddress(addressId: string): Promise<void> {
 }
 
 export async function addNote(customerId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   if (!uuid.safeParse(customerId).success) return { status: "error", message: "Unknown customer." };
   const parsed = noteSchema.safeParse(fields(fd));
   if (!parsed.success) return zodErrors(parsed.error);
@@ -125,7 +125,7 @@ export async function addNote(customerId: string, _prev: ActionState, fd: FormDa
 }
 
 export async function deleteNote(noteId: string): Promise<void> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(noteId).success) return;
   const supabase = await createClient();
   await supabase.from("crm_customer_notes").delete().eq("id", noteId);

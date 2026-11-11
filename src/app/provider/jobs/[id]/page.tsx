@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CalendarClock, MapPin, Repeat, Tag, User } from "lucide-react";
 import { InvoiceStatusBadge, JobStatusBadge } from "@/components/crm/status-badges";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,8 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
     .eq("id", id)
     .single();
   if (!job) notFound();
+  // DoneZo Basic: only marketplace jobs.
+  if (!business.hasCrm && job.source !== "marketplace") redirect("/provider/plan?need=pro");
 
   const [{ data: photos }, { data: invoices }, { data: history }, { data: booking }, { data: assignments }, team] = await Promise.all([
     supabase.from("job_photos").select("id, storage_path, caption, created_at").eq("job_id", id).order("created_at"),

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ChevronLeft, ChevronRight, ExternalLink, MapPin, Navigation } from "lucide-react";
 import { JobStatusBadge } from "@/components/crm/status-badges";
 import { Alert } from "@/components/ui/alert";
@@ -18,6 +19,7 @@ export const metadata: Metadata = { title: "Route" };
 
 export default async function RoutePage({ searchParams }: PageProps<"/provider/route">) {
   const { business } = await requireProvider();
+  if (!business.hasCrm) redirect("/provider/plan?need=pro");
   const isManager = business.memberRole !== "employee";
   const tz = business.timezone;
   const params = await searchParams;

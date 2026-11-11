@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Alert } from "@/components/ui/alert";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getCategoryOptions, getCustomerOptions } from "@/lib/crm/queries";
 import { uuid } from "@/lib/crm/schemas";
 import { centsToInput, toLocalInputs } from "@/lib/format";
@@ -14,7 +14,7 @@ import { JobForm } from "../../job-form";
 export const metadata: Metadata = { title: "Edit job" };
 
 export default async function EditJobPage({ params }: PageProps<"/provider/jobs/[id]/edit">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

@@ -1,10 +1,10 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireManager } from "@/lib/auth";
 import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
-import { ManageBillingButton } from "../../subscribe/subscribe-buttons";
 import { formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 
@@ -45,7 +45,9 @@ export default async function ProviderSettingsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {canManage ? (
+            {!business.hasCrm ? (
+              <p className="text-sm text-muted-foreground">DoneZo Basic is the marketplace plan, so the marketplace stays on. <Link href="/provider/plan" className="text-primary hover:underline">Switch to Pro</Link> to use business tools without it.</p>
+            ) : canManage ? (
               <MarketplaceToggle enabled={business.marketplaceEnabled} />
             ) : (
               <p className="text-sm text-muted-foreground">Only the owner or a manager can change this.</p>
@@ -60,12 +62,12 @@ export default async function ProviderSettingsPage() {
               <Badge tone={sub?.status === "past_due" ? "warning" : "success"}>{sub?.status === "past_due" ? "Payment overdue" : "Active"}</Badge>
             </div>
             <CardDescription>
-              DoneZo Standard, $9.99/month.
+              {business.plan.name}, ${(business.plan.priceCents / 100).toFixed(2)}/month.
               {sub?.current_period_end ? ` ${sub.cancel_at_period_end ? "Ends" : "Renews"} ${formatDate(sub.current_period_end)}.` : ""}
               {sub?.status === "past_due" ? " Stripe couldn't charge your card; update it to keep access." : ""}
             </CardDescription>
           </CardHeader>
-          <CardContent>{canManage ? <ManageBillingButton /> : <p className="text-sm text-muted-foreground">Only the owner can manage billing.</p>}</CardContent>
+          <CardContent><Link href="/provider/plan" className="text-sm font-medium text-primary hover:underline">Plan &amp; billing →</Link></CardContent>
         </Card>
       </div>
     </>

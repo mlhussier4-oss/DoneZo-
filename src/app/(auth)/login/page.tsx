@@ -12,6 +12,7 @@ const errors: Record<string, string> = {
   suspended: "This account has been suspended. Please contact support.",
   link: "That link is invalid or has expired. Please try again.",
   no_business: "You're no longer part of a DoneZo business team. Ask the business owner if you think this is a mistake.",
+  team_plan: "Your business is on DoneZo Basic, which doesn't include team members. Ask the business owner to switch to DoneZo Pro.",
 };
 
 async function LoginContent({ searchParams }: { searchParams: PageProps<"/login">["searchParams"] }) {

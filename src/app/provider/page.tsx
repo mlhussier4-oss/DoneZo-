@@ -19,6 +19,7 @@ export const metadata: Metadata = { title: "Overview" };
 export default async function ProviderOverviewPage() {
   const { user, business } = await requireProvider();
   if (business.memberRole === "employee") redirect("/provider/my-jobs");
+  if (!business.hasCrm) redirect("/provider/marketplace"); // DoneZo Basic starts on the marketplace
   const tz = business.timezone;
   const d = await getDashboard(business.id);
   const supabase = await createClient();
@@ -38,7 +39,7 @@ export default async function ProviderOverviewPage() {
     <>
       <PageHeader
         title={firstName ? `Welcome, ${firstName}` : "Welcome"}
-        description={`${business.name} · ${business.marketplaceEnabled ? "Business Management + Marketplace" : "Business Management"}`}
+        description={`${business.name} · ${business.plan.name}${business.marketplaceEnabled ? " with the marketplace" : ""}`}
         actions={<Link href="/provider/jobs/new" className={buttonVariants()}><Plus /> New job</Link>}
       />
 
@@ -90,7 +91,7 @@ export default async function ProviderOverviewPage() {
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Active customers</span><span className="font-medium">{d.active_customers}</span></div>
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Marketplace</span>{business.marketplaceEnabled ? <Badge tone="success">On</Badge> : <Badge>Off</Badge>}</div>
             <div className="flex items-center justify-between"><span className="text-muted-foreground">Card payments</span>{stripeAcct?.status === "active" ? <Badge tone="success">On</Badge> : <Badge>{stripeAcct ? "Setup incomplete" : "Not connected"}</Badge>}</div>
-            <div className="flex items-center justify-between"><span className="text-muted-foreground">Plan</span><Badge tone="primary">$9.99/month</Badge></div>
+            <div className="flex items-center justify-between"><span className="text-muted-foreground">Plan</span><Link href="/provider/plan"><Badge tone="primary">{business.plan.name}</Badge></Link></div>
             <Link href="/provider/settings" className={buttonVariants({ variant: "outline", size: "sm", className: "mt-1" })}>Business settings</Link>
           </CardContent>
         </Card>

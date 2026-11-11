@@ -6,7 +6,7 @@ import { ShareLink } from "@/components/crm/share-link";
 import { EstimateStatusBadge } from "@/components/crm/status-badges";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
@@ -15,7 +15,7 @@ import { EstimateButtons } from "./estimate-actions";
 export const metadata: Metadata = { title: "Estimate" };
 
 export default async function EstimatePage({ params }: PageProps<"/provider/estimates/[id]">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

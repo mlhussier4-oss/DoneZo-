@@ -1,6 +1,6 @@
 # Deploying DoneZo
 
-**Status: not deployed.** Nothing here has been done yet. Putting DoneZo online needs the owner's approval
+**Domain: donezo.org** (bought by the owner on Cloudflare, 2026-11-11). **Status: not deployed.** Nothing here has been done yet. Putting DoneZo online needs the owner's approval
 because it creates paid accounts and makes the site public (CLAUDE.md rule 9). Stripe stays in **test mode**
 until the owner separately approves live payments.
 
@@ -16,19 +16,27 @@ until the owner separately approves live payments.
 
 Total to start: **about $45–$65/month** plus the domain.
 
+**Owner decision 2026-11-11: start on free plans** for a private test (Vercel Hobby, Supabase Free, Resend Free; Stripe test mode, no real charges). Move to Supabase Pro and paid hosting before charging real providers.
+
+### donezo.org on Cloudflare
+- The owner manages the domain in their own Cloudflare account; nobody else needs the login.
+- Website: add the DNS records Vercel shows when the domain is added to the Vercel project (usually an `A` record for `donezo.org` and a `CNAME` for `www`), with Cloudflare's proxy set to **DNS only** (grey cloud) so Vercel can issue the HTTPS certificate.
+- Sending email (Resend): add the SPF/DKIM records Resend shows for a sending subdomain such as `mail.donezo.org`; sender `DoneZo <no-reply@donezo.org>`.
+- Receiving email: Cloudflare Email Routing (free) can forward `support@donezo.org` to the owner's inbox; set `NEXT_PUBLIC_SUPPORT_EMAIL=support@donezo.org`.
+
 ## One-time setup (in this order)
 
 1. **Supabase project**: create a project in a US region. In *Project settings → API*, copy the URL, the publishable key and the secret key.
 2. **Database**: from this repository, link and push migrations:
    `npx supabase link --project-ref <ref>` then `npx supabase db push`. This creates every table, rule, function, scheduled job (pg_cron) and storage bucket, plus the ZIP-code and service-category reference data. No test data is included.
 3. **Supabase Auth settings** (dashboard → Authentication):
-   - Site URL = `https://<your domain>`; add `https://<your domain>/auth/confirm` to Redirect URLs.
+   - Site URL = `https://donezo.org`; add `https://donezo.org/auth/confirm` to Redirect URLs.
    - Email templates: copy from `supabase/templates/` (confirmation, magic link/code, recovery, invite).
    - Custom SMTP: Resend's SMTP details, sender e.g. `DoneZo <no-reply@yourdomain>`.
    - Passwords: minimum 8, "letters and digits"; "Secure password change" on. Email OTP expiry 900 s. Email sending interval 60 s.
    - Turn on leaked-password protection if the plan offers it.
 4. **Vercel project**: import the GitHub repository. Set the environment variables below (Production only). Add the domain.
-5. **Stripe (test mode first)**: Dashboard → Developers → Webhooks, add endpoint `https://<your domain>/api/stripe/webhook`:
+5. **Stripe (test mode first)**: Dashboard → Developers → Webhooks, add endpoint `https://donezo.org/api/stripe/webhook`:
    - *Your account* events (subscriptions): `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
    - A second endpoint for *Connected accounts* (providers' card payments): `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `charge.refunded`, `account.updated`.
    - Copy each signing secret into `STRIPE_WEBHOOK_SECRET` / `STRIPE_CONNECT_WEBHOOK_SECRET`.
@@ -40,7 +48,7 @@ Total to start: **about $45–$65/month** plus the domain.
 
 | Name | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://<your domain>` (must be https) |
+| `NEXT_PUBLIC_SITE_URL` | `https://donezo.org` (must be https) |
 | `NEXT_PUBLIC_SUPABASE_URL` | from Supabase |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | from Supabase |
 | `SUPABASE_SECRET_KEY` | from Supabase (secret) |

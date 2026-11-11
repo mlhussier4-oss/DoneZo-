@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { Check } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PlanCard } from "@/components/plans/plan-card";
+import { cardFeeNote, planInfo } from "@/config/plans";
 import { getCurrentBusiness, requireRole } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
 import { confirmSubscriptionSession } from "@/lib/stripe/subscription";
@@ -12,13 +12,6 @@ import { ManageBillingButton, SubscribeButton } from "./subscribe-buttons";
 
 export const metadata: Metadata = { title: "Subscribe" };
 
-const included = [
-  "Customer database, calendar and recurring visits",
-  "Jobs, photos, estimates and invoices",
-  "Card payments through Stripe and cash/Venmo/Cash App records",
-  "Reports and revenue tracking",
-  "Marketplace: local job requests and bidding (if you switch it on)",
-];
 
 async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/subscribe">["searchParams"] }) {
   await requireRole("provider");
@@ -45,30 +38,32 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
   if (access) redirect("/provider");
   const ended = sub?.status && ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
 
+  const chosen = business.plan.code;
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle as="h1" className="text-2xl">{ended ? "Your subscription has ended" : `Activate ${business.name}`}</CardTitle>
-        <CardDescription>
+    <div className="space-y-5">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">{ended ? "Your subscription has ended" : `Activate ${business.name}`}</h1>
+        <p className="mt-1 text-muted-foreground">
           {ended
-            ? `Subscribe again to get back to your customers, jobs and invoices. Nothing has been deleted.${sub?.current_period_end ? ` Access ended ${formatDate(sub.current_period_end)}.` : ""}`
-            : "One plan with everything included. Cancel any time."}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-5">
-        {params.canceled ? <Alert tone="info">Checkout was canceled. You haven&apos;t been charged.</Alert> : null}
-        {typeof params.session_id === "string" ? <Alert tone="info">We&apos;re confirming your payment with Stripe. Refresh in a moment if this page doesn&apos;t update.</Alert> : null}
-        <p><span className="text-4xl font-bold">$9.99</span><span className="text-muted-foreground"> / month</span></p>
-        <ul className="space-y-2 text-sm">
-          {included.map((i) => <li key={i} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />{i}</li>)}
-        </ul>
-        <SubscribeButton label={ended ? "Resubscribe for $9.99/month" : "Subscribe for $9.99/month"} />
-        <p className="text-xs text-muted-foreground">
-          Payment is handled securely by Stripe; DoneZo never sees your card number. A 10% fee applies to card payments your customers make through DoneZo; there&apos;s no fee on cash, Venmo or Cash App.
+            ? `Subscribe again to get back to work. Nothing has been deleted.${sub?.current_period_end ? ` Access ended ${formatDate(sub.current_period_end)}.` : ""}`
+            : "Choose your plan. Cancel or switch plans any time."}
         </p>
-        {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
-      </CardContent>
-    </Card>
+      </div>
+      {params.canceled ? <Alert tone="info">Checkout was canceled. You haven&apos;t been charged.</Alert> : null}
+      {typeof params.session_id === "string" ? <Alert tone="info">We&apos;re confirming your payment with Stripe. Refresh in a moment if this page doesn&apos;t update.</Alert> : null}
+      {business.memberRole !== "owner" ? <Alert tone="warning">Only the business owner can subscribe.</Alert> : null}
+      <div className="grid gap-4 md:grid-cols-2">
+        {(["basic", "pro"] as const).map((code) => (
+          <PlanCard key={code} plan={code} highlight={chosen === code} badge={chosen === code ? "Your choice" : undefined}>
+            {business.memberRole === "owner" ? (
+              <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={`${ended ? "Resubscribe" : "Subscribe"}: ${planInfo[code].name}, ${planInfo[code].price}/month`} />
+            ) : null}
+          </PlanCard>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; DoneZo never sees your card number. No free trial. {cardFeeNote}</p>
+      {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
+    </div>
   );
 }
 

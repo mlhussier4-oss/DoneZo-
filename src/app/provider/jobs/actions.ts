@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireManager, requireProvider } from "@/lib/auth";
+import { requireManager, requirePro, requireProvider } from "@/lib/auth";
 import { jobColumns, jobFormSchema } from "@/lib/crm/job-schema";
 import { uuid } from "@/lib/crm/schemas";
 import { dbErrorMessage, zodErrors, type ActionState } from "@/lib/forms";
@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 const fields = (fd: FormData) => Object.fromEntries(fd) as Record<string, string>;
 
 export async function createJob(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const parsed = jobFormSchema.safeParse(fields(fd));
   if (!parsed.success) return zodErrors(parsed.error);
   const cols = jobColumns(parsed.data, business.timezone);
@@ -27,7 +27,7 @@ export async function createJob(_prev: ActionState, fd: FormData): Promise<Actio
 }
 
 export async function updateJob(jobId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   if (!uuid.safeParse(jobId).success) return { status: "error", message: "Unknown job." };
   const parsed = jobFormSchema.safeParse(fields(fd));
   if (!parsed.success) return zodErrors(parsed.error);

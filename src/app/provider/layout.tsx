@@ -15,9 +15,9 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
   const unread = await unreadCount(user.id);
   return (
     <AppShell
-      nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread)}
+      nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread, business.hasCrm)}
       areaLabel="Business"
-      homeHref={business.memberRole === "employee" ? "/provider/my-jobs" : "/provider"}
+      homeHref={business.memberRole === "employee" ? "/provider/my-jobs" : business.hasCrm ? "/provider" : "/provider/marketplace"}
       userLabel={business.name}
       userSubLabel={user.email ?? undefined}
     >

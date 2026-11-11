@@ -14,8 +14,8 @@ export default async function AdminPaymentsPage() {
   await requireRole("admin");
   const supabase = await createClient();
   const [{ data: settings }, { data: subs }, { data: payments }] = await Promise.all([
-    supabase.from("platform_settings").select("card_fee_bps, subscription_price_cents").single(),
-    supabase.from("business_subscriptions").select("business_id, status, current_period_end, cancel_at_period_end, businesses(name)").order("updated_at", { ascending: false }),
+    supabase.from("platform_settings").select("card_fee_bps").single(),
+    supabase.from("business_subscriptions").select("business_id, status, current_period_end, cancel_at_period_end, businesses(name, plans(name, price_cents))").order("updated_at", { ascending: false }),
     supabase.from("payment_records").select("id, business_id, amount_cents, application_fee_cents, refunded_cents, received_on")
       .eq("verification", "stripe_verified").order("created_at", { ascending: false }).limit(200),
   ]);
@@ -31,7 +31,7 @@ export default async function AdminPaymentsPage() {
     <>
       <PageHeader title="Payments" description="Stripe test mode. Card payments go to each provider's own Stripe account; DoneZo receives its fee." />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatTile label="Active subscriptions" value={String(active.length)} context={`${formatMoney((settings?.subscription_price_cents ?? 999) * active.length)} / month`} />
+        <StatTile label="Active subscriptions" value={String(active.length)} context={`${formatMoney(active.reduce((sum, s) => sum + (s.businesses?.plans?.price_cents ?? 0), 0))} / month · ${active.filter((s) => s.businesses?.plans?.price_cents === 1999).length} Pro, ${active.filter((s) => s.businesses?.plans?.price_cents === 999).length} Basic`} />
         <StatTile label="Card volume" value={formatMoney(cardVolume)} context="after refunds, last 200 payments" />
         <StatTile label="DoneZo card fees" value={formatMoney(feesEarned)} context="after refunds" />
         <StatTile label="Card fee rate" value={`${(settings?.card_fee_bps ?? 1000) / 100}%`} />
@@ -48,7 +48,7 @@ export default async function AdminPaymentsPage() {
               <tbody>
                 {(subs ?? []).map((s) => (
                   <tr key={s.business_id} className="border-t border-border">
-                    <td className="py-2">{s.businesses?.name}</td>
+                    <td className="py-2">{s.businesses?.name} <span className="text-xs text-muted-foreground">{s.businesses?.plans?.name?.replace("DoneZo ", "")}</span></td>
                     <td className="py-2"><Badge tone={s.status === "active" ? "success" : s.status === "past_due" ? "warning" : "neutral"}>{s.status ?? "not started"}</Badge></td>
                     <td className="py-2">{s.current_period_end ? `${s.cancel_at_period_end ? "Ends" : "Renews"} ${formatDate(s.current_period_end)}` : "—"}</td>
                   </tr>

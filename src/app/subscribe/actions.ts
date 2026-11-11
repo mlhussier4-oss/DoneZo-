@@ -2,16 +2,19 @@
 
 import { redirect } from "next/navigation";
 import { requireRole, getCurrentBusiness } from "@/lib/auth";
-import { billingPortalUrl, startSubscriptionCheckout } from "@/lib/stripe/subscription";
+import { billingPortalUrl, startSubscriptionCheckout, type PlanCode } from "@/lib/stripe/subscription";
 
-export async function subscribe(): Promise<{ error?: string }> {
+const isPlan = (v: unknown): v is PlanCode => v === "basic" || v === "pro";
+
+export async function subscribe(plan: PlanCode): Promise<{ error?: string }> {
   await requireRole("provider");
   const business = await getCurrentBusiness();
   if (!business) return { error: "No business found." };
-  if (business.memberRole === "employee") return { error: "Ask the business owner to set up the subscription." };
+  if (business.memberRole !== "owner") return { error: "Ask the business owner to set up the subscription." };
+  if (!isPlan(plan)) return { error: "Choose a plan." };
   let url: string;
   try {
-    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email });
+    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email }, plan);
   } catch (err) {
     console.error("subscribe failed", err);
     return { error: "We couldn't reach our payment provider. Please try again in a moment." };
@@ -22,7 +25,7 @@ export async function subscribe(): Promise<{ error?: string }> {
 export async function manageBilling(): Promise<{ error?: string }> {
   await requireRole("provider");
   const business = await getCurrentBusiness();
-  if (!business || business.memberRole === "employee") return { error: "Only the owner can manage billing." };
+  if (!business || business.memberRole !== "owner") return { error: "Only the owner can manage billing." };
   let url: string;
   try {
     url = await billingPortalUrl(business.id);

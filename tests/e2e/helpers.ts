@@ -39,11 +39,12 @@ export function extractConfirmLink(html: string): string {
 
 export async function signUpProvider(
   page: Page,
-  opts: { usage: "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean },
+  opts: { usage: "basic" | "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean },
 ) {
   const password = opts.password ?? "Correct-horse-9";
   await page.goto("/signup/provider");
-  await page.getByText(opts.usage === "crm" ? "Business Management only" : "Business Management + Marketplace").click();
+  const planLabel = { basic: "DoneZo Basic · $9.99/month", crm: "DoneZo Pro · $19.99/month, business tools only", marketplace: "DoneZo Pro · $19.99/month, with marketplace" }[opts.usage];
+  await page.getByText(planLabel).click();
   await page.getByLabel("Business name").fill(opts.businessName);
   await page.getByLabel("Your name").fill("Test Owner");
   await page.getByLabel("Email").fill(opts.email);

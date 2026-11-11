@@ -27,16 +27,18 @@ async function stubStripePages(page: Page) {
 }
 
 test.describe("subscription required for providers", () => {
-  test("a new provider must subscribe before using DoneZo; the verified webhook unlocks it", async ({ page }) => {
+  test("a new provider must subscribe before using DoneZo; the plan paid for decides Basic or Pro", async ({ page }) => {
     await stubStripePages(page);
     const email = uniqueEmail("subscriber");
-    await signUpProvider(page, { usage: "crm", businessName: "Pay First Co", email, subscribe: false });
+    await signUpProvider(page, { usage: "basic", businessName: "Pay First Co", email, subscribe: false });
 
-    await expect(page.getByText("$9.99", { exact: true })).toBeVisible();
+    // Both plans are offered; the one picked at sign-up is highlighted.
+    await expect(page.getByTestId("plan-basic").getByText("Your choice")).toBeVisible();
+    await expect(page.getByTestId("plan-pro").getByText("$19.99", { exact: true })).toBeVisible();
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(atPath("/subscribe")); // every provider page is locked
 
-    await page.getByRole("button", { name: "Subscribe for $9.99/month" }).click();
+    await page.getByRole("button", { name: "Subscribe: DoneZo Pro, $19.99/month" }).click();
     await expect(page.getByText("Stripe hosted page")).toBeVisible();
 
     // The Stripe customer was created and saved; no access until Stripe confirms the subscription.
@@ -46,27 +48,36 @@ test.describe("subscription required for providers", () => {
     expect(sub?.status).toBeNull();
 
     const subscriptionId = `sub_e2e_${Date.now()}`;
-    const res = await sendWebhook(page, {
-      id: `evt_sub_${Date.now()}`,
-      type: "customer.subscription.created",
-      data: { object: { id: subscriptionId, object: "subscription", customer: sub!.stripe_customer_id, status: "active", cancel_at_period_end: false, livemode: false,
-        metadata: { business_id: businessId }, items: { object: "list", data: [{ current_period_end: Math.floor(Date.now() / 1000) + 30 * 86400 }] } } },
+    const subEvent = (type: string, status: string, lookupKey: string | null) => ({
+      id: `evt_${type}_${Date.now()}_${Math.random()}`,
+      type,
+      data: { object: { id: subscriptionId, object: "subscription", customer: sub!.stripe_customer_id, status, cancel_at_period_end: false, livemode: false,
+        metadata: { business_id: businessId },
+        items: { object: "list", data: lookupKey ? [{ id: "si_e2e", current_period_end: Math.floor(Date.now() / 1000) + 30 * 86400, price: { id: `price_${lookupKey}`, object: "price", lookup_key: lookupKey } }] : [] } } },
     });
-    expect(res.status()).toBe(200);
 
+    // Paid for Pro (even though Basic was picked at sign-up): business tools unlock.
+    expect((await sendWebhook(page, subEvent("customer.subscription.created", "active", "donezo_pro_monthly"))).status()).toBe(200);
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(atPath("/provider/customers"));
     await page.goto("/provider/settings");
-    await expect(page.getByText("DoneZo Standard, $9.99/month")).toBeVisible();
+    await expect(page.getByText("DoneZo Pro, $19.99/month")).toBeVisible();
     await expect(page.getByText(/Renews/)).toBeVisible();
 
+    // Switched to Basic at the billing date: marketplace menu, business tools show the upgrade page.
+    expect((await sendWebhook(page, subEvent("customer.subscription.updated", "active", "donezo_basic_monthly"))).status()).toBe(200);
+    await page.goto("/provider");
+    await expect(page).toHaveURL(atPath("/provider/marketplace"));
+    const nav = page.getByRole("navigation", { name: "Business navigation" }).first();
+    await expect(nav.getByRole("link", { name: "Customers" })).toHaveCount(0);
+    await expect(nav.getByRole("link", { name: "Plan & billing" })).toBeVisible();
+    await page.goto("/provider/customers");
+    await expect(page).toHaveURL(/\/provider\/plan\?need=pro/);
+    await expect(page.getByText("part of DoneZo Pro", { exact: false }).first()).toBeVisible();
+    await expect(page.getByRole("button", { name: "Upgrade to Pro, $19.99/month" })).toBeVisible();
+
     // Canceled subscription → locked again.
-    const deleted = await sendWebhook(page, {
-      id: `evt_sub_del_${Date.now()}`,
-      type: "customer.subscription.deleted",
-      data: { object: { id: subscriptionId, object: "subscription", customer: sub!.stripe_customer_id, status: "canceled", cancel_at_period_end: false, livemode: false, metadata: { business_id: businessId }, items: { object: "list", data: [] } } },
-    });
-    expect(deleted.status()).toBe(200);
+    expect((await sendWebhook(page, subEvent("customer.subscription.deleted", "canceled", null))).status()).toBe(200);
     await page.goto("/provider");
     await expect(page).toHaveURL(atPath("/subscribe"));
     await expect(page.getByText("Your subscription has ended")).toBeVisible();

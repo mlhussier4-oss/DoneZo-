@@ -53,7 +53,7 @@ const providerSignUpSchema = z.object({
   businessName: z.string().trim().min(1, "Enter your business name.").max(120),
   email,
   password,
-  usage: z.enum(["crm", "marketplace"], { message: "Choose how you'd like to use DoneZo." }),
+  usage: z.enum(["basic", "crm", "marketplace"], { message: "Choose a plan." }),
 });
 
 export async function providerSignUp(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -71,7 +71,9 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
         role: "provider",
         full_name: fullName,
         business_name: businessName,
-        marketplace_enabled: usage === "marketplace",
+        // The plan picked here is a preference; what the provider pays for in Stripe decides the plan.
+        plan: usage === "basic" ? "basic" : "pro",
+        marketplace_enabled: usage !== "crm",
       },
     },
   });

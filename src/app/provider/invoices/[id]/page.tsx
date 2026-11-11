@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DocumentView } from "@/components/crm/document-view";
 import { ShareLink } from "@/components/crm/share-link";
 import { InvoiceStatusBadge, VerificationBadge } from "@/components/crm/status-badges";
@@ -31,6 +31,8 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
     .eq("id", id)
     .single();
   if (!inv) notFound();
+  // DoneZo Basic: only invoices for marketplace jobs.
+  if (!business.hasCrm && inv.source !== "marketplace") redirect("/provider/plan?need=pro");
   const [{ data: payments }, { data: requests }, { data: acct }] = await Promise.all([
     supabase.from("payment_records")
       .select("id, amount_cents, method, verification, received_on, note, refunded_cents, application_fee_cents")

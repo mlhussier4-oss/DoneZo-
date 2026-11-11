@@ -9,7 +9,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { paymentMethodLabel } from "@/lib/crm/labels";
 import { getReport, rangePresets, resolveRange } from "@/lib/crm/report";
 import { formatIso } from "@/lib/dates";
@@ -24,7 +24,7 @@ const compactUsd = (cents: number) => {
 };
 
 export default async function ReportsPage({ searchParams }: PageProps<"/provider/reports">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const params = await searchParams;
   const today = localDateKey(new Date(), business.timezone);
   const range = resolveRange(params, today);

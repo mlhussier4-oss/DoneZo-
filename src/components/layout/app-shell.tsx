@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BarChart3, Bell, Briefcase, Flag, MapPin, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LifeBuoy, LogOut,
+  BarChart3, Bell, Briefcase, Flag, MapPin, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LifeBuoy, LogOut, Gem,
   Menu, MessageSquare, ScrollText, Settings, Store, Tags, UserCog, Users, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 const icons = {
   home: Home, gauge: Gauge, calendar: CalendarDays, users: Users, briefcase: Briefcase, invoice: FileText,
   card: CreditCard, store: Store, userCog: UserCog, chart: BarChart3, settings: Settings, message: MessageSquare,
-  grid: LayoutGrid, tags: Tags, log: ScrollText, bell: Bell, map: MapPin, flag: Flag,
+  grid: LayoutGrid, tags: Tags, log: ScrollText, bell: Bell, map: MapPin, flag: Flag, plan: Gem,
 } satisfies Record<string, LucideIcon>;
 
 export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number };

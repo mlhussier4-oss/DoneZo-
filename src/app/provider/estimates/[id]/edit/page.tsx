@@ -3,7 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { DocumentEditor } from "@/components/crm/document-editor";
 import { Card, CardContent } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getCustomerOptions } from "@/lib/crm/queries";
 import { uuid } from "@/lib/crm/schemas";
 import { bpsToPercent, centsToInput } from "@/lib/format";
@@ -13,7 +13,7 @@ import { saveDocument } from "../../../invoices/actions";
 export const metadata: Metadata = { title: "Edit estimate" };
 
 export default async function EditEstimatePage({ params }: PageProps<"/provider/estimates/[id]/edit">) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const { id } = await params;
   if (!uuid.safeParse(id).success) notFound();
   const supabase = await createClient();

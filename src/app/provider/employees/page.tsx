@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { getTeam } from "@/lib/crm/team";
 import { formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
@@ -17,7 +17,7 @@ const roleHelp = {
 };
 
 export default async function TeamPage() {
-  const { user, business } = await requireManager();
+  const { user, business } = await requirePro();
   const isOwner = business.memberRole === "owner";
   const supabase = await createClient();
   const [team, { data: invites }] = await Promise.all([

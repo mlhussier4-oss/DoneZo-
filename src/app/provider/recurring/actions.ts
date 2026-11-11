@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { refresh } from "next/cache";
 import { z } from "zod";
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
 import { parseMoneyToCents } from "@/lib/format";
 import { dbErrorMessage, zodErrors, type ActionState } from "@/lib/forms";
@@ -55,7 +55,7 @@ function columns(v: z.infer<typeof schema>) {
 }
 
 export async function createSchedule(_prev: ActionState, fd: FormData): Promise<ActionState> {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return zodErrors(parsed.error);
   const supabase = await createClient();
@@ -69,7 +69,7 @@ export async function createSchedule(_prev: ActionState, fd: FormData): Promise<
 }
 
 export async function updateSchedule(scheduleId: string, _prev: ActionState, fd: FormData): Promise<ActionState> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(scheduleId).success) return { status: "error", message: "Unknown service." };
   const parsed = schema.safeParse(Object.fromEntries(fd));
   if (!parsed.success) return zodErrors(parsed.error);
@@ -92,7 +92,7 @@ export async function updateSchedule(scheduleId: string, _prev: ActionState, fd:
 }
 
 export async function setScheduleStatus(scheduleId: string, status: "active" | "paused" | "canceled"): Promise<void> {
-  await requireManager();
+  await requirePro();
   if (!uuid.safeParse(scheduleId).success || !["active", "paused", "canceled"].includes(status)) return;
   const supabase = await createClient();
   await supabase.from("recurring_schedules").update({ status }).eq("id", scheduleId);

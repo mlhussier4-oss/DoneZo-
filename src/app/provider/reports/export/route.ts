@@ -1,4 +1,4 @@
-import { requireManager } from "@/lib/auth";
+import { requirePro } from "@/lib/auth";
 import { paymentMethodLabel } from "@/lib/crm/labels";
 import { csvCell, resolveRange } from "@/lib/crm/report";
 import { localDateKey } from "@/lib/format";
@@ -8,7 +8,7 @@ const dollars = (cents: number) => (cents / 100).toFixed(2);
 
 /** Download every payment in the chosen range as a spreadsheet-friendly CSV file. */
 export async function GET(request: Request) {
-  const { business } = await requireManager();
+  const { business } = await requirePro();
   const params = Object.fromEntries(new URL(request.url).searchParams);
   const { from, to } = resolveRange(params, localDateKey(new Date(), business.timezone));
   const supabase = await createClient();

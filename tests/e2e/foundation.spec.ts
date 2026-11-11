@@ -23,7 +23,7 @@ test.describe("provider accounts", () => {
     const email = uniqueEmail("crm");
     await signUpProvider(page, { usage: "crm", businessName: "Green Blade Lawn Care", email });
 
-    await expect(page.getByText("Green Blade Lawn Care · Business Management")).toBeVisible();
+    await expect(page.getByText("Green Blade Lawn Care · DoneZo Pro", { exact: true })).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Business navigation" }).first();
     await expect(nav.getByRole("link", { name: "Customers" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Marketplace" })).toHaveCount(0);
@@ -48,7 +48,7 @@ test.describe("provider accounts", () => {
 
   test("Marketplace provider: signs up with the marketplace already on", async ({ page }) => {
     await signUpProvider(page, { usage: "marketplace", businessName: "Shine Pressure Washing", email: uniqueEmail("mkt") });
-    await expect(page.getByText("Shine Pressure Washing · Business Management + Marketplace")).toBeVisible();
+    await expect(page.getByText("Shine Pressure Washing · DoneZo Pro with the marketplace")).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Business navigation" }).first();
     await expect(nav.getByRole("link", { name: "Marketplace" })).toBeVisible();
   });
@@ -73,7 +73,7 @@ test.describe("provider accounts", () => {
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(atPath("/provider"));
-    await expect(page.getByText("New Name LLC · Business Management")).toBeVisible();
+    await expect(page.getByText("New Name LLC · DoneZo Pro", { exact: true })).toBeVisible();
   });
 
   test("wrong password shows a clear error", async ({ page }) => {

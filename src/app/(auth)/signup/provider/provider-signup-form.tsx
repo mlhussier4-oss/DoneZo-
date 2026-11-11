@@ -12,18 +12,23 @@ import { SubmitButton } from "../../_components/submit-button";
 
 const usageOptions = [
   {
-    value: "crm",
-    title: "Business Management only",
-    text: "Customers, calendar, jobs, invoicing and payments for the customers you already have. No bidding, no job alerts.",
+    value: "basic",
+    title: "DoneZo Basic · $9.99/month",
+    text: "The marketplace: a public profile, local job requests to bid on, and getting paid for the jobs you win.",
   },
   {
     value: "marketplace",
-    title: "Business Management + Marketplace",
-    text: "Everything above, plus a public profile and local job requests you can bid on.",
+    title: "DoneZo Pro · $19.99/month, with marketplace",
+    text: "Everything in Basic, plus business tools for all your customers: calendar, recurring visits, invoices, reports and your team.",
+  },
+  {
+    value: "crm",
+    title: "DoneZo Pro · $19.99/month, business tools only",
+    text: "The same business tools for the customers you already have, with the marketplace switched off. Turn it on any time.",
   },
 ] as const;
 
-export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "marketplace" | null }) {
+export function ProviderSignupForm({ initialUsage }: { initialUsage: "basic" | "crm" | "marketplace" | null }) {
   const [state, action] = useFormAction<FormState>(providerSignUp, { status: "idle" });
   const [usage, setUsage] = useState<string | null>(initialUsage);
 
@@ -45,7 +50,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
   return (
     <Form form={action}  className="space-y-5" noValidate>
       <fieldset className="space-y-3">
-        <legend className="mb-2 text-sm font-medium">How would you like to use our platform?</legend>
+        <legend className="mb-2 text-sm font-medium">Choose your plan</legend>
         {usageOptions.map((o) => {
           const selected = usage === o.value;
           return (
@@ -81,7 +86,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
           );
         })}
         {state.fieldErrors?.usage ? <p className="text-sm text-destructive">{state.fieldErrors.usage}</p> : null}
-        <p className="text-xs text-muted-foreground">You can turn the marketplace on or off later in Business settings.</p>
+        <p className="text-xs text-muted-foreground">You can switch plans later. No trial; you&apos;ll subscribe after confirming your email.</p>
       </fieldset>
 
       <Field label="Business name" htmlFor="businessName" error={state.fieldErrors?.businessName}>

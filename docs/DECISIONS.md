@@ -4,6 +4,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-11 — Domain: donezo.org** (bought on Cloudflare by the owner). Start on free hosting plans for a private test; upgrade before charging real providers.
 - **2026-11-11 — Two provider plans** (replaces the single $9.99 plan, and changes the Blueprint's business-tools-only option):
   - **DoneZo Basic, $9.99/month:** marketplace only. Includes the profile, job board, sealed bids, the jobs they win (scheduling, messages, photos, completion), card payments for marketplace jobs with payouts, and a simple calendar of marketplace jobs.
   - **DoneZo Pro, $19.99/month:** marketplace plus all business tools: customer database, recurring services, estimates and invoices for their own customers, recorded cash/Venmo/check payments, reports and CSV, route planning, and team members.
@@ -25,8 +26,8 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Waiting for the owner
 
-- **Approve hosting for going live** (see docs/DEPLOYMENT.md): Vercel Pro (about $20/month), Supabase Pro (about $25/month), Resend email (free to start), plus a domain name. Nothing is created until you approve.
-- **Domain name and support email** to use (e.g. donezo.com / support@donezo.com).
+- **Create the three free accounts** (Vercel, Supabase, Resend) so DoneZo can go online for a private test at donezo.org. Paid plans (about $45/month) only before charging real providers.
+- **Support email:** suggested support@donezo.org, forwarded free by Cloudflare Email Routing.
 - **Business legal name and address** for the Terms and Privacy pages, and an attorney to review them.
 - **Later, separately:** approval to switch Stripe from test mode to live payments.
 
