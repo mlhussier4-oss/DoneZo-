@@ -13,6 +13,8 @@ import { timingLabel } from "@/config/marketplace";
 import { requireManager } from "@/lib/auth";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { newJobCount } from "@/lib/marketplace/notifications";
+import { MarkNewJobsSeen } from "./mark-seen";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Marketplace" };
@@ -32,7 +34,7 @@ const bidBadge: Record<string, { label: string; tone: "primary" | "success" | "n
 };
 
 export default async function ProviderMarketplacePage({ searchParams }: PageProps<"/provider/marketplace">) {
-  const { business } = await requireManager();
+  const { user, business } = await requireManager();
   // Server-side guard: CRM-only providers cannot reach marketplace pages even by typing the URL.
   if (!business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   const params = await searchParams;
@@ -48,6 +50,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
 
   const feed = tab === "jobs" && profileReady ? (await supabase.rpc("marketplace_feed")).data ?? [] : [];
   const openJobs = feed.filter((j) => !j.my_bid_status);
+  const newJobs = tab === "jobs" ? await newJobCount(user.id) : 0;
   const bids = tab === "bids"
     ? (await supabase.from("bids").select("id, status, price_cents, created_at, request_id, service_requests(zip, service_categories(name))")
         .eq("business_id", business.id).order("created_at", { ascending: false }).limit(200)).data ?? []
@@ -81,6 +84,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
         ))}
       </nav>
 
+      {tab === "jobs" ? <MarkNewJobsSeen count={newJobs} /> : null}
       {tab === "jobs" ? (
         !openJobs.length ? (
           <EmptyState icon={Inbox} title={profileReady ? "No new jobs right now" : "Your job board is empty"}>

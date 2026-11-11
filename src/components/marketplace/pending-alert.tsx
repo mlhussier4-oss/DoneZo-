@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { BellRing } from "lucide-react";
 import { pendingConfirmations } from "@/app/provider/marketplace/actions";
 import { CountdownClock, useSecondsLeft } from "./countdown";
@@ -26,7 +26,9 @@ function Row({ item, serverNow }: { item: Item; serverNow: string }) {
 export function PendingAlert() {
   const [data, setData] = useState<{ serverNow: string; items: Item[] }>({ serverNow: "", items: [] });
   const seen = useRef<Set<string>>(new Set());
+  const lastNewJobs = useRef<number | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   useEffect(() => {
     let alive = true;
     const load = async () => {
@@ -38,6 +40,9 @@ export function PendingAlert() {
         if (fresh.length) chime();
         fresh.forEach((i) => seen.current.add(i.id));
         setData(next);
+        // A new job arrived nearby: refresh the menu so the red "Marketplace" badge appears.
+        if (lastNewJobs.current !== null && next.newJobs !== lastNewJobs.current) router.refresh();
+        lastNewJobs.current = next.newJobs;
       } catch {
         /* offline: try again next time */
       }
@@ -45,7 +50,7 @@ export function PendingAlert() {
     load();
     const id = setInterval(load, 8000);
     return () => { alive = false; clearInterval(id); };
-  }, [pathname]);
+  }, [pathname, router]);
   if (!data.items.length) return null;
   return (
     <div role="alert" className="mb-6 space-y-2 rounded-xl bg-primary p-4 text-white shadow-lg ring-2 ring-cta" data-testid="pending-alert">

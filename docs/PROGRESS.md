@@ -26,8 +26,10 @@
   - navy focus outlines on form fields.
 - **Tests:** 145 database and unit tests and 33 browser tests pass, including the full live-booking flow and the add-time/drop flow.
 
+**Done 2026-11-12:** Resend connected; provider sign-up on donezo.org sends the confirmation email (verified live). Branded email templates applied.
+
 **Waiting on the owner:**
-1. **Email for providers:** connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
+1. ~~Email for providers~~ (done). connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
 2. Admin account email.
 
 **Recommended next:** add a free Cloudflare Turnstile check on "Post job" so bots can't flood providers with fake jobs. Guest sign-ins are already limited to 30 per hour per internet address.

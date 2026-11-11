@@ -16,7 +16,7 @@ const icons = {
   grid: LayoutGrid, tags: Tags, log: ScrollText, bell: Bell, map: MapPin, flag: Flag, plan: Gem,
 } satisfies Record<string, LucideIcon>;
 
-export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number };
+export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number; badgeTone?: "alert" };
 
 export function AppShell({
   nav,
@@ -57,7 +57,11 @@ export function AppShell({
             <Icon className="size-4" aria-hidden />
             <span className="flex-1">{item.label}</span>
             {item.badge ? (
-              <span className="rounded-full bg-accent px-1.5 py-0.5 text-xs font-semibold text-accent-foreground" aria-label={`${item.badge} unread`}>
+              <span
+                className={cn("rounded-full px-1.5 py-0.5 text-xs font-semibold", item.badgeTone === "alert" ? "bg-destructive text-white" : "bg-accent text-accent-foreground")}
+                aria-label={item.badgeTone === "alert" ? `${item.badge} new` : `${item.badge} unread`}
+                data-testid={item.badgeTone === "alert" ? "new-jobs-badge" : undefined}
+              >
                 {item.badge > 99 ? "99+" : item.badge}
               </span>
             ) : null}
@@ -109,9 +113,10 @@ export function AppShell({
           onClick={() => setOpen(true)}
           aria-label="Open menu"
           aria-expanded={open}
-          className="flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-white/10"
+          className="relative flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-white/10"
         >
           <Menu className="size-5" aria-hidden />
+          {nav.some((i) => i.badgeTone === "alert" && i.badge) ? <span className="absolute top-2 right-2 size-2.5 rounded-full bg-destructive ring-2 ring-primary" aria-label="New jobs" /> : null}
         </button>
       </header>
 

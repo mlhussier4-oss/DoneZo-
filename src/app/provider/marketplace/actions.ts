@@ -253,15 +253,26 @@ export async function confirmBooking(bookingId: string, date: string, time: stri
   return {};
 }
 
-/** Jobs waiting for this business to confirm, for the alert shown on every provider page. */
-export async function pendingConfirmations(): Promise<{ serverNow: string; items: { id: string; confirmBy: string; label: string }[] }> {
-  const { business } = await requireManager();
+/** Opening the job board clears the red "new jobs" badge. */
+export async function markNewJobsSeen(): Promise<void> {
+  const { user } = await requireManager();
+  await (await createClient()).from("notifications").update({ read_at: new Date().toISOString() })
+    .eq("user_id", user.id).eq("kind", "new_request").is("read_at", null);
+  refresh();
+}
+
+/** Jobs waiting for this business to confirm (alert on every provider page), plus the new-jobs count for the badge. */
+export async function pendingConfirmations(): Promise<{ serverNow: string; newJobs: number; items: { id: string; confirmBy: string; label: string }[] }> {
+  const { user, business } = await requireManager();
+  const { count: newJobs } = await (await createClient()).from("notifications").select("id", { count: "exact", head: true })
+    .eq("user_id", user.id).eq("kind", "new_request").is("read_at", null);
   const { data } = await (await createClient())
     .from("bookings")
     .select("id, confirm_by, agreed_price_cents, service_requests(zip, service_categories(name))")
     .eq("business_id", business.id).eq("status", "pending").order("confirm_by");
   return {
     serverNow: new Date().toISOString(),
+    newJobs: newJobs ?? 0,
     items: (data ?? []).map((b) => ({
       id: b.id,
       confirmBy: b.confirm_by!,

@@ -67,6 +67,9 @@ test.describe("marketplace: post → bid → accept → message → change → c
     const requestPath = `/customer/requests/${requestId}`;
     await expect(page.getByText("Waiting for bids.")).toBeVisible();
 
+    // A red "new jobs" badge appears on Marketplace by itself (no reload) while the provider is on another page.
+    await expect(alpha.getByTestId("new-jobs-badge")).toHaveText("1", { timeout: 20_000 });
+
     // 2. Both providers see it on their job board, with the photo but without the address or phone.
     for (const pro of [alpha, bravo]) {
       await pro.goto("/provider/marketplace");
@@ -77,6 +80,9 @@ test.describe("marketplace: post → bid → accept → message → change → c
       await expect(pro.getByText("Bluebonnet")).toHaveCount(0);
       await expect(pro.getByText("512-555-0199")).toHaveCount(0);
     }
+    // Having opened the job board, the badge is cleared.
+    await alpha.goto("/provider/marketplace");
+    await expect(alpha.getByTestId("new-jobs-badge")).toHaveCount(0, { timeout: 15_000 });
 
     // 3. Sealed bids.
     await sendBid(alpha, description, "65", "Mow, edge and blow front and back", "Thursday morning");
