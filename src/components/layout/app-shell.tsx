@@ -51,7 +51,7 @@ export function AppShell({
             aria-current={active ? "page" : undefined}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              active ? "bg-primary-soft text-primary" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+              active ? "bg-white/10 text-white shadow-[inset_3px_0_0_var(--cta)]" : "text-white/70 hover:bg-white/5 hover:text-white",
             )}
           >
             <Icon className="size-4" aria-hidden />
@@ -68,19 +68,19 @@ export function AppShell({
   );
 
   const footer = (
-    <div className="border-t border-border pt-4">
+    <div className="border-t border-white/15 pt-4">
       <div className="mb-3 px-3">
         <p className="truncate text-sm font-medium">{userLabel}</p>
-        {userSubLabel ? <p className="truncate text-xs text-muted-foreground">{userSubLabel}</p> : null}
+        {userSubLabel ? <p className="truncate text-xs text-white/60">{userSubLabel}</p> : null}
       </div>
-      <Link href="/help" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
+      <Link href="/help" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white">
         <LifeBuoy className="size-4" aria-hidden />
         Help &amp; support
       </Link>
       <form action="/auth/signout" method="post">
         <button
           type="submit"
-          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="flex w-full cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white"
         >
           <LogOut className="size-4" aria-hidden />
           Sign out
@@ -92,24 +92,24 @@ export function AppShell({
   return (
     <div className="min-h-dvh lg:grid lg:grid-cols-[16rem_1fr]">
       {/* Desktop sidebar */}
-      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 border-r border-border bg-card p-4 lg:flex">
+      <aside className="sticky top-0 hidden h-dvh flex-col gap-6 bg-primary p-4 text-white lg:flex">
         <div className="px-2 pt-1">
           <Logo href={homeHref} />
-          <p className="mt-1 pl-10 text-xs font-medium uppercase tracking-wide text-muted-foreground">{areaLabel}</p>
+          <p className="mt-1 pl-10 text-xs font-medium uppercase tracking-wide text-white/60">{areaLabel}</p>
         </div>
         <div className="flex-1 overflow-y-auto">{navList}</div>
         {footer}
       </aside>
 
       {/* Mobile top bar */}
-      <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-card px-4 lg:hidden">
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between bg-primary px-4 text-white shadow-sm lg:hidden">
         <Logo href={homeHref} />
         <button
           type="button"
           onClick={() => setOpen(true)}
           aria-label="Open menu"
           aria-expanded={open}
-          className="flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-muted"
+          className="flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-white/10"
         >
           <Menu className="size-5" aria-hidden />
         </button>
@@ -119,14 +119,14 @@ export function AppShell({
       {open ? (
         <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label="Menu">
           <div className="absolute inset-0 bg-foreground/40" onClick={() => setOpen(false)} />
-          <div className="absolute inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col gap-6 bg-card p-4 shadow-xl">
+          <div className="absolute inset-y-0 right-0 flex w-72 max-w-[85vw] flex-col gap-6 bg-primary p-4 text-white shadow-xl">
             <div className="flex items-center justify-between">
-              <p className="px-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">{areaLabel}</p>
+              <p className="px-2 text-xs font-medium uppercase tracking-wide text-white/60">{areaLabel}</p>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
                 aria-label="Close menu"
-                className="flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-muted"
+                className="flex size-11 cursor-pointer items-center justify-center rounded-lg hover:bg-white/10"
               >
                 <X className="size-5" aria-hidden />
               </button>

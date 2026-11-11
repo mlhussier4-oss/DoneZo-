@@ -1,5 +1,22 @@
 # Build progress
 
+## ▶ Pick up here (saved 2026-11-11, end of day)
+**Live:** https://donezo.org is online for the private test (Vercel + Supabase project `DoneZo1`, Stripe test mode, testing banner, hidden from search).
+
+**Done today, not yet live** (on branch `claude/project-setup`; goes live once merged into `main`):
+- New look: navy and gray, with yellow buttons (owner request). All 32 browser tests pass.
+- The explicit database-permissions migration. Already applied to the live database; main just needs the file.
+
+**Waiting on the owner:**
+1. **Email:** connect Resend to Supabase (Resend → Integrations → Supabase, or custom SMTP in Supabase). Until then **nobody can sign up on donezo.org**, because confirmation emails can't be sent. Then Claude adds the branded email templates.
+2. **Admin account email:** which address should be the DoneZo admin?
+3. Approve merging `claude/project-setup` into `main` (or merge it on GitHub) to publish the new look.
+
+**Next for Claude:**
+- **Owner request:** show every bid right under each job listing on the customer's dashboard (no emails of bids). Bids are already only in-app; the dashboard list needs to show them inline.
+- After email works: a live end-to-end test on donezo.org (sign up, subscribe with Stripe's test card, account unlocks), then create the admin account.
+- Set `NEXT_PUBLIC_SUPPORT_EMAIL=support@donezo.org` in Vercel (approved) once Cloudflare Email Routing forwards it.
+
 Phase order approved 2026-11-10: 1 Foundation → 2 CRM → 3 Marketplace → 4 Payments → 5 Advanced → 6 Launch.
 
 Next up: **going live**, which waits for the owner's approval of hosting accounts and costs (see docs/DEPLOYMENT.md), plus an attorney's review of the terms and privacy pages.

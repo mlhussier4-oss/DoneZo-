@@ -11,12 +11,12 @@ export default async function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="border-b border-border bg-card">
+      <section className="bg-primary text-white">
         <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.1fr_1fr] lg:items-center">
           <div className="space-y-6">
-            <p className="inline-flex items-center gap-2 rounded-full bg-primary-soft px-3 py-1 text-sm font-medium text-primary">Now serving the Austin, TX area</p>
+            <p className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-sm font-medium text-white ring-1 ring-white/20"><span className="size-2 rounded-full bg-cta" aria-hidden />Now serving the Austin, TX area</p>
             <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl">{brand.tagline}</h1>
-            <p className="max-w-xl text-lg text-muted-foreground">
+            <p className="max-w-xl text-lg text-white/80">
               Snap a photo, describe the job, and local pros send you their best price. No calling around, and no card
               needed to get quotes.
             </p>
@@ -24,7 +24,7 @@ export default async function HomePage() {
               <Link href="/post-job" className={buttonVariants({ variant: "accent", size: "lg" })}>
                 Post a job
               </Link>
-              <Link href="/for-providers" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              <Link href="/for-providers" className={buttonVariants({ variant: "onDark", size: "lg" })}>
                 I&apos;m a service provider
               </Link>
             </div>
@@ -35,15 +35,15 @@ export default async function HomePage() {
               { icon: ClipboardList, title: "Receive bids", text: "Local providers send private quotes. Compare price, reviews and availability." },
               { icon: ThumbsUp, title: "Choose your provider", text: "Accept the bid you like. Pay after the work is done." },
             ].map((step, i) => (
-              <li key={step.title} className="flex gap-4 rounded-lg border border-border bg-background p-4">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-soft text-primary">
+              <li key={step.title} className="flex gap-4 rounded-lg border border-white/10 bg-white/5 p-4">
+                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-cta text-cta-foreground">
                   <step.icon className="size-5" aria-hidden />
                 </span>
                 <div>
                   <p className="font-semibold">
                     {i + 1}. {step.title}
                   </p>
-                  <p className="text-sm text-muted-foreground">{step.text}</p>
+                  <p className="text-sm text-white/70">{step.text}</p>
                 </div>
               </li>
             ))}
@@ -94,16 +94,16 @@ export default async function HomePage() {
 
       {/* Provider CTA */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-        <div className="flex flex-col gap-4 rounded-lg bg-primary p-8 text-primary-foreground sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-lg border border-border border-l-4 border-l-primary bg-card p-8 shadow-sm sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-2xl font-semibold">Run a home-service business?</h2>
-            <p className="mt-1 text-primary-foreground/80">
+            <p className="mt-1 text-muted-foreground">
               Manage customers, schedules and invoices in one place. Bidding on new jobs is optional.
             </p>
           </div>
           <Link
             href="/for-providers"
-            className={buttonVariants({ variant: "outline", size: "lg", className: "border-transparent" })}
+            className={buttonVariants({ size: "lg" })}
           >
             See provider options
           </Link>

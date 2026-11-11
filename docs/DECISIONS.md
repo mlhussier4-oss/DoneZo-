@@ -4,6 +4,9 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-11 — Look:** professional navy and gray, with yellow on buttons.
+- **2026-11-11 — Support address:** support@donezo.org.
+- **2026-11-11 — Bids:** customers see all bids under their job listing on their dashboard, not by email.
 - **2026-11-11 — Domain: donezo.org** (bought on Cloudflare by the owner). Start on free hosting plans for a private test; upgrade before charging real providers.
 - **2026-11-11 — Two provider plans** (replaces the single $9.99 plan, and changes the Blueprint's business-tools-only option):
   - **DoneZo Basic, $9.99/month:** marketplace only. Includes the profile, job board, sealed bids, the jobs they win (scheduling, messages, photos, completion), card payments for marketplace jobs with payouts, and a simple calendar of marketplace jobs.
