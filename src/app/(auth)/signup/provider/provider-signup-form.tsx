@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Form, useFormAction } from "@/components/ui/form";
 import { useState } from "react";
 import { Check, MailCheck } from "lucide-react";
@@ -105,6 +106,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "crm" | "ma
       <SubmitButton className="w-full" size="lg" pendingText="Creating account…">
         Create provider account
       </SubmitButton>
+      <p className="text-center text-xs text-muted-foreground">By continuing you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p>
     </Form>
   );
 }

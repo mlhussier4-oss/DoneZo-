@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Camera, Check, MailCheck, X } from "lucide-react";
@@ -328,6 +329,7 @@ export function PostJobWizard({
             </div>
           ) : null}
           <p className="text-sm text-muted-foreground">No card needed. You&apos;ll only pay the provider you choose, after the job is done.</p>
+          {signedInRole === null ? <p className="mt-2 text-xs text-muted-foreground">By posting you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p> : null}
         </section>
       ) : null}
 

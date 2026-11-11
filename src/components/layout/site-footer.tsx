@@ -10,6 +10,9 @@ export function SiteFooter() {
           <Link href="/for-providers" className="hover:text-foreground">For providers</Link>
           <Link href="/signup/provider" className="hover:text-foreground">Provider sign up</Link>
           <Link href="/login" className="hover:text-foreground">Log in</Link>
+          <Link href="/help" className="hover:text-foreground">Help</Link>
+          <Link href="/terms" className="hover:text-foreground">Terms</Link>
+          <Link href="/privacy" className="hover:text-foreground">Privacy</Link>
         </nav>
       </div>
     </footer>

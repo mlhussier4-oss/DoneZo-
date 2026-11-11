@@ -7,5 +7,6 @@ export const brand = {
   tagline: "Post a job. Receive bids. Choose your provider.",
   description:
     "DoneZo connects homeowners with local service providers, and gives providers the tools to run their whole business.",
-  supportEmail: "support@donezo.example", // placeholder until a real support address exists
+  /** Shown on the Help page only when set (NEXT_PUBLIC_SUPPORT_EMAIL). Signed-in users use the support form. */
+  supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || null,
 } as const;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Form, useFormAction } from "@/components/ui/form";
 import { MailCheck } from "lucide-react";
 import { sendEmailCode, verifyEmailCode, type FormState } from "../actions";
@@ -63,6 +64,7 @@ export function EmailCodeForm({ askName = false, next }: { askName?: boolean; ne
         Email me a code
       </SubmitButton>
       <p className="text-center text-xs text-muted-foreground">No password needed. We&apos;ll email you a sign-in code.</p>
+      <p className="text-center text-xs text-muted-foreground">By continuing you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p>
     </Form>
   );
 }

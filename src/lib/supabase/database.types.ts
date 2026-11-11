@@ -937,14 +937,14 @@ isOneToOne: true
                   ]
                 },"support_reports": {
                   Row: {
-                    "admin_note": string | null,"booking_id": string | null,"category": string,"created_at": string,"id": string,"message": string,"reporter_id": string,"request_id": string | null,"resolved_at": string | null,"status": string
+                    "admin_note": string | null,"booking_id": string | null,"category": string,"created_at": string,"id": string,"message": string,"reporter_id": string,"request_id": string | null,"resolved_at": string | null,"status": string,"subject": string | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "admin_note"?: string | null,"booking_id"?: string | null,"category": string,"created_at"?: string,"id"?: string,"message": string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string
+                    "admin_note"?: string | null,"booking_id"?: string | null,"category": string,"created_at"?: string,"id"?: string,"message": string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string,"subject"?: string | null
                   }
                   Update: {
-                    "admin_note"?: string | null,"booking_id"?: string | null,"category"?: string,"created_at"?: string,"id"?: string,"message"?: string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string
+                    "admin_note"?: string | null,"booking_id"?: string | null,"category"?: string,"created_at"?: string,"id"?: string,"message"?: string,"reporter_id"?: string,"request_id"?: string | null,"resolved_at"?: string | null,"status"?: string,"subject"?: string | null
                   }
                   Relationships: [
                     {
@@ -1020,7 +1020,8 @@ isOneToOne: false
 "reporter_id": string,
 "request_id": string | null,
 "resolved_at": string | null,
-"status": string
+"status": string,
+"subject": string | null
             }
                           SetofOptions: {
         from: "*"

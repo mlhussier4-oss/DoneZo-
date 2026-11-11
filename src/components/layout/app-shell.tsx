@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
-  BarChart3, Bell, Briefcase, Flag, MapPin, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LogOut,
+  BarChart3, Bell, Briefcase, Flag, MapPin, CalendarDays, CreditCard, FileText, Gauge, Home, LayoutGrid, LifeBuoy, LogOut,
   Menu, MessageSquare, ScrollText, Settings, Store, Tags, UserCog, Users, X, type LucideIcon,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
@@ -73,6 +73,10 @@ export function AppShell({
         <p className="truncate text-sm font-medium">{userLabel}</p>
         {userSubLabel ? <p className="truncate text-xs text-muted-foreground">{userSubLabel}</p> : null}
       </div>
+      <Link href="/help" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
+        <LifeBuoy className="size-4" aria-hidden />
+        Help &amp; support
+      </Link>
       <form action="/auth/signout" method="post">
         <button
           type="submit"

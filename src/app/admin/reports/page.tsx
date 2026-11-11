@@ -8,18 +8,18 @@ import { Flag } from "lucide-react";
 import { requireRole } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { supportCategoryLabel } from "@/lib/support/categories";
 import { ResolveButton } from "../admin-buttons";
 
 export const metadata: Metadata = { title: "Support reports" };
 
-const labels: Record<string, string> = { problem_with_job: "Problem with job", payment: "Payment", safety: "Safety", account: "Account", other: "Other" };
 
 export default async function ReportsPage() {
   await requireRole("admin");
   const supabase = await createClient();
   const { data: reports } = await supabase
     .from("support_reports")
-    .select("id, category, message, status, admin_note, created_at, reporter_id, booking_id, request_id")
+    .select("id, category, subject, message, status, admin_note, created_at, reporter_id, booking_id, request_id")
     .order("status")
     .order("created_at", { ascending: false })
     .limit(200);
@@ -28,25 +28,26 @@ export default async function ReportsPage() {
   const who = new Map((people ?? []).map((p) => [p.id, `${p.email} (${p.role})`]));
   return (
     <>
-      <PageHeader title="Support reports" description="Problems reported by customers and providers." />
+      <PageHeader title="Support inbox" description="Questions and problems from customers and providers. Open requests first." />
       {!reports?.length ? <EmptyState icon={Flag} title="No reports" /> : (
         <Card className="divide-y divide-border">
           {reports.map((r) => (
             <div key={r.id} className="space-y-2 px-4 py-4 sm:px-5">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge tone={r.status === "open" ? "warning" : "success"} className="capitalize">{r.status}</Badge>
-                <span className="font-medium">{labels[r.category]}</span>
+                <span className="font-medium">{r.subject ?? supportCategoryLabel(r.category)}</span>
+                <Badge>{supportCategoryLabel(r.category)}</Badge>
                 <span className="text-xs text-muted-foreground">{who.get(r.reporter_id)} · {formatDateTime(r.created_at, "America/Chicago")}</span>
               </div>
               <p className="text-sm whitespace-pre-wrap">{r.message}</p>
               {r.request_id ? <p className="text-xs text-muted-foreground">Request {r.request_id}{r.booking_id ? ` · booking ${r.booking_id}` : ""}</p> : null}
-              {r.admin_note ? <p className="text-sm text-muted-foreground">Resolution: {r.admin_note}</p> : null}
+              {r.admin_note ? <p className="text-sm text-muted-foreground">Reply: {r.admin_note}</p> : null}
               {r.status === "open" ? <ResolveButton reportId={r.id} /> : null}
             </div>
           ))}
         </Card>
       )}
-      <p className="mt-4 text-sm text-muted-foreground">Reporters aren&apos;t emailed yet: contact them directly at the email shown. <Link href="/admin/audit-log" className="text-primary hover:underline">Resolutions are logged</Link>.</p>
+      <p className="mt-4 text-sm text-muted-foreground">Replies appear on the person&apos;s Help page with an in-app notification (not by email yet). <Link href="/admin/audit-log" className="text-primary hover:underline">Replies are logged</Link>.</p>
     </>
   );
 }

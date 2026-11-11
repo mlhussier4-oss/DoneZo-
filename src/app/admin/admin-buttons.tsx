@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Form, useFormAction } from "@/components/ui/form";
 import { FormAlert } from "@/components/ui/form-alert";
@@ -23,13 +23,20 @@ export function VerifyButton({ businessId, verified }: { businessId: string; ver
 
 export function ResolveButton({ reportId }: { reportId: string }) {
   const [pending, start] = useTransition();
+  const [note, setNote] = useState("");
+  const [error, setError] = useState<string>();
   return (
-    <Button size="sm" variant="outline" disabled={pending} onClick={() => {
-      const note = prompt("Resolution note (what was done):");
-      if (note !== null) start(async () => { await resolveReport(reportId, note); });
-    }}>
-      Mark resolved
-    </Button>
+    <div className="space-y-2">
+      <label htmlFor={`reply-${reportId}`} className="text-sm font-medium">Reply (the person sees this and gets a notification)</label>
+      <textarea id={`reply-${reportId}`} value={note} onChange={(e) => setNote(e.target.value)} maxLength={2000} rows={3}
+        className="w-full rounded-lg border border-input bg-card px-3 py-2 text-sm" />
+      <div className="flex items-center gap-3">
+        <Button size="sm" disabled={pending || !note.trim()} onClick={() => start(async () => { const r = await resolveReport(reportId, note); setError(r.status === "error" ? r.message : undefined); })}>
+          {pending ? "Sending…" : "Send reply & resolve"}
+        </Button>
+        {error ? <span className="text-sm text-destructive">{error}</span> : null}
+      </div>
+    </div>
   );
 }
 
