@@ -222,6 +222,25 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByText(/Apartment · 1,000–1,500 sq ft · 2 · Kitchen, Bathrooms/)).toBeVisible();
   });
 
+  test("a provider can hide a job from their board and unhide it", async ({ page, browser }) => {
+    test.setTimeout(120_000);
+    const pro = await marketplaceProvider(browser, "Picky Lawn Co");
+    const description = `Hide test yard, ref ${Date.now()}`;
+    await postJobAsNewCustomer(page, description);
+    await pro.goto("/provider/marketplace");
+    const card = pro.locator("li").filter({ hasText: description });
+    await expect(card).toBeVisible();
+    await card.getByRole("button", { name: "Hide this job" }).click();
+    await expect(pro.locator("li").filter({ hasText: description })).toHaveCount(0);
+    await pro.getByRole("link", { name: /^Hidden jobs \(\d+\)$/ }).click();
+    const hidden = pro.locator("li").filter({ hasText: description });
+    await expect(hidden).toBeVisible();
+    await hidden.getByRole("button", { name: "Show this job again" }).click();
+    await expect(pro.locator("li").filter({ hasText: description })).toHaveCount(0);
+    await pro.getByRole("link", { name: "← Back to jobs near you" }).click();
+    await expect(pro.locator("li").filter({ hasText: description })).toBeVisible();
+  });
+
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
     await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");
