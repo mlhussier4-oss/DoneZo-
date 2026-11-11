@@ -6,13 +6,13 @@
 | Step | State |
 |---|---|
 | Supabase project `DoneZo1` (US East) | ✅ all migrations applied (through `20261119000100`); permissions identical to the tested setup; guest sign-in on (30/hour per IP) |
-| Supabase sign-in settings | ✅ site URL, password rules, 15-min codes; ⏳ email templates need custom SMTP (Resend) first |
+| Supabase sign-in settings | ✅ site URL, password rules, 15-min codes, DoneZo email templates |
 | Vercel project `donezo-` | ✅ builds from `main`; settings added (Supabase, webhook secrets, private-test mode) |
 | Stripe test-mode webhooks for https://donezo.org/api/stripe/webhook | ✅ subscriptions + connected accounts |
 | `STRIPE_SECRET_KEY` in Vercel | ✅ test key |
 | DNS in Cloudflare | ✅ donezo.org live; www redirects |
 | Live end-to-end check (2026-11-12) | ✅ post → bid → pick → confirm → chat |
-| Resend sending domain + Supabase SMTP | ⏳ owner (Resend → Domains, then Integrations → Supabase) |
+| Resend sending domain + Supabase SMTP | ✅ no-reply@donezo.org via smtp.resend.com; live provider sign-up email verified 2026-11-12 |
 | First admin account | ⏳ after the site is reachable |
 
 Earlier text:  Putting DoneZo online needs the owner's approval
