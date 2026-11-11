@@ -1,9 +1,16 @@
 # Build progress
 
-## ▶ Pick up here (updated 2026-11-12)
-**Live:** https://donezo.org (private test, Stripe test mode). The newest work below is on branch `claude/project-setup` and goes live after merging into `main` and applying the two new database migrations to the live project.
+## ▶ Pick up here (updated 2026-11-12, after go-live)
+**Live:** https://donezo.org (private test, Stripe test mode). Everything below is **live**: merged into `main` and published by Vercel, with the database migrations applied and guest sign-in switched on.
 
-**Built 2026-11-12, tested, not yet live:**
+**Live end-to-end check passed on donezo.org** (test data deleted afterwards):
+1. A guest homeowner posted a job with a photo and no email.
+2. The job reached a provider's board; their bid appeared live on the homeowner's dashboard.
+3. The homeowner picked the bid: the 5:00 countdown started, with no chat yet.
+4. The provider got the alert and confirmed; the address was revealed only then.
+5. The chat opened, and a message reached the provider live.
+
+**Built 2026-11-12:**
 - **Fast posting:** homeowners post a job with **no email, password or card**. A private guest account is created on their device. **At least one photo is required.**
 - **Live bids:** the customer dashboard shows each job with a **Bids drop-down that fills in live** (every few seconds, no refresh, no emails).
 - **Live booking:**
@@ -20,9 +27,8 @@
 - **Tests:** 145 database and unit tests and 33 browser tests pass, including the full live-booking flow and the add-time/drop flow.
 
 **Waiting on the owner:**
-1. Approve going live: merge into `main` and apply migrations `20261119000000`/`20261119000100` to the live database, plus turn on guest (anonymous) sign-in there.
-2. **Email for providers:** connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
-3. Admin account email.
+1. **Email for providers:** connect Resend to Supabase. Customers no longer need email, but providers still confirm theirs at sign-up.
+2. Admin account email.
 
 **Recommended next:** add a free Cloudflare Turnstile check on "Post job" so bots can't flood providers with fake jobs. Guest sign-ins are already limited to 30 per hour per internet address.
 
