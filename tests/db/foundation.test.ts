@@ -196,11 +196,11 @@ describe("customers cannot see provider data", () => {
 });
 
 describe("the public (not logged in)", () => {
-  it("can read active service categories, including the five launch categories", async () => {
+  it("can read active service categories, including the launch categories and turf installation", async () => {
     const { data, error } = await anonClient().from("service_categories").select("slug").order("sort_order");
     expect(error).toBeNull();
     const slugs = data!.map((c) => c.slug);
-    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning"]) {
+    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning", "turf-installation"]) {
       expect(slugs).toContain(slug);
     }
   });
