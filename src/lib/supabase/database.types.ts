@@ -351,6 +351,32 @@ isOneToOne: false
       referencedColumns: ["business_id","customer_id","id"]
     }
                   ]
+                },"hidden_requests": {
+                  Row: {
+                    "business_id": string,"created_at": string,"hidden_by": string | null,"request_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "business_id": string,"created_at"?: string,"hidden_by"?: string | null,"request_id": string
+                  }
+                  Update: {
+                    "business_id"?: string,"created_at"?: string,"hidden_by"?: string | null,"request_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "hidden_requests_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "hidden_requests_request_id_fkey"
+      columns: ["request_id"]
+isOneToOne: false
+      referencedRelation: "service_requests"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"invoice_line_items": {
                   Row: {
                     "amount_cents": number | null,"business_id": string,"description": string,"id": string,"invoice_id": string,"position": number,"quantity": number,"taxable": boolean,"unit_price_cents": number

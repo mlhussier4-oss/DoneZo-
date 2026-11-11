@@ -253,6 +253,28 @@ export async function confirmBooking(bookingId: string, date: string, time: stri
   return {};
 }
 
+/** Hide a job from this business's board (private to the business). Also clears it from the new-jobs badge. */
+export async function hideJob(requestId: string): Promise<Result> {
+  const { user, business } = await requireMarketplace();
+  if (!uuid.safeParse(requestId).success) return { error: "Unknown job." };
+  const supabase = await createClient();
+  const { error } = await supabase.from("hidden_requests").upsert({ business_id: business.id, request_id: requestId }, { onConflict: "business_id,request_id", ignoreDuplicates: true });
+  if (error) return { error: dbErrorMessage(error, "Could not hide this job.") };
+  await supabase.from("notifications").update({ read_at: new Date().toISOString() })
+    .eq("user_id", user.id).eq("kind", "new_request").eq("link", `/provider/marketplace/requests/${requestId}`).is("read_at", null);
+  refresh();
+  return {};
+}
+
+export async function unhideJob(requestId: string): Promise<Result> {
+  const { business } = await requireMarketplace();
+  if (!uuid.safeParse(requestId).success) return { error: "Unknown job." };
+  const { error } = await (await createClient()).from("hidden_requests").delete().eq("business_id", business.id).eq("request_id", requestId);
+  if (error) return { error: dbErrorMessage(error, "Could not show this job again.") };
+  refresh();
+  return {};
+}
+
 /** Opening the job board clears the red "new jobs" badge. */
 export async function markNewJobsSeen(): Promise<void> {
   const { user } = await requireManager();

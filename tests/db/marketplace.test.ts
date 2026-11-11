@@ -514,3 +514,22 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("DoneZo customer");
   });
 });
+
+describe("hiding jobs on the board (owner request 2026-11-12)", () => {
+  it("a business can hide and unhide a job; it's private to that business", async () => {
+    const p = await provider({ name: "Hider" });
+    const other = await provider({ name: "Other" });
+    const c = await customer();
+    const r = await postJob(c);
+    expect((await p.client.from("hidden_requests").insert({ business_id: p.businessId, request_id: r.id })).error).toBeNull();
+    expect((await p.client.from("hidden_requests").select("request_id").eq("business_id", p.businessId)).data).toEqual([{ request_id: r.id }]);
+    // Nobody else sees it or can hide jobs for another business.
+    expect((await other.client.from("hidden_requests").select("request_id").eq("business_id", p.businessId)).data).toEqual([]);
+    expect((await other.client.from("hidden_requests").insert({ business_id: p.businessId, request_id: r.id })).error).not.toBeNull();
+    expect((await c.client.from("hidden_requests").select("request_id")).data).toEqual([]);
+    // The other provider still sees the job; the hider can unhide it.
+    expect(await feedIds(other)).toContain(r.id);
+    expect((await p.client.from("hidden_requests").delete().eq("business_id", p.businessId).eq("request_id", r.id)).error).toBeNull();
+    expect((await p.client.from("hidden_requests").select("request_id").eq("business_id", p.businessId)).data).toEqual([]);
+  });
+});

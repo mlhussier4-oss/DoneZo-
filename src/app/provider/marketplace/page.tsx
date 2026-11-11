@@ -15,6 +15,7 @@ import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { newJobCount } from "@/lib/marketplace/notifications";
 import { MarkNewJobsSeen } from "./mark-seen";
+import { HideJobButton } from "./hide-button";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Marketplace" };
@@ -49,7 +50,13 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
   const profileReady = Boolean(profile?.home_zip) && (categoryCount ?? 0) > 0;
 
   const feed = tab === "jobs" && profileReady ? (await supabase.rpc("marketplace_feed")).data ?? [] : [];
-  const openJobs = feed.filter((j) => !j.my_bid_status);
+  // Jobs this business chose to hide (owner request 2026-11-12) stay off the board unless "Hidden jobs" is opened.
+  const { data: hiddenRows } = tab === "jobs" ? await supabase.from("hidden_requests").select("request_id").eq("business_id", business.id) : { data: [] };
+  const hiddenIds = new Set((hiddenRows ?? []).map((h) => h.request_id));
+  const showHidden = tab === "jobs" && params.hidden === "1";
+  const unbid = feed.filter((j) => !j.my_bid_status);
+  const hiddenJobs = unbid.filter((j) => hiddenIds.has(j.id));
+  const openJobs = showHidden ? hiddenJobs : unbid.filter((j) => !hiddenIds.has(j.id));
   const newJobs = tab === "jobs" ? await newJobCount(user.id) : 0;
   const bids = tab === "bids"
     ? (await supabase.from("bids").select("id, status, price_cents, created_at, request_id, service_requests(zip, service_categories(name))")
@@ -87,15 +94,16 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
       {tab === "jobs" ? <MarkNewJobsSeen count={newJobs} /> : null}
       {tab === "jobs" ? (
         !openJobs.length ? (
-          <EmptyState icon={Inbox} title={profileReady ? "No new jobs right now" : "Your job board is empty"}>
-            {profileReady ? "We'll notify you when a customer near you posts a job for a service you offer." : "Complete your marketplace profile to see local jobs."}
+          <EmptyState icon={Inbox} title={showHidden ? "No hidden jobs" : profileReady ? "No new jobs right now" : "Your job board is empty"}>
+            {showHidden ? "Jobs you hide appear here, so you can show them again." : profileReady ? "We'll notify you when a customer near you posts a job for a service you offer." : "Complete your marketplace profile to see local jobs."}
           </EmptyState>
         ) : (
           <ul className="space-y-3">
             {openJobs.map((j) => (
-              <li key={j.id}>
+              <li key={j.id} className="relative">
+                <div className="absolute top-3 right-3 z-10"><HideJobButton requestId={j.id} hidden={showHidden} /></div>
                 <Link href={`/provider/marketplace/requests/${j.id}`}>
-                  <Card className="flex gap-3 p-4 transition-colors hover:border-primary sm:p-5">
+                  <Card className="flex gap-3 p-4 pr-28 transition-colors hover:border-primary sm:p-5 sm:pr-28">
                     <span className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary text-cta">
                       <CategoryIcon name={j.category_icon} className="size-6" />
                     </span>
@@ -117,6 +125,14 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
             ))}
           </ul>
         )
+      ) : null}
+
+      {tab === "jobs" && (hiddenJobs.length || showHidden) ? (
+        <p className="mt-4 text-sm">
+          {showHidden
+            ? <Link href="/provider/marketplace?tab=jobs" className="text-primary hover:underline">← Back to jobs near you</Link>
+            : <Link href="/provider/marketplace?tab=jobs&hidden=1" className="text-muted-foreground hover:text-foreground hover:underline">Hidden jobs ({hiddenJobs.length})</Link>}
+        </p>
       ) : null}
 
       {tab === "bids" ? (
