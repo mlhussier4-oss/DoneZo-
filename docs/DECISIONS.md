@@ -4,6 +4,8 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-12 — Bids no longer include "Possible extra charges"** (owner request; changes Blueprint §5's bid contents). The bid is the price for the job as described; "Not included" remains.
+- **2026-11-12 — House cleaning questions:** type of home, size (sq ft ranges), bedrooms, bathrooms, what needs cleaning (several allowed: whole home, kitchen, living room, bathrooms, bedrooms), type of clean. All optional, tap-to-choose.
 - **2026-11-12 — New service: Turf installation** (artificial turf for yards, pet areas and putting greens). Optional questions: size, what's there now, main use. Providers who offer it tick it in their marketplace profile.
 - **2026-11-12 — Photos are required** when posting a job (at least one; 2–3 suggested). The service choice stays a one-tap first step; from a homepage service card the homeowner lands straight on the photos.
 - **2026-11-12 — Fast posting and live booking** (replaces the 2026-11-10 "email code at Post Job" decision):

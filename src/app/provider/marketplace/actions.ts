@@ -105,7 +105,7 @@ const bidSchema = z.object({
   included: z.string().trim().min(1, "Say what the price includes.").max(2000),
   availability: z.string().trim().min(1, "Say when you could do it.").max(300),
   exclusions: z.string().trim().max(1000),
-  additionalCharges: z.string().trim().max(1000),
+  // Owner decision 2026-11-12: bids no longer list "possible extra charges".
   message: z.string().trim().max(1000),
 });
 
@@ -122,7 +122,7 @@ export async function saveBid(requestId: string, bidId: string | null, _prev: Ac
     included: v.included,
     availability: v.availability,
     exclusions: v.exclusions || null,
-    additional_charges: v.additionalCharges || null,
+    additional_charges: null,
     message: v.message || null,
   };
   const supabase = await createClient();

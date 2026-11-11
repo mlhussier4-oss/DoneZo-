@@ -35,14 +35,9 @@ export function BidForm({ requestId, bid }: { requestId: string; bid: ExistingBi
       <Field label="When you can do it" htmlFor="availability" error={e.availability}>
         <Input id="availability" name="availability" defaultValue={bid?.availability ?? ""} maxLength={300} placeholder="E.g. Thursday or Friday morning" />
       </Field>
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Not included (optional)" htmlFor="exclusions" error={e.exclusions}>
-          <Textarea id="exclusions" name="exclusions" defaultValue={bid?.exclusions ?? ""} maxLength={1000} className="min-h-16" />
-        </Field>
-        <Field label="Possible extra charges (optional)" htmlFor="additionalCharges" error={e.additionalCharges}>
-          <Textarea id="additionalCharges" name="additionalCharges" defaultValue={bid?.additional_charges ?? ""} maxLength={1000} className="min-h-16" placeholder="E.g. $20 if over 2 truckloads" />
-        </Field>
-      </div>
+      <Field label="Not included (optional)" htmlFor="exclusions" error={e.exclusions}>
+        <Textarea id="exclusions" name="exclusions" defaultValue={bid?.exclusions ?? ""} maxLength={1000} className="min-h-16" />
+      </Field>
       <Field label="Message to the customer (optional)" htmlFor="message" error={e.message}>
         <Textarea id="message" name="message" defaultValue={bid?.message ?? ""} maxLength={1000} className="min-h-16" />
       </Field>
