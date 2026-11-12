@@ -654,3 +654,12 @@ describe("removing a provider from the marketplace (fake bids)", () => {
     await bid(pro, req2.id);
   });
 });
+
+describe("marketplace removal keeps business tools", () => {
+  it("removing a provider from the marketplace keeps their business tools (paid access) working", async () => {
+    const pro = await provider({ name: "Keeps CRM" });
+    const admin = await createAdmin();
+    await admin.client.rpc("admin_set_marketplace_removed", { p_business_id: pro.businessId, p_removed: true, p_reason: "test" });
+    expect((await pro.client.rpc("business_has_access", { p_business_id: pro.businessId })).data).toBe(true);
+  });
+});

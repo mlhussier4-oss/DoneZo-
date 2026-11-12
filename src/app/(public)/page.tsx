@@ -66,6 +66,7 @@ export default async function HomePage() {
               points: [
                 "Post a job in about a minute: snap a few photos and answer a few quick questions",
                 "Watch bids arrive live on your dashboard and compare price, reviews and availability",
+                "No flood of calls, texts and sales pitches: pros can't message you until you pick one",
                 "Pick the one you like; your pro confirms the job and arrival time within minutes",
                 "No card to get quotes, and your address stays private until a pro commits",
                 "Pay after the work is done, and set up repeat visits with the same pro",
@@ -103,6 +104,14 @@ export default async function HomePage() {
               <Link href={side.cta.href} className={buttonVariants({ variant: side.cta.variant, size: "lg", className: "mt-6 w-full" })}>{side.cta.label}</Link>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* No back-and-forth (owner request 2026-11-12), in DoneZo's own voice */}
+      <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
+        <div className="rounded-xl bg-primary px-6 py-8 text-center text-white sm:px-10">
+          <p className="text-xl font-semibold text-balance sm:text-2xl">No phone tag. No inbox full of sales pitches. No back-and-forth.</p>
+          <p className="mx-auto mt-2 max-w-2xl text-white/80">Post your job once, compare the bids in one place, and pick the pro you want. That&apos;s it, done.</p>
         </div>
       </section>
 

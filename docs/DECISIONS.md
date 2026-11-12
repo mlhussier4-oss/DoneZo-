@@ -79,3 +79,7 @@ Providers must accept the Provider terms: they run an independent business, coll
 
 ## 2026-11-12 — Bids are final; fake bids lose marketplace access
 Provider terms (version 2026-11-12.2) add a Bidding section: a bid is the provider's final price for the job as described (extra work goes through a change request the customer approves); fake, placeholder or misleading bids lose the provider their marketplace access. Admins can remove/restore marketplace access on Admin → Businesses (withdraws open bids, notifies the provider, logged in the audit log; business tools keep working). Existing owners re-accept the updated terms once.
+
+## 2026-11-12 — Homepage "no back-and-forth" message; reviews and stats on hold
+Homepage adds a banner in DoneZo's own voice ("No phone tag. No inbox full of sales pitches. No back-and-forth.") and a homeowner bullet that pros can't message them until they pick one. The owner asked for invented reviews and statistics; these were not added (FTC rule on fake reviews and false advertising; project rule 7). A real-review carousel and real live counts were offered; owner will say when to add them.
+Fix: removing a provider from the marketplace no longer blocks their paid access to business tools (business_has_access ignores businesses.is_suspended, which only means "removed from marketplace").
