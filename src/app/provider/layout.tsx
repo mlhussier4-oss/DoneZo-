@@ -6,6 +6,8 @@ import { requireProvider } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { newJobCount, unreadCount } from "@/lib/marketplace/notifications";
 import { PendingAlert } from "@/components/marketplace/pending-alert";
+import { AcceptPaymentTerms } from "@/components/legal/accept-payment-terms";
+import { PAYMENT_TERMS_VERSION } from "@/config/legal";
 
 async function ProviderShell({ children }: { children: React.ReactNode }) {
   // Server-side check: only providers reach this area. Data is also protected by RLS.
@@ -13,7 +15,13 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
   // Paid access (owner decision 2026-11-11). Also enforced in the database for every change.
   const { data: hasAccess } = await (await createClient()).rpc("business_has_access", { p_business_id: business.id });
   if (!hasAccess) redirect("/subscribe");
-  const [unread, newJobs] = await Promise.all([unreadCount(user.id), newJobCount(user.id)]);
+  const [unread, newJobs, { data: terms }] = await Promise.all([
+    unreadCount(user.id),
+    newJobCount(user.id),
+    (await createClient()).from("businesses").select("payment_terms_version").eq("id", business.id).single(),
+  ]);
+  // The owner must accept the current Provider terms before continuing (new sign-ups accept at sign-up).
+  const mustAcceptTerms = business.memberRole === "owner" && terms?.payment_terms_version !== PAYMENT_TERMS_VERSION;
   return (
     <AppShell
       nav={business.memberRole === "employee" ? employeeNav(unread) : providerNav(business.marketplaceEnabled, unread, business.hasCrm, newJobs)}
@@ -23,7 +31,7 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
       userSubLabel={user.email ?? undefined}
     >
       {business.memberRole !== "employee" && business.marketplaceEnabled ? <PendingAlert /> : null}
-      {children}
+      {mustAcceptTerms ? <AcceptPaymentTerms businessId={business.id} /> : children}
     </AppShell>
   );
 }

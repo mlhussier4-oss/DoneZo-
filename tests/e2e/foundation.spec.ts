@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { atPath, createAdminUser, deleteTestCategories, signInAsAdmin, signInWithCode, signUpProvider, uniqueEmail } from "./helpers";
+import { atPath, createAdminUser, deleteTestCategories, signInAsAdmin, signInWithCode, businessIdForEmail, serviceClient, signUpProvider, uniqueEmail } from "./helpers";
 
 test.describe("public site", () => {
   test("homepage shows the promise and every service", async ({ page }) => {
@@ -19,6 +19,30 @@ test.describe("public site", () => {
 });
 
 test.describe("provider accounts", () => {
+  test("payment terms: required at sign-up, and an existing owner must accept before continuing", async ({ page }) => {
+    await page.goto("/signup/provider");
+    await page.getByText("DoneZo Basic · $9.99/month").click();
+    await page.getByLabel("Business name").fill("No Terms Co");
+    await page.getByLabel("Your name").fill("Test Owner");
+    await page.getByLabel("Email").fill(uniqueEmail("noterms"));
+    await page.getByLabel("Password").fill("Correct-horse-9");
+    await page.getByRole("button", { name: "Create provider account" }).click();
+    await expect(page.getByText("Please read and accept the Provider terms.")).toBeVisible();
+
+    const email = uniqueEmail("terms");
+    await signUpProvider(page, { usage: "crm", businessName: "Terms Co", email });
+    await expect(page.getByTestId("accept-payment-terms")).toHaveCount(0); // accepted at sign-up
+    // An owner who signed up before the terms existed is asked once.
+    await serviceClient().from("businesses").update({ payment_terms_version: null }).eq("id", await businessIdForEmail(email));
+    await page.reload();
+    const gate = page.getByTestId("accept-payment-terms");
+    await expect(gate).toBeVisible();
+    await gate.getByLabel(/I agree to the Provider terms/).check();
+    await gate.getByRole("button", { name: "Accept and continue" }).click();
+    await expect(gate).toHaveCount(0);
+    await expect(page.getByText("Terms Co · DoneZo Pro", { exact: true })).toBeVisible();
+  });
+
   test("CRM-only provider: signs up, never sees the marketplace, and can switch it on later", async ({ page }) => {
     const email = uniqueEmail("crm");
     await signUpProvider(page, { usage: "crm", businessName: "Green Blade Lawn Care", email });

@@ -600,3 +600,29 @@ describe("card payments are mandatory", () => {
     expect(ok.error).toBeNull();
   });
 });
+
+describe("provider payment terms", () => {
+  it("records acceptance at sign-up, lets only the owner accept, and can't be faked with a direct update", async () => {
+    const signedUp = await createUser({ role: "provider", business_name: `Terms ${Date.now()}`, payment_terms_version: "2026-11-12" });
+    const b1 = await businessIdFor(signedUp.id);
+    const { data: rec } = await signedUp.client.from("businesses").select("payment_terms_version, payment_terms_accepted_at, payment_terms_accepted_by").eq("id", b1).single();
+    expect(rec).toMatchObject({ payment_terms_version: "2026-11-12", payment_terms_accepted_by: signedUp.id });
+    expect(rec!.payment_terms_accepted_at).not.toBeNull();
+
+    const older = await provider({ name: "Older" });
+    const { data: before } = await older.client.from("businesses").select("payment_terms_version").eq("id", older.businessId).single();
+    expect(before!.payment_terms_version).toBeNull();
+    // Not allowed to write the columns directly.
+    const direct = await older.client.from("businesses").update({ payment_terms_version: "2026-11-12" } as never).eq("id", older.businessId);
+    expect(direct.error).not.toBeNull();
+    // Another provider can't accept on this business's behalf.
+    const other = await provider({ name: "Other" });
+    const forged = await other.client.rpc("accept_payment_terms", { p_business_id: older.businessId, p_version: "2026-11-12" });
+    expect(forged.error).not.toBeNull();
+    // The owner can.
+    const ok = await older.client.rpc("accept_payment_terms", { p_business_id: older.businessId, p_version: "2026-11-12" });
+    expect(ok.error).toBeNull();
+    const { data: after } = await older.client.from("businesses").select("payment_terms_version, payment_terms_accepted_by").eq("id", older.businessId).single();
+    expect(after).toMatchObject({ payment_terms_version: "2026-11-12", payment_terms_accepted_by: older.id });
+  });
+});

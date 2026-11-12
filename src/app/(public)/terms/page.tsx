@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/legal/legal-page";
+import { ProviderPaymentTerms } from "@/components/legal/provider-payment-terms";
 
 export const metadata: Metadata = { title: "Terms of service" };
 
@@ -37,6 +38,10 @@ export default function TermsPage() {
         <li>Bids are sealed and are your price for the job described. You may only see a customer&apos;s full address and message them after they accept your bid.</li>
         <li>You own your customer records. Use them only for your business and in line with privacy law.</li>
       </ul>
+
+      <h2 id="provider-terms">Provider terms</h2>
+      <p>Providers accept these terms when they create their account.</p>
+      <ProviderPaymentTerms />
 
       <h2>Things not allowed</h2>
       <ul>

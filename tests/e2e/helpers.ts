@@ -49,6 +49,7 @@ export async function signUpProvider(
   await page.getByLabel("Your name").fill("Test Owner");
   await page.getByLabel("Email").fill(opts.email);
   await page.getByLabel("Password").fill(password);
+  await page.getByLabel(/I agree to the Provider terms/).check();
   await page.getByRole("button", { name: "Create provider account" }).click();
   await expect(page.getByText("Check your email")).toBeVisible();
 

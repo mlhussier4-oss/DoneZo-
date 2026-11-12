@@ -9,6 +9,7 @@ import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { SubmitButton } from "../../_components/submit-button";
+import { ProviderPaymentTerms } from "@/components/legal/provider-payment-terms";
 
 const usageOptions = [
   {
@@ -106,6 +107,18 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "basic" | "
       >
         <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
       </Field>
+
+      <fieldset className="space-y-3 rounded-lg border border-border p-4">
+        <legend className="px-1 text-sm font-medium">Provider terms</legend>
+        <div className="max-h-48 overflow-y-auto rounded-md bg-muted p-3 text-xs leading-relaxed" tabIndex={0} aria-label="Provider terms">
+          <ProviderPaymentTerms />
+        </div>
+        <label className="flex cursor-pointer items-start gap-3 text-sm">
+          <input type="checkbox" name="paymentTerms" required className="mt-0.5 size-5 shrink-0 accent-[var(--primary)]" />
+          <span>I agree to the Provider terms. I understand I run my own business: I&apos;m responsible for my work and for collecting payment from my customers.</span>
+        </label>
+        {state.fieldErrors?.paymentTerms ? <p className="text-sm text-destructive">{state.fieldErrors.paymentTerms}</p> : null}
+      </fieldset>
 
       {state.message ? <Alert tone="error">{state.message}</Alert> : null}
       <SubmitButton className="w-full" size="lg" pendingText="Creating account…">
