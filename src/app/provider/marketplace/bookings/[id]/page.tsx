@@ -10,13 +10,14 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireManager } from "@/lib/auth";
 import { uuid } from "@/lib/crm/schemas";
-import { formatDateTime, formatMoney } from "@/lib/format";
+import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import { getThread } from "@/lib/marketplace/queries";
 import { createClient } from "@/lib/supabase/server";
 import { defaultArrival } from "@/lib/crm/time";
 import { CompleteJobPanel } from "@/components/marketplace/complete-job-panel";
 import { ChangeOrderForm, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
 import { ConfirmPanel } from "./confirm-panel";
+import { RepeatDecision } from "./repeat-decision";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -31,10 +32,18 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
     .eq("id", id)
     .single();
   if (!b) notFound();
-  const [{ data: changes }, thread] = await Promise.all([
+  // Repeat visits share the original booking's chat (owner decision 2026-11-12).
+  const chatId = b.parent_booking_id ?? id;
+  const [{ data: changes }, thread, { data: repeatReqs }, { data: visitRows }] = await Promise.all([
     supabase.from("change_orders").select("id, new_price_cents, description, status, created_at").eq("booking_id", id).order("created_at", { ascending: false }),
-    getThread(id),
+    getThread(chatId),
+    supabase.from("repeat_requests").select("id, status, frequency, visits, first_date, arrival_time, price_cents").eq("booking_id", id).order("created_at", { ascending: false }).limit(1),
+    supabase.from("bookings").select("id, status, jobs(scheduled_start)").eq("parent_booking_id", id),
   ]);
+  const repeatReq = repeatReqs?.[0];
+  const visits = ((visitRows ?? []) as unknown as { id: string; status: string; jobs: { scheduled_start: string | null } | null }[])
+    .sort((x, y) => (x.jobs?.scheduled_start ?? "").localeCompare(y.jobs?.scheduled_start ?? ""));
+  const freqLabel = (f: string) => (f === "weekly" ? "Weekly" : f === "biweekly" ? "Every 2 weeks" : "Monthly");
   const c = b.crm_customers;
   const addr = c?.crm_customer_addresses?.[0];
   const pending = changes?.find((x) => x.status === "pending");
@@ -67,6 +76,35 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
       {waiting && b.confirm_by ? (
         <div className="mb-6"><ConfirmPanel bookingId={b.id} confirmBy={b.confirm_by} serverNow={new Date().toISOString()} defaultDate={arrival.date} defaultTime={arrival.time} /></div>
       ) : null}
+      {b.parent_booking_id ? (
+        <Alert tone="info" className="mb-6">Repeat visit for the same customer. <Link href={`/provider/marketplace/bookings/${b.parent_booking_id}`} className="font-medium underline">Open the original job</Link>.</Alert>
+      ) : null}
+      {repeatReq?.status === "pending" ? (
+        <Card className="mb-6 border-2 border-cta" data-testid="repeat-request">
+          <CardHeader><CardTitle>The customer wants repeat visits</CardTitle></CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p><strong>{freqLabel(repeatReq.frequency)}</strong> · <strong>{repeatReq.visits} visits</strong> starting <strong>{formatDate(repeatReq.first_date)}</strong> around <strong>{repeatReq.arrival_time.slice(0, 5)}</strong> · {formatMoney(repeatReq.price_cents)} per visit, paid after each one.</p>
+            <RepeatDecision requestId={repeatReq.id} />
+          </CardContent>
+        </Card>
+      ) : null}
+      {visits.length ? (
+        <Card className="mb-6" data-testid="repeat-schedule">
+          <CardHeader><CardTitle className="text-base">Repeat visits ({visits.length})</CardTitle></CardHeader>
+          <CardContent>
+            <ul className="divide-y divide-border text-sm">
+              {visits.map((v, i) => (
+                <li key={v.id}>
+                  <Link href={`/provider/marketplace/bookings/${v.id}`} className="flex items-center justify-between gap-2 py-2 hover:text-primary">
+                    <span>Visit {i + 1}: {v.jobs?.scheduled_start ? formatDateTime(v.jobs.scheduled_start, tz) : "Not scheduled"}</span>
+                    <Badge tone={v.status === "completed" ? "success" : v.status === "canceled" ? "danger" : "primary"} className="capitalize">{v.status === "active" ? "Scheduled" : v.status}</Badge>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      ) : null}
       {b.status === "completed" ? (
         <Alert tone="success" className="mb-6" data-testid="job-completed">Job completed. The customer has their invoice in the chat and was asked to rate you.</Alert>
       ) : null}
@@ -87,7 +125,7 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           {!lost && !waiting ? <Card>
             <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
             <CardContent>
-              <MessageThread bookingId={b.id} currentUserId={user.id} otherPartyName={c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
+              <MessageThread bookingId={chatId} currentUserId={user.id} otherPartyName={c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
             </CardContent>
           </Card> : null}
           <Card>

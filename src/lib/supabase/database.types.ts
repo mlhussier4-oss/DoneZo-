@@ -65,14 +65,14 @@ isOneToOne: false
                   ]
                 },"bookings": {
                   Row: {
-                    "agreed_price_cents": number,"arrival_at": string | null,"bid_id": string,"business_id": string,"cancel_reason": string | null,"canceled_at": string | null,"canceled_by": string | null,"completed_at": string | null,"confirm_by": string | null,"confirmed_at": string | null,"created_at": string,"crm_customer_id": string | null,"customer_id": string,"extensions": number,"id": string,"job_id": string | null,"original_price_cents": number,"request_id": string,"scope": string,"status": Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents": number,"arrival_at": string | null,"bid_id": string | null,"business_id": string,"cancel_reason": string | null,"canceled_at": string | null,"canceled_by": string | null,"completed_at": string | null,"confirm_by": string | null,"confirmed_at": string | null,"created_at": string,"crm_customer_id": string | null,"customer_id": string,"extensions": number,"id": string,"job_id": string | null,"original_price_cents": number,"parent_booking_id": string | null,"request_id": string,"scope": string,"status": Database["public"]['Enums']["booking_status"]
                   }
                   ComputedFields: never
                   Insert: {
-                    "agreed_price_cents": number,"arrival_at"?: string | null,"bid_id": string,"business_id": string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id": string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents": number,"request_id": string,"scope": string,"status"?: Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents": number,"arrival_at"?: string | null,"bid_id"?: string | null,"business_id": string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id": string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents": number,"parent_booking_id"?: string | null,"request_id": string,"scope": string,"status"?: Database["public"]['Enums']["booking_status"]
                   }
                   Update: {
-                    "agreed_price_cents"?: number,"arrival_at"?: string | null,"bid_id"?: string,"business_id"?: string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id"?: string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents"?: number,"request_id"?: string,"scope"?: string,"status"?: Database["public"]['Enums']["booking_status"]
+                    "agreed_price_cents"?: number,"arrival_at"?: string | null,"bid_id"?: string | null,"business_id"?: string,"cancel_reason"?: string | null,"canceled_at"?: string | null,"canceled_by"?: string | null,"completed_at"?: string | null,"confirm_by"?: string | null,"confirmed_at"?: string | null,"created_at"?: string,"crm_customer_id"?: string | null,"customer_id"?: string,"extensions"?: number,"id"?: string,"job_id"?: string | null,"original_price_cents"?: number,"parent_booking_id"?: string | null,"request_id"?: string,"scope"?: string,"status"?: Database["public"]['Enums']["booking_status"]
                   }
                   Relationships: [
                     {
@@ -104,6 +104,12 @@ isOneToOne: false
       columns: ["job_id"]
 isOneToOne: false
       referencedRelation: "jobs"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "bookings_parent_booking_id_fkey"
+      columns: ["parent_booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "bookings_request_id_fkey"
@@ -777,6 +783,38 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"repeat_requests": {
+                  Row: {
+                    "arrival_time": string,"booking_id": string,"business_id": string,"created_at": string,"customer_id": string,"decided_at": string | null,"first_date": string,"frequency": string,"id": string,"price_cents": number,"status": string,"visits": number
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "arrival_time": string,"booking_id": string,"business_id": string,"created_at"?: string,"customer_id": string,"decided_at"?: string | null,"first_date": string,"frequency": string,"id"?: string,"price_cents": number,"status"?: string,"visits": number
+                  }
+                  Update: {
+                    "arrival_time"?: string,"booking_id"?: string,"business_id"?: string,"created_at"?: string,"customer_id"?: string,"decided_at"?: string | null,"first_date"?: string,"frequency"?: string,"id"?: string,"price_cents"?: number,"status"?: string,"visits"?: number
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "repeat_requests_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "repeat_requests_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "repeat_requests_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"request_photos": {
                   Row: {
                     "created_at": string,"customer_id": string,"id": string,"request_id": string,"storage_path": string
@@ -1011,7 +1049,7 @@ isOneToOne: false
 { Args: { "p_bid_id": string }; Returns: {
               "agreed_price_cents": number,
 "arrival_at": string | null,
-"bid_id": string,
+"bid_id": string | null,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
@@ -1026,6 +1064,7 @@ isOneToOne: false
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
+"parent_booking_id": string | null,
 "request_id": string,
 "scope": string,
 "status": Database["public"]['Enums']["booking_status"]
@@ -1193,7 +1232,7 @@ isOneToOne: false
 { Args: { "p_booking_id": string,"p_reason": string }; Returns: {
               "agreed_price_cents": number,
 "arrival_at": string | null,
-"bid_id": string,
+"bid_id": string | null,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
@@ -1208,6 +1247,7 @@ isOneToOne: false
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
+"parent_booking_id": string | null,
 "request_id": string,
 "scope": string,
 "status": Database["public"]['Enums']["booking_status"]
@@ -1218,6 +1258,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"cancel_repeat":
+{ Args: { "p_request_id": string }; Returns: undefined
+                           },
 "cancel_request":
 { Args: { "p_request_id": string }; Returns: {
               "booked_at": string | null,
@@ -1251,7 +1294,7 @@ isOneToOne: false
 { Args: { "p_arrival_at": string,"p_booking_id": string }; Returns: {
               "agreed_price_cents": number,
 "arrival_at": string | null,
-"bid_id": string,
+"bid_id": string | null,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
@@ -1266,6 +1309,7 @@ isOneToOne: false
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
+"parent_booking_id": string | null,
 "request_id": string,
 "scope": string,
 "status": Database["public"]['Enums']["booking_status"]
@@ -1394,6 +1438,27 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"decide_repeat":
+{ Args: { "p_accept": boolean,"p_request_id": string }; Returns: {
+              "arrival_time": string,
+"booking_id": string,
+"business_id": string,
+"created_at": string,
+"customer_id": string,
+"decided_at": string | null,
+"first_date": string,
+"frequency": string,
+"id": string,
+"price_cents": number,
+"status": string,
+"visits": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "repeat_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "drop_pending_booking":
 { Args: { "p_booking_id": string }; Returns: undefined
                            },
@@ -1407,7 +1472,7 @@ isOneToOne: false
 { Args: { "p_booking_id": string }; Returns: {
               "agreed_price_cents": number,
 "arrival_at": string | null,
-"bid_id": string,
+"bid_id": string | null,
 "business_id": string,
 "cancel_reason": string | null,
 "canceled_at": string | null,
@@ -1422,6 +1487,7 @@ isOneToOne: false
 "id": string,
 "job_id": string | null,
 "original_price_cents": number,
+"parent_booking_id": string | null,
 "request_id": string,
 "scope": string,
 "status": Database["public"]['Enums']["booking_status"]
@@ -1510,12 +1576,36 @@ isOneToOne: false
 "remove_member":
 { Args: { "p_business_id": string,"p_user_id": string }; Returns: undefined
                            },
+"repeat_label":
+{ Args: { "p_frequency": string }; Returns: string
+                           },
 "replace_document_lines":
 { Args: { "p_document_id": string,"p_kind": string,"p_lines": Json }; Returns: undefined
                            },
 "request_bids":
 { Args: { "p_request_id": string }; Returns: Json
                            },
+"request_repeat":
+{ Args: { "p_booking_id": string,"p_first_date": string,"p_frequency": string,"p_visits": number }; Returns: {
+              "arrival_time": string,
+"booking_id": string,
+"business_id": string,
+"created_at": string,
+"customer_id": string,
+"decided_at": string | null,
+"first_date": string,
+"frequency": string,
+"id": string,
+"price_cents": number,
+"status": string,
+"visits": number
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "repeat_requests"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
 "revoke_invitation":
 { Args: { "p_invitation_id": string }; Returns: undefined
                            },

@@ -533,3 +533,58 @@ describe("hiding jobs on the board (owner request 2026-11-12)", () => {
     expect((await p.client.from("hidden_requests").select("request_id").eq("business_id", p.businessId)).data).toEqual([]);
   });
 });
+
+describe("repeat visits with the same provider (owner decision 2026-11-12)", () => {
+  async function invoiced() {
+    const p = await provider({ name: "Repeat Co" });
+    const c = await customer();
+    const r = await postJob(c);
+    const booking = await hire(c, p, (await bid(p, r.id, 7000)).id);
+    return { p, c, r, booking };
+  }
+  const inDays = (n: number) => new Date(Date.now() + n * 86_400_000).toISOString().slice(0, 10);
+
+  it("can be asked only after the invoice is sent, and only by that customer", async () => {
+    const { p, c, booking } = await invoiced();
+    expect((await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "weekly", p_visits: 4, p_first_date: inDays(7) })).error?.message).toMatch(/once the provider has sent your invoice/);
+    const { data: inv } = await p.client.rpc("create_invoice_for_job", { p_job_id: booking.job_id });
+    await p.client.rpc("send_invoice", { p_invoice_id: inv.id });
+    const stranger = await customer();
+    expect((await stranger.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "weekly", p_visits: 4, p_first_date: inDays(7) })).error).not.toBeNull();
+    expect((await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "weekly", p_visits: 13, p_first_date: inDays(7) })).error?.message).toMatch(/between 2 and 12/);
+    const { data: req, error } = await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "biweekly", p_visits: 3, p_first_date: inDays(7) });
+    expect(error).toBeNull();
+    expect(req).toMatchObject({ status: "pending", visits: 3, price_cents: 7000 });
+    expect((await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "weekly", p_visits: 2, p_first_date: inDays(7) })).error?.message).toMatch(/already asked/);
+  });
+
+  it("the provider accepts: every visit is scheduled at the same price and place; or declines", async () => {
+    const { p, c, r, booking } = await invoiced();
+    const { data: inv } = await p.client.rpc("create_invoice_for_job", { p_job_id: booking.job_id });
+    await p.client.rpc("send_invoice", { p_invoice_id: inv.id });
+    const { data: first } = await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "weekly", p_visits: 2, p_first_date: inDays(5) });
+    expect((await c.client.rpc("decide_repeat", { p_request_id: first.id, p_accept: true })).error).not.toBeNull(); // customer can't accept
+    expect((await p.client.rpc("decide_repeat", { p_request_id: first.id, p_accept: false })).data.status).toBe("declined");
+
+    const { data: req } = await c.client.rpc("request_repeat", { p_booking_id: booking.id, p_frequency: "biweekly", p_visits: 3, p_first_date: inDays(7) });
+    const other = await provider({ name: "Not Them" });
+    expect((await other.client.rpc("decide_repeat", { p_request_id: req.id, p_accept: true })).error).not.toBeNull();
+    expect((await p.client.rpc("decide_repeat", { p_request_id: req.id, p_accept: true })).data.status).toBe("accepted");
+
+    const { data: visitRows } = await p.client.from("bookings").select("status, agreed_price_cents, jobs(scheduled_start, status, price_cents, address_id)").eq("parent_booking_id", booking.id);
+    const visits = visitRows as unknown as { status: string; agreed_price_cents: number; jobs: { scheduled_start: string; status: string; price_cents: number; address_id: string } }[];
+    expect(visits).toHaveLength(3);
+    const starts = visits!.map((v) => Date.parse(v.jobs!.scheduled_start!)).sort();
+    expect(Math.round((starts[1] - starts[0]) / 86_400_000)).toBe(14);
+    expect(Math.round((starts[2] - starts[1]) / 86_400_000)).toBe(14);
+    for (const v of visits!) expect(v).toMatchObject({ status: "active", agreed_price_cents: 7000, jobs: { status: "scheduled", price_cents: 7000 } });
+    const { data: original } = await p.client.from("jobs").select("address_id").eq("id", booking.job_id).single();
+    expect(visits!.every((v) => v.jobs!.address_id === original!.address_id)).toBe(true);
+
+    // The customer still sees their original booking, with the visits listed.
+    const { data: view } = await c.client.rpc("customer_booking", { p_request_id: r.id });
+    expect(view.id).toBe(booking.id);
+    expect(view.visits).toHaveLength(3);
+    expect(view.repeat_request.status).toBe("accepted");
+  });
+});

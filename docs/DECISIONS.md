@@ -4,6 +4,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 ## Approved
 
+- **2026-11-12 — Size details:** turf installation and lawn mowing have an optional typed "dimensions" box (e.g. 15 x 25) that shows the square footage; lawn sizes show their ranges (Small under 3,000 sq ft; Medium 3,000–8,000; Large 8,000–15,000; Extra large over 15,000).
 - **2026-11-12 — One-step job completion for providers:** "Mark job completed" → "Form of payment" (Card sends the invoice with a pay link and completes on Stripe's confirmation; Cash/Venmo/Cash App/Check records it paid and completes the job). The customer gets the invoice in the chat and a "rate your provider" prompt on their dashboard.
 - **2026-11-12 — Providers can hide jobs** from their job board (private to their business; "Hidden jobs" lets them unhide). Hiding also clears that job from the red new-jobs badge.
 - **2026-11-12 — Bids no longer include "Possible extra charges"** (owner request; changes Blueprint §5's bid contents). The bid is the price for the job as described; "Not included" remains.

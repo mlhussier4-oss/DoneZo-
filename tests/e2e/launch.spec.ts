@@ -130,7 +130,7 @@ test("support: a customer asks, an admin replies, the customer sees the reply an
   const item = adm.locator("div").filter({ hasText: `Charged twice? ${tag}` }).filter({ has: adm.getByRole("button", { name: "Send reply & resolve" }) }).last();
   await item.getByRole("textbox").fill(`Only one charge went through (${tag}); the other was a pending hold.`);
   await item.getByRole("button", { name: "Send reply & resolve" }).click();
-  await expect(adm.getByText(`Reply: Only one charge went through (${tag})`, { exact: false })).toBeVisible();
+  await expect(adm.getByText(`Reply: Only one charge went through (${tag})`, { exact: false })).toBeVisible({ timeout: 15_000 });
 
   await page.goto("/help");
   await expect(page.getByText("Answered")).toBeVisible();

@@ -88,3 +88,22 @@ export async function checkDeadline(bookingId: string): Promise<Result> {
   refresh();
   return {};
 }
+
+/** Repeat visits with the same provider (owner decision 2026-11-12). The provider accepts or declines. */
+export async function requestRepeat(bookingId: string, frequency: string, visits: number, firstDate: string): Promise<Result> {
+  await requireRole("customer");
+  if (!uuid.safeParse(bookingId).success || !/^\d{4}-\d{2}-\d{2}$/.test(firstDate)) return { error: "Choose the date of the first visit." };
+  const { error } = await (await createClient()).rpc("request_repeat", { p_booking_id: bookingId, p_frequency: frequency, p_visits: visits, p_first_date: firstDate });
+  if (error) return { error: dbErrorMessage(error, "Could not send your request. Please try again.") };
+  refresh();
+  return {};
+}
+
+export async function cancelRepeat(requestId: string): Promise<Result> {
+  await requireRole("customer");
+  if (!uuid.safeParse(requestId).success) return { error: "Unknown request." };
+  const { error } = await (await createClient()).rpc("cancel_repeat", { p_request_id: requestId });
+  if (error) return { error: dbErrorMessage(error, "Could not cancel.") };
+  refresh();
+  return {};
+}
