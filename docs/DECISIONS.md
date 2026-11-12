@@ -83,3 +83,6 @@ Provider terms (version 2026-11-12.2) add a Bidding section: a bid is the provid
 ## 2026-11-12 — Homepage "no back-and-forth" message; reviews and stats on hold
 Homepage adds a banner in DoneZo's own voice ("No phone tag. No inbox full of sales pitches. No back-and-forth.") and a homeowner bullet that pros can't message them until they pick one. The owner asked for invented reviews and statistics; these were not added (FTC rule on fake reviews and false advertising; project rule 7). A real-review carousel and real live counts were offered; owner will say when to add them.
 Fix: removing a provider from the marketplace no longer blocks their paid access to business tools (business_has_access ignores businesses.is_suspended, which only means "removed from marketplace").
+
+## 2026-11-12 — Turf installation removed; Car detailing added
+Turf installation is hidden as a service (kept in the database so past jobs keep their history). New service: Car detailing (mobile, at the customer's home) with quick questions: vehicle type, number of vehicles, what's needed (Interior detail / Exterior detail / Both), condition, and water/power available.
