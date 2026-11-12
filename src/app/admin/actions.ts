@@ -94,6 +94,16 @@ export async function setBusinessVerified(businessId: string, verified: boolean,
   return { status: "success" };
 }
 
+/** Remove or restore a provider's marketplace access (e.g. fake bids, per the Provider terms). Business tools keep working. */
+export async function setMarketplaceRemoved(businessId: string, removed: boolean, reason: string): Promise<AdminState> {
+  await requireRole("admin");
+  if (!z.string().uuid().safeParse(businessId).success) return { status: "error", message: "Unknown business." };
+  const { error } = await (await createClient()).rpc("admin_set_marketplace_removed", { p_business_id: businessId, p_removed: removed, p_reason: reason.slice(0, 500) });
+  if (error) return { status: "error", message: "Could not update marketplace access." };
+  refresh();
+  return { status: "success" };
+}
+
 export async function resolveReport(reportId: string, note: string): Promise<AdminState> {
   await requireRole("admin");
   if (!z.string().uuid().safeParse(reportId).success) return { status: "error", message: "Unknown report." };

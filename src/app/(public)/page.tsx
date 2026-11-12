@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgeCheck, Camera, ClipboardList, MessageSquareLock, ThumbsUp } from "lucide-react";
+import { BadgeCheck, Camera, Check, ClipboardList, Home, MessageSquareLock, ThumbsUp, Wrench } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
@@ -48,6 +48,61 @@ export default async function HomePage() {
               </li>
             ))}
           </ol>
+        </div>
+      </section>
+
+      {/* Why DoneZo: quick summary for both sides (owner request 2026-11-12) */}
+      <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6" aria-labelledby="why-donezo">
+        <h2 id="why-donezo" className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">Home services, minus the hassle</h2>
+        <p className="mx-auto mt-2 max-w-2xl text-center text-muted-foreground">
+          DoneZo connects homeowners with local pros: fast for the people who need work done, fair for the people who do it.
+        </p>
+        <div className="mt-8 grid gap-6 md:grid-cols-2">
+          {[
+            {
+              icon: Home,
+              title: "For homeowners",
+              lead: "Get real prices from local pros in minutes, without the phone tag.",
+              points: [
+                "Post a job in about a minute: snap a few photos and answer a few quick questions",
+                "Watch bids arrive live on your dashboard and compare price, reviews and availability",
+                "Pick the one you like; your pro confirms the job and arrival time within minutes",
+                "No card to get quotes, and your address stays private until a pro commits",
+                "Pay after the work is done, and set up repeat visits with the same pro",
+              ],
+              cta: { href: "/post-job", label: "Post a job, it's free", variant: "accent" as const },
+            },
+            {
+              icon: Wrench,
+              title: "For service pros",
+              lead: "Find new customers near you and run your whole business from one place.",
+              points: [
+                "Local jobs with photos and details, sent to your job board as they're posted",
+                "No paying per lead: bid only on the jobs you want, at your price",
+                "Sealed bids, so you compete on your own terms",
+                "Schedule, invoice and take card payments; cash, Venmo, Cash App and check carry no DoneZo fee",
+                "Simple monthly plans from $9.99, cancel any time",
+              ],
+              cta: { href: "/for-providers", label: "See plans for pros", variant: "primary" as const },
+            },
+          ].map((side) => (
+            <div key={side.title} className="flex flex-col rounded-xl border border-border bg-card p-6 shadow-sm">
+              <div className="flex items-center gap-3">
+                <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-cta"><side.icon className="size-6" aria-hidden /></span>
+                <h3 className="text-xl font-semibold">{side.title}</h3>
+              </div>
+              <p className="mt-3 font-medium">{side.lead}</p>
+              <ul className="mt-4 flex-1 space-y-2.5">
+                {side.points.map((p) => (
+                  <li key={p} className="flex gap-2.5 text-sm">
+                    <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href={side.cta.href} className={buttonVariants({ variant: side.cta.variant, size: "lg", className: "mt-6 w-full" })}>{side.cta.label}</Link>
+            </div>
+          ))}
         </div>
       </section>
 

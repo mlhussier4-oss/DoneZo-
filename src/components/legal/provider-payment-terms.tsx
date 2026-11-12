@@ -12,6 +12,21 @@ export function ProviderPaymentTerms() {
       </p>
 
       <div className="space-y-2">
+        <p className="font-semibold">Bidding</p>
+        <ul className="list-disc space-y-2 pl-5">
+          <li>
+            <strong>Your bid is your final price.</strong> Bid only on jobs you intend to do, at the price you&apos;ll
+            charge for the job as described. Once a customer picks your bid and you confirm, you do the job at that price.
+            If the customer asks for extra work, you can send a change request for them to approve.
+          </li>
+          <li>
+            <strong>Bids must be real.</strong> Fake, placeholder or misleading bids, or bids you don&apos;t intend to honor,
+            aren&apos;t allowed. A provider who places them loses access to the DoneZo marketplace.
+          </li>
+        </ul>
+      </div>
+
+      <div className="space-y-2">
         <p className="font-semibold">Getting paid</p>
         <ul className="list-disc space-y-2 pl-5">
           <li>

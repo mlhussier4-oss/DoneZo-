@@ -44,7 +44,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
   const supabase = await createClient();
 
   const [{ data: profile }, { count: categoryCount }] = await Promise.all([
-    supabase.from("businesses").select("home_zip").eq("id", business.id).single(),
+    supabase.from("businesses").select("home_zip, is_suspended").eq("id", business.id).single(),
     supabase.from("provider_categories").select("category_id", { count: "exact", head: true }).eq("business_id", business.id),
   ]);
   const profileReady = Boolean(profile?.home_zip) && (categoryCount ?? 0) > 0;
@@ -75,6 +75,11 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
         actions={<Link href="/provider/marketplace/profile" className={buttonVariants({ variant: "outline" })}><UserCog /> Marketplace profile</Link>}
       />
 
+      {profile?.is_suspended ? (
+        <Alert tone="error" data-testid="marketplace-removed">
+          Your marketplace access has been removed under the <Link href="/terms#provider-terms" className="underline">Provider terms</Link>, so you can&apos;t see or bid on new jobs. Your business tools still work. Questions? <Link href="/help" className="underline">Contact support</Link>.
+        </Alert>
+      ) : null}
       {!profileReady ? (
         <Alert tone="warning" className="mb-4">
           Set your home ZIP code and the services you offer to start seeing jobs.{" "}

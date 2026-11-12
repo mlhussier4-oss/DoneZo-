@@ -76,3 +76,6 @@ Every provider accepts card through DoneZo. On the marketplace profile the Card 
 
 ## 2026-11-12 — Provider terms (payments and jobsite responsibility)
 Providers must accept the Provider terms: they run an independent business, collect payment from their own customers (card through Stripe as a tool; cash/Venmo/Cash App/check entirely between them), are responsible for their work, the jobsite, damage, injuries, licenses, insurance and taxes, and won't hold DoneZo responsible for customer non-payment or jobsite issues. Friendly wording requested by the owner. Required checkbox at sign-up; existing owners accept once before continuing. Acceptance (who, when, version) is stored on the business. Wording is a draft for attorney review before public launch.
+
+## 2026-11-12 — Bids are final; fake bids lose marketplace access
+Provider terms (version 2026-11-12.2) add a Bidding section: a bid is the provider's final price for the job as described (extra work goes through a change request the customer approves); fake, placeholder or misleading bids lose the provider their marketplace access. Admins can remove/restore marketplace access on Admin → Businesses (withdraws open bids, notifies the provider, logged in the audit log; business tools keep working). Existing owners re-accept the updated terms once.
