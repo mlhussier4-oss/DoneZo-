@@ -53,14 +53,22 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Payment methods you accept</legend>
         <div className="flex flex-wrap gap-2">
-          {paymentMethodOptions.map((m) => (
-            <label key={m.value} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm hover:bg-muted">
-              <input type="checkbox" name="methods" value={m.value} defaultChecked={values.methods.includes(m.value)} className="size-5 accent-[var(--primary)]" />
-              {m.label}
-            </label>
-          ))}
+          {paymentMethodOptions.map((m) =>
+            m.value === "card" ? (
+              // Mandatory for every provider: always on, can't be unticked.
+              <label key={m.value} className="flex min-h-11 items-center gap-2 rounded-lg border border-border bg-muted px-3 text-sm">
+                <input type="checkbox" checked disabled readOnly aria-describedby="card-required" className="size-5 accent-[var(--primary)]" />
+                {m.label} <span className="text-xs text-muted-foreground">· required</span>
+              </label>
+            ) : (
+              <label key={m.value} className="flex min-h-11 cursor-pointer items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm hover:bg-muted">
+                <input type="checkbox" name="methods" value={m.value} defaultChecked={values.methods.includes(m.value)} className="size-5 accent-[var(--primary)]" />
+                {m.label}
+              </label>
+            ),
+          )}
         </div>
-        <p className="text-xs text-muted-foreground">Card payments through DoneZo need Stripe connected on your Payments page.</p>
+        <p id="card-required" className="text-xs text-muted-foreground">Every DoneZo provider accepts card, so it&apos;s always on. Connect Stripe on your Payments page to receive card payments.</p>
       </fieldset>
       <Field label="About your business" htmlFor="description" hint="Shown on your public profile." error={e.description}>
         <Textarea id="description" name="description" defaultValue={values.description} maxLength={2000} />

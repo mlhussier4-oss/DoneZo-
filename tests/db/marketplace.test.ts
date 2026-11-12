@@ -588,3 +588,15 @@ describe("repeat visits with the same provider (owner decision 2026-11-12)", () 
     expect(view.repeat_request.status).toBe("accepted");
   });
 });
+
+describe("card payments are mandatory", () => {
+  it("every provider accepts card and can't remove it", async () => {
+    const pro = await provider({ name: "Card" });
+    const { data } = await pro.client.from("businesses").select("accepted_payment_methods").eq("id", pro.businessId).single();
+    expect(data!.accepted_payment_methods).toContain("card");
+    const { error } = await pro.client.from("businesses").update({ accepted_payment_methods: ["cash"] }).eq("id", pro.businessId);
+    expect(error).not.toBeNull();
+    const ok = await pro.client.from("businesses").update({ accepted_payment_methods: ["card", "cash"] }).eq("id", pro.businessId);
+    expect(ok.error).toBeNull();
+  });
+});

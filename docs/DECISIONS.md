@@ -70,3 +70,6 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 ## Business risk noted (no change made)
 
 Card entry is not required, cash/Venmo/Cash App carry no fee, and the address is revealed when a bid is accepted. Customers and providers can therefore settle off-platform easily, so marketplace fee income may be small and subscriptions are likely to be the main revenue.
+
+## 2026-11-12 — Card payment is mandatory for providers
+Every provider accepts card through DoneZo. On the marketplace profile the Card option is always ticked and can't be unticked; cash, Venmo, Cash App and check stay optional. Enforced in the database (`businesses_card_required` check), on the server and in the UI. Existing providers were updated to include card.
