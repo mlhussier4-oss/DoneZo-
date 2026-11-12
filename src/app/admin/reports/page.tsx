@@ -17,12 +17,13 @@ export const metadata: Metadata = { title: "Support reports" };
 export default async function ReportsPage() {
   await requireRole("admin");
   const supabase = await createClient();
-  const { data: reports } = await supabase
-    .from("support_reports")
-    .select("id, category, subject, message, status, admin_note, created_at, reporter_id, booking_id, request_id")
-    .order("status")
-    .order("created_at", { ascending: false })
-    .limit(200);
+  // Open requests first (newest first), then the most recently answered, so an answered request never drops out of view.
+  const cols = "id, category, subject, message, status, admin_note, created_at, reporter_id, booking_id, request_id";
+  const [{ data: open }, { data: answered }] = await Promise.all([
+    supabase.from("support_reports").select(cols).eq("status", "open").order("created_at", { ascending: false }).limit(200),
+    supabase.from("support_reports").select(cols).eq("status", "resolved").order("resolved_at", { ascending: false }).limit(50),
+  ]);
+  const reports = [...(open ?? []), ...(answered ?? [])];
   const ids = [...new Set((reports ?? []).map((r) => r.reporter_id))];
   const { data: people } = ids.length ? await supabase.from("profiles").select("id, email, role").in("id", ids) : { data: [] };
   const who = new Map((people ?? []).map((p) => [p.id, `${p.email} (${p.role})`]));

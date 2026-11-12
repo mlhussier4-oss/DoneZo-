@@ -228,11 +228,27 @@ export async function completeAndRequestPayment(bookingId: string): Promise<Resu
   const body = balance > 0
     ? `The job is done! Here's your invoice for ${formatMoney(balance)}: ${link}${cardsOn ? " You can pay securely by card there." : ""}`
     : `The job is done! Your invoice: ${link}`;
-  const { error: msgError } = await supabase.from("messages").insert({ booking_id: b.id, body });
+  const { error: msgError } = await supabase.from("messages").insert({ booking_id: await chatBookingId(supabase, b.id), body });
   if (msgError) return { error: "The invoice is ready, but the message couldn't be sent." };
   // Text messages (with the customer's consent) are sent once an SMS provider is set up (not configured yet).
   refresh();
   return { ok: true };
+}
+
+// ---------------------------------------------------------------- repeat visits (owner decision 2026-11-12)
+export async function decideRepeat(requestId: string, accept: boolean): Promise<Result> {
+  await requireManager();
+  if (!uuid.safeParse(requestId).success) return { error: "Unknown request." };
+  const { error } = await (await createClient()).rpc("decide_repeat", { p_request_id: requestId, p_accept: accept });
+  if (error) return { error: dbErrorMessage(error, "Could not save your answer.") };
+  refresh();
+  return {};
+}
+
+/** Repeat visits share the original booking's chat. */
+async function chatBookingId(supabase: Awaited<ReturnType<typeof createClient>>, bookingId: string): Promise<string> {
+  const { data } = await supabase.from("bookings").select("parent_booking_id").eq("id", bookingId).single();
+  return data?.parent_booking_id ?? bookingId;
 }
 
 // ---------------------------------------------------------------- one-step completion (owner request 2026-11-12)
@@ -286,7 +302,7 @@ export async function completeJob(bookingId: string, method: string): Promise<Re
   const { siteUrl } = await import("@/lib/env");
   const link = siteUrl(`/i/${inv!.public_token}`).toString();
   await supabase.from("messages").insert({
-    booking_id: b.id,
+    booking_id: await chatBookingId(supabase, b.id),
     body: `The job is done! ${balance > 0 ? `Paid ${formatMoney(balance)} by ${methodName[parsedMethod.data]}. ` : ""}Your invoice: ${link} Thanks for choosing ${business.name}. Please take a moment to rate the job.`,
   });
   refresh();

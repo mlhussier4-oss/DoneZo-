@@ -63,7 +63,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
         .eq("business_id", business.id).order("created_at", { ascending: false }).limit(200)).data ?? []
     : [];
   const bookings = tab === "bookings"
-    ? (await supabase.from("bookings").select("id, status, agreed_price_cents, created_at, crm_customers(full_name), jobs(status, scheduled_start), service_requests(zip, service_categories(name))")
+    ? (await supabase.from("bookings").select("id, status, agreed_price_cents, created_at, parent_booking_id, crm_customers(full_name), jobs(status, scheduled_start), service_requests(zip, service_categories(name))")
         .eq("business_id", business.id).order("created_at", { ascending: false }).limit(200)).data ?? []
     : [];
 
@@ -160,7 +160,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
             {bookings.map((b) => (
               <Link key={b.id} href={`/provider/marketplace/bookings/${b.id}`} className="flex flex-col gap-1 px-4 py-3 hover:bg-muted sm:flex-row sm:items-center sm:justify-between sm:px-5">
                 <div>
-                  <p className="font-medium">{b.crm_customers?.full_name} · {b.service_requests?.service_categories?.name}</p>
+                  <p className="font-medium">{b.crm_customers?.full_name} · {b.service_requests?.service_categories?.name}{b.parent_booking_id ? " (repeat visit)" : ""}</p>
                   <p className="text-sm text-muted-foreground">{b.jobs?.scheduled_start ? formatDateTime(b.jobs.scheduled_start, tz) : "Not scheduled yet"}</p>
                 </div>
                 <div className="flex items-center gap-3 text-sm">

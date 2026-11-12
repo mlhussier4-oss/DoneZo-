@@ -17,7 +17,7 @@ import { getThread, signedRequestPhotos } from "@/lib/marketplace/queries";
 import type { BidCardData, CustomerBooking } from "@/lib/marketplace/types";
 import { createClient } from "@/lib/supabase/server";
 import { LiveRefresh } from "@/components/marketplace/live-refresh";
-import { JobCard } from "../../job-card";
+import { JobCard, RepeatSection } from "../../job-card";
 import {
   CancelBookingButton, CancelRequestButton, ChangeOrderDecision, ReportProblemForm, ReviewForm,
 } from "./request-controls";
@@ -126,6 +126,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
                     </div>
                   )}
                   <div className="rounded-lg bg-muted p-3 whitespace-pre-wrap">{booking.scope}</div>
+                  <RepeatSection booking={booking} />
 
                   {pendingChange ? (
                     <div className="space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">

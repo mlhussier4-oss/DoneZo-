@@ -66,6 +66,14 @@ export function areaFromDimensions(text: string): number | null {
   return sq > 0 && sq < 1_000_000 ? Math.round(sq) : null;
 }
 
+/** Repeat visits with the same provider (owner decision 2026-11-12). */
+export const REPEAT_FREQUENCIES = [
+  { value: "weekly", label: "Weekly" },
+  { value: "biweekly", label: "Every 2 weeks" },
+  { value: "monthly", label: "Monthly" },
+] as const;
+export const frequencyLabel = (f: string) => REPEAT_FREQUENCIES.find((x) => x.value === f)?.label ?? f;
+
 export const launchAreaName = "Austin, TX";
 
 export const paymentMethodOptions = [

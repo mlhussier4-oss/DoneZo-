@@ -28,3 +28,8 @@ export function defaultArrival(timeZone: string): { date: string; time: string }
   const time = t.toLocaleTimeString("en-GB", { timeZone, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
   return { date, time };
 }
+
+/** Tomorrow's date (YYYY-MM-DD) in a time zone. */
+export function tomorrowKey(timeZone: string): string {
+  return new Date(Date.now() + 86_400_000).toLocaleDateString("en-CA", { timeZone });
+}

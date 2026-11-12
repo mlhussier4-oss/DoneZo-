@@ -112,6 +112,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(alpha.getByLabel("Message", { exact: true })).toHaveCount(0); // no chat before confirming
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toHaveCount(0); // address only after confirming
     await confirmPanel.getByRole("button", { name: "Confirm job" }).click();
+    const alphaBookingUrl = alpha.url();
     await expect(alpha.getByText("1100 Bluebonnet Ln")).toBeVisible();
     await expect(alpha.getByText("512-555-0199")).toBeVisible();
     await expect(alpha.getByTestId("confirm-panel")).toHaveCount(0);
@@ -166,6 +167,24 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByTestId("rate-provider")).toHaveCount(0);
     await page.goto(requestPath);
     await expect(page.getByRole("heading", { name: "Your review" })).toBeVisible();
+
+    // 10. Repeat visits (owner decision 2026-11-12): the homeowner asks, the provider accepts, visits are scheduled.
+    await page.getByRole("button", { name: "Make it recurring with Alpha Lawn Co" }).click();
+    const repeat = page.getByTestId("repeat-form");
+    await repeat.getByRole("radio", { name: "Every 2 weeks" }).click();
+    await repeat.getByLabel("Number of visits").selectOption("3");
+    await repeat.getByLabel("First visit").fill(new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10));
+    await expect(repeat.getByText("Total if all visits happen: $240.00")).toBeVisible();
+    await repeat.getByRole("button", { name: "Send request to Alpha Lawn Co" }).click();
+    await expect(page.getByTestId("repeat-pending")).toContainText("Every 2 weeks · 3 visits");
+    await alpha.goto(alphaBookingUrl);
+    await alpha.waitForLoadState("networkidle"); // let the page finish loading before tapping
+    await alpha.getByTestId("repeat-request").getByRole("button", { name: "Accept and schedule visits" }).click();
+    await expect(alpha.getByTestId("repeat-schedule").getByRole("link")).toHaveCount(3, { timeout: 20_000 });
+    await alpha.goto("/provider/jobs");
+    await expect(alpha.getByText(/repeat visit 1 of 3/)).toBeVisible();
+    await page.reload();
+    await expect(page.getByTestId("repeat-visits").getByRole("listitem")).toHaveCount(3);
     await page.getByRole("link", { name: "Alpha Lawn Co" }).first().click();
     // Previous pages stay mounted (hidden) for instant back-navigation, so look at visible text only.
     await expect(page.getByText("5.0").filter({ visible: true }).first()).toBeVisible();

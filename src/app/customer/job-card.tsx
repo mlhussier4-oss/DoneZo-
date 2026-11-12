@@ -11,6 +11,9 @@ import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
 import type { BidCardData, CustomerBooking } from "@/lib/marketplace/types";
 import { AcceptBidButton, CancelRequestButton, ReviewForm } from "./requests/[id]/request-controls";
 import { WaitingPanel } from "./waiting-panel";
+import { CancelRepeatButton, RepeatForm } from "./repeat-panel";
+import { frequencyLabel } from "@/config/marketplace";
+import { tomorrowKey } from "@/lib/crm/time";
 
 const TZ = "America/Chicago";
 
@@ -99,6 +102,8 @@ export function JobCard({ req, bids, booking, thread, userId }: {
           </div>
         ) : null}
 
+        {booking && confirmed ? <RepeatSection booking={booking} /> : null}
+
         {booking && confirmed ? (
           <section aria-label={`Chat with ${booking.business.name}`} className="rounded-lg border border-border">
             <p className="flex items-center gap-2 border-b border-border px-4 py-2 text-sm font-semibold"><MessageSquare className="size-4 text-primary" aria-hidden />Chat with {booking.business.name}</p>
@@ -121,5 +126,48 @@ export function JobCard({ req, bids, booking, thread, userId }: {
         {open ? <div className="flex justify-end"><CancelRequestButton requestId={req.id} /></div> : null}
       </div>
     </article>
+  );
+}
+
+/** Repeat visits with the same provider: ask (after the invoice), wait for them to accept, then see each visit. */
+export function RepeatSection({ booking }: { booking: CustomerBooking }) {
+  const rr = booking.repeat_request;
+  const invoiceSent = booking.invoices.length > 0;
+  if (rr?.status === "pending") {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-muted p-3 text-sm" data-testid="repeat-pending">
+        <p>Waiting for {booking.business.name} to accept repeat visits: <strong>{frequencyLabel(rr.frequency)} · {rr.visits} visits</strong> from {formatDate(rr.first_date)}.</p>
+        <CancelRepeatButton requestId={rr.id} />
+      </div>
+    );
+  }
+  if (rr?.status === "accepted") {
+    return (
+      <section className="rounded-lg border border-border" data-testid="repeat-visits" aria-label="Repeat visits">
+        <p className="border-b border-border px-4 py-2 text-sm font-semibold">Repeat visits · {frequencyLabel(rr.frequency)} · {formatMoney(rr.price_cents)} each</p>
+        <ul className="divide-y divide-border text-sm">
+          {booking.visits.map((v, i) => (
+            <li key={v.id} className="flex flex-wrap items-center justify-between gap-2 px-4 py-2">
+              <span>Visit {i + 1}: {v.scheduled_start ? formatDateTime(v.scheduled_start, TZ) : "Time to be agreed"}</span>
+              <span className="flex items-center gap-2">
+                {v.invoice && v.invoice.balance_cents > 0 && v.invoice.status !== "paid" ? (
+                  <Link href={`/i/${v.invoice.token}`} className="font-medium text-primary hover:underline">Pay {formatMoney(v.invoice.balance_cents)}</Link>
+                ) : null}
+                <Badge tone={v.status === "completed" ? "success" : v.status === "canceled" ? "danger" : "primary"}>
+                  {v.status === "completed" ? "Done" : v.status === "canceled" ? "Canceled" : "Scheduled"}
+                </Badge>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
+  }
+  if (!invoiceSent || !["active", "completed"].includes(booking.status)) return null;
+  return (
+    <div className="space-y-2">
+      {rr?.status === "declined" ? <p className="text-sm text-muted-foreground">{booking.business.name} couldn&apos;t take your last repeat request. You can try different dates.</p> : null}
+      <RepeatForm bookingId={booking.id} providerName={booking.business.name} priceCents={booking.agreed_price_cents} minDate={tomorrowKey(TZ)} />
+    </div>
   );
 }

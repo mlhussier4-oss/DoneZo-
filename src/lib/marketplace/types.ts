@@ -44,6 +44,10 @@ export type CustomerBooking = {
   invoices: { number: number; status: string; total_cents: number; amount_paid_cents: number; token: string }[];
   change_orders: { id: string; new_price_cents: number; description: string; status: string; created_at: string }[];
   review: { rating: number; comment: string | null } | null;
+  /** Latest request for repeat visits with this provider, if any. */
+  repeat_request: { id: string; status: "pending" | "accepted" | "declined" | "canceled"; frequency: "weekly" | "biweekly" | "monthly"; visits: number; first_date: string; price_cents: number } | null;
+  /** Scheduled repeat visits (their own bookings), soonest first. */
+  visits: { id: string; status: string; scheduled_start: string | null; job_status: string; invoice: { status: string; token: string; balance_cents: number } | null }[];
 };
 
 export type ProviderProfile = {
