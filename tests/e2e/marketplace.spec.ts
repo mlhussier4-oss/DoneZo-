@@ -271,22 +271,38 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(pro.locator("li").filter({ hasText: description })).toBeVisible();
   });
 
-  test("turf installation lets the homeowner type dimensions and shows the square footage", async ({ page }) => {
-    await page.goto("/post-job?category=turf-installation");
+  test("lawn dimensions show the square footage, and car detailing asks its own questions", async ({ page }) => {
+    await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");
     await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("What needs to be done?").fill("Replace back lawn with turf");
-    await page.getByRole("button", { name: "Under 500 sq ft" }).click();
-    await page.getByLabel("Dimensions in feet, if you know them (optional)").fill("15x25");
-    await expect(page.getByText("≈ 375 sq ft")).toBeVisible();
+    await page.getByLabel("What needs to be done?").fill("Mow the back yard");
+    await page.getByRole("button", { name: "Small: under 3,000 sq ft" }).click();
+    await page.getByLabel("Yard dimensions in feet, if you know them (optional)").fill("40x60");
+    await expect(page.getByText("≈ 2,400 sq ft")).toBeVisible();
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "Tomorrow" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Turf Ln");
+    await page.getByLabel("Street address").fill("1 Lawn Ln");
     await page.getByLabel("ZIP code").fill("78745");
     await page.getByRole("button", { name: "Continue" }).click();
-    await expect(page.getByText(/Under 500 sq ft · 15x25/)).toBeVisible();
+    await expect(page.getByText(/Small: under 3,000 sq ft · 40x60/)).toBeVisible();
+
+    await page.goto("/post-job?category=car-detailing");
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("request-photos").setInputFiles({ name: "car.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("What needs to be done?").fill("Full detail on the family SUV");
+    await page.getByRole("button", { name: "SUV or crossover" }).click();
+    await page.getByRole("button", { name: "Both", exact: true }).click();
+    await page.getByRole("button", { name: "Water and power" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("radio", { name: "Tomorrow" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Street address").fill("1 Drive Way");
+    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText(/SUV or crossover · Both · Water and power/)).toBeVisible();
   });
 
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {

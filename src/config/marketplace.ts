@@ -12,7 +12,7 @@ export const timingLabel = (t: string) => timingOptions.find((o) => o.value === 
 
 /**
  * `short` is how the answer is labelled for providers (e.g. "Bathrooms: 2"); `multiple` allows picking several;
- * `text` makes it a small typed answer instead of bubbles (e.g. turf dimensions "15 x 25").
+ * `text` makes it a small typed answer instead of bubbles (e.g. lawn dimensions "40 x 60").
  */
 export type CategoryQuestion = {
   key: string; label: string; short: string; options: string[]; multiple?: boolean;
@@ -40,11 +40,12 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
     { key: "rooms", label: "What needs cleaning? (pick all that apply)", short: "Clean", options: ["Whole home", "Kitchen", "Living room", "Bathrooms", "Bedrooms"], multiple: true },
     { key: "type", label: "Type of clean", short: "Type", options: ["Standard", "Deep clean", "Move-out"] },
   ],
-  "turf-installation": [
-    { key: "area", label: "About how big?", short: "Area", options: ["Under 500 sq ft", "500–1,000 sq ft", "1,000–2,500 sq ft", "Over 2,500 sq ft"] },
-    { key: "dimensions", label: "Dimensions in feet, if you know them", short: "Dimensions", options: [], text: { placeholder: "e.g. 15 x 25", maxLength: 60 } },
-    { key: "current_ground", label: "What's there now?", short: "Now", options: ["Grass", "Dirt", "Gravel or rock", "Concrete"] },
-    { key: "use", label: "Mainly for", short: "For", options: ["Front yard", "Back yard", "Pet area", "Putting green"] },
+  "car-detailing": [
+    { key: "vehicle", label: "Type of vehicle", short: "Vehicle", options: ["Car", "SUV or crossover", "Pickup truck", "Minivan or van"] },
+    { key: "vehicles", label: "How many vehicles?", short: "Vehicles", options: ["1", "2", "3 or more"] },
+    { key: "package", label: "What do you need?", short: "Service", options: ["Interior detail", "Exterior detail", "Both"] },
+    { key: "condition", label: "How dirty is it?", short: "Condition", options: ["Light", "Average", "Very dirty (pet hair, stains)"] },
+    { key: "hookups", label: "At your place, is there…", short: "At home", options: ["Water and power", "Power only", "Neither"] },
   ],
 };
 

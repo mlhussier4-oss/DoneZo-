@@ -1,7 +1,8 @@
-import { Droplets, LandPlot, PawPrint, Sparkles, Sprout, Truck, Wrench, type LucideIcon } from "lucide-react";
+import { Car, Droplets, LandPlot, PawPrint, Sparkles, Sprout, Truck, Wrench, type LucideIcon } from "lucide-react";
 
 const icons: Record<string, LucideIcon> = {
   truck: Truck,
+  car: Car,
   sprout: Sprout,
   "paw-print": PawPrint,
   droplets: Droplets,

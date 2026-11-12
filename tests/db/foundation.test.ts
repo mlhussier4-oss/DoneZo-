@@ -196,13 +196,14 @@ describe("customers cannot see provider data", () => {
 });
 
 describe("the public (not logged in)", () => {
-  it("can read active service categories, including the launch categories and turf installation", async () => {
+  it("can read active service categories, including the launch categories and car detailing", async () => {
     const { data, error } = await anonClient().from("service_categories").select("slug").order("sort_order");
     expect(error).toBeNull();
     const slugs = data!.map((c) => c.slug);
-    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning", "turf-installation"]) {
+    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning", "car-detailing"]) {
       expect(slugs).toContain(slug);
     }
+    expect(slugs).not.toContain("turf-installation"); // removed as a service (owner request 2026-11-12)
   });
 
   it("cannot read profiles, businesses or the audit log", async () => {
