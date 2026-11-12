@@ -5,13 +5,14 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { createAdminUser, latestEmail, extractCode, serviceClient, uniqueEmail } from "./helpers";
+import { PAYMENT_TERMS_VERSION } from "../../src/config/legal";
 
 type Person = { email: string; password: string; id: string };
 
 async function makeProvider(name: string): Promise<Person & { businessId: string }> {
   const db = serviceClient();
   const email = uniqueEmail("launch-pro"), password = `Pw-${randomUUID()}1`;
-  const { data, error } = await db.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { role: "provider", business_name: name, full_name: "Olivia Owner", marketplace_enabled: true } });
+  const { data, error } = await db.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { role: "provider", business_name: name, full_name: "Olivia Owner", marketplace_enabled: true, payment_terms_version: PAYMENT_TERMS_VERSION } });
   if (error) throw error;
   const { data: m } = await db.from("business_members").select("business_id").eq("user_id", data.user.id).single();
   await db.from("business_subscriptions").upsert({ business_id: m!.business_id, status: "active" });

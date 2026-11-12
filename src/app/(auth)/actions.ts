@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { homePathFor, safeNextPath, type AppRole } from "@/lib/auth";
+import { PAYMENT_TERMS_VERSION } from "@/config/legal";
 import { publicEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -54,6 +55,7 @@ const providerSignUpSchema = z.object({
   email,
   password,
   usage: z.enum(["basic", "crm", "marketplace"], { message: "Choose a plan." }),
+  paymentTerms: z.literal("on", { message: "Please read and accept the Provider terms." }),
 });
 
 export async function providerSignUp(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -74,6 +76,8 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
         // The plan picked here is a preference; what the provider pays for in Stripe decides the plan.
         plan: usage === "basic" ? "basic" : "pro",
         marketplace_enabled: usage !== "crm",
+        // Recorded on the business by the database (who accepted, when, which version).
+        payment_terms_version: PAYMENT_TERMS_VERSION,
       },
     },
   });

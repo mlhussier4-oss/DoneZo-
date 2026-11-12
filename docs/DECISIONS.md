@@ -73,3 +73,6 @@ Card entry is not required, cash/Venmo/Cash App carry no fee, and the address is
 
 ## 2026-11-12 — Card payment is mandatory for providers
 Every provider accepts card through DoneZo. On the marketplace profile the Card option is always ticked and can't be unticked; cash, Venmo, Cash App and check stay optional. Enforced in the database (`businesses_card_required` check), on the server and in the UI. Existing providers were updated to include card.
+
+## 2026-11-12 — Provider terms (payments and jobsite responsibility)
+Providers must accept the Provider terms: they run an independent business, collect payment from their own customers (card through Stripe as a tool; cash/Venmo/Cash App/check entirely between them), are responsible for their work, the jobsite, damage, injuries, licenses, insurance and taxes, and won't hold DoneZo responsible for customer non-payment or jobsite issues. Friendly wording requested by the owner. Required checkbox at sign-up; existing owners accept once before continuing. Acceptance (who, when, version) is stored on the business. Wording is a draft for attorney review before public launch.

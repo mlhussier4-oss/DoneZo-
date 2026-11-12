@@ -201,14 +201,14 @@ isOneToOne: true
                   ]
                 },"businesses": {
                   Row: {
-                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"name": string,"phone": string | null,"plan_id": string,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name": string,"phone"?: string | null,"plan_id": string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name"?: string,"phone"?: string | null,"plan_id"?: string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
@@ -217,6 +217,12 @@ isOneToOne: true
 isOneToOne: false
       referencedRelation: "zip_codes"
       referencedColumns: ["zip"]
+    },{
+      foreignKeyName: "businesses_payment_terms_accepted_by_fkey"
+      columns: ["payment_terms_accepted_by"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
     },{
       foreignKeyName: "businesses_plan_id_fkey"
       columns: ["plan_id"]
@@ -1078,6 +1084,9 @@ isOneToOne: false
 "accept_invitation_for":
 { Args: { "p_email": string,"p_full_name": string,"p_meta": Json,"p_user_id": string }; Returns: undefined
                            },
+"accept_payment_terms":
+{ Args: { "p_business_id": string,"p_version": string }; Returns: undefined
+                           },
 "admin_resolve_report":
 { Args: { "p_note": string,"p_report_id": string }; Returns: {
               "admin_note": string | null,
@@ -1113,6 +1122,9 @@ isOneToOne: false
 "marketplace_enabled": boolean,
 "marketplace_enabled_at": string | null,
 "name": string,
+"payment_terms_accepted_at": string | null,
+"payment_terms_accepted_by": string | null,
+"payment_terms_version": string | null,
 "phone": string | null,
 "plan_id": string,
 "service_radius_miles": number,
@@ -1687,6 +1699,9 @@ isOneToOne: false
 "marketplace_enabled": boolean,
 "marketplace_enabled_at": string | null,
 "name": string,
+"payment_terms_accepted_at": string | null,
+"payment_terms_accepted_by": string | null,
+"payment_terms_version": string | null,
 "phone": string | null,
 "plan_id": string,
 "service_radius_miles": number,
