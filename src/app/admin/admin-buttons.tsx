@@ -7,7 +7,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Input, Label } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { resolveReport, saveServiceArea, setBusinessVerified, type AdminState } from "./actions";
+import { resolveReport, saveServiceArea, setBusinessVerified, setMarketplaceRemoved, type AdminState } from "./actions";
 
 export function VerifyButton({ businessId, verified }: { businessId: string; verified: boolean }) {
   const [pending, start] = useTransition();
@@ -17,6 +17,22 @@ export function VerifyButton({ businessId, verified }: { businessId: string; ver
       if (note !== null) start(async () => { await setBusinessVerified(businessId, !verified, note); });
     }}>
       {verified ? "Unverify" : "Verify"}
+    </Button>
+  );
+}
+
+export function MarketplaceAccessButton({ businessId, removed }: { businessId: string; removed: boolean }) {
+  const [pending, start] = useTransition();
+  return (
+    <Button size="sm" variant={removed ? "outline" : "ghost"} disabled={pending} onClick={() => {
+      if (removed) {
+        if (confirm("Restore this provider's marketplace access?")) start(async () => { await setMarketplaceRemoved(businessId, false, ""); });
+        return;
+      }
+      const reason = prompt("Remove from the marketplace? Their open bids are withdrawn; business tools keep working.\nReason (e.g. fake bids):");
+      if (reason !== null) start(async () => { await setMarketplaceRemoved(businessId, true, reason); });
+    }}>
+      {removed ? "Restore marketplace" : "Remove from marketplace"}
     </Button>
   );
 }

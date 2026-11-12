@@ -2,7 +2,7 @@
  * Phase 3 marketplace rules, tested as real signed-in users against the local database.
  */
 import { describe, expect, it } from "vitest";
-import { adminClient, anonClient, businessIdFor, createUser, type TestUser } from "./helpers";
+import { adminClient, anonClient, businessIdFor, createAdmin, createUser, type TestUser } from "./helpers";
 
 type Provider = TestUser & { businessId: string };
 
@@ -624,5 +624,33 @@ describe("provider payment terms", () => {
     expect(ok.error).toBeNull();
     const { data: after } = await older.client.from("businesses").select("payment_terms_version, payment_terms_accepted_by").eq("id", older.businessId).single();
     expect(after).toMatchObject({ payment_terms_version: "2026-11-12", payment_terms_accepted_by: older.id });
+  });
+});
+
+describe("removing a provider from the marketplace (fake bids)", () => {
+  it("only an admin can remove; open bids are withdrawn; the provider can't see or bid on jobs until restored", async () => {
+    const pro = await provider({ name: "Faker" });
+    const cust = await customer();
+    const req = await postJob(cust);
+    const first = await bid(pro, req.id);
+
+    // A provider can't remove anyone (not even themselves).
+    const notAdmin = await pro.client.rpc("admin_set_marketplace_removed", { p_business_id: pro.businessId, p_removed: true, p_reason: "x" });
+    expect(notAdmin.error).not.toBeNull();
+
+    const admin = await createAdmin();
+    const removed = await admin.client.rpc("admin_set_marketplace_removed", { p_business_id: pro.businessId, p_removed: true, p_reason: "Fake bids" });
+    expect(removed.error).toBeNull();
+    const { data: after } = await adminClient().from("bids").select("status").eq("id", first.id).single();
+    expect(after!.status).toBe("withdrawn");
+
+    const req2 = await postJob(cust);
+    const blocked = await pro.client.from("bids").insert({ request_id: req2.id, business_id: pro.businessId, price_cents: 6000, included: "Mow", availability: "Friday" });
+    expect(blocked.error).not.toBeNull();
+    const { data: feed } = await pro.client.rpc("marketplace_feed");
+    expect(feed ?? []).toHaveLength(0);
+
+    await admin.client.rpc("admin_set_marketplace_removed", { p_business_id: pro.businessId, p_removed: false, p_reason: "" });
+    await bid(pro, req2.id);
   });
 });
