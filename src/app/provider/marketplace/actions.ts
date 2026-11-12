@@ -50,7 +50,8 @@ export async function saveMarketplaceProfile(_prev: ActionState, fd: FormData): 
       service_radius_miles: v.radius,
       years_experience: v.years === "" ? null : v.years,
       description: v.description || null,
-      accepted_payment_methods: v.methods,
+      // Card is mandatory (owner decision 2026-11-12); the others are optional.
+      accepted_payment_methods: ["card", ...v.methods.filter((m) => m !== "card")],
     })
     .eq("id", business.id);
   if (error) return { status: "error", message: dbErrorMessage(error, "Could not save your profile.") };

@@ -14,6 +14,9 @@ async function marketplaceProvider(browser: Browser, name: string, zip = "78704"
   await page.getByLabel("Home ZIP code").fill(zip);
   await page.getByLabel("Service radius (miles)").fill("20");
   await page.getByLabel("Lawn mowing").check();
+  const card = page.getByRole("checkbox", { name: /Card \(through DoneZo\)/ });
+  await expect(card).toBeChecked();
+  await expect(card).toBeDisabled(); // mandatory, can't be unticked
   await page.getByLabel("Cash", { exact: true }).check();
   await page.getByLabel("Venmo").check();
   await page.getByRole("button", { name: "Save profile" }).click();
