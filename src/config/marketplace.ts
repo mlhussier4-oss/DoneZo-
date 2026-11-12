@@ -10,14 +10,21 @@ export const timingOptions = [
 export type Timing = (typeof timingOptions)[number]["value"];
 export const timingLabel = (t: string) => timingOptions.find((o) => o.value === t)?.label ?? t;
 
-/** `short` is how the answer is labelled for providers (e.g. "Bathrooms: 2"); `multiple` allows picking several. */
-export type CategoryQuestion = { key: string; label: string; short: string; options: string[]; multiple?: boolean };
+/**
+ * `short` is how the answer is labelled for providers (e.g. "Bathrooms: 2"); `multiple` allows picking several;
+ * `text` makes it a small typed answer instead of bubbles (e.g. turf dimensions "15 x 25").
+ */
+export type CategoryQuestion = {
+  key: string; label: string; short: string; options: string[]; multiple?: boolean;
+  text?: { placeholder: string; maxLength: number };
+};
 
 /** One or two optional quick-pick questions per service. Keys are stored in service_requests.details. */
 export const categoryQuestions: Record<string, CategoryQuestion[]> = {
   "junk-removal": [{ key: "volume", label: "About how much?", short: "Amount", options: ["A few items", "Pickup-truck load", "Trailer load or more"] }],
   "lawn-mowing": [
-    { key: "yard_size", label: "Yard size", short: "Yard", options: ["Small", "Medium", "Large"] },
+    { key: "yard_size", label: "Yard size (mowed area)", short: "Yard", options: ["Small: under 3,000 sq ft", "Medium: 3,000–8,000 sq ft", "Large: 8,000–15,000 sq ft", "Extra large: over 15,000 sq ft (⅓ acre+)"] },
+    { key: "dimensions", label: "Yard dimensions in feet, if you know them", short: "Dimensions", options: [], text: { placeholder: "e.g. 40 x 60", maxLength: 60 } },
     { key: "frequency", label: "How often?", short: "How often", options: ["One time", "Weekly", "Every 2 weeks"] },
   ],
   "pet-waste-pickup": [
@@ -35,6 +42,7 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
   ],
   "turf-installation": [
     { key: "area", label: "About how big?", short: "Area", options: ["Under 500 sq ft", "500–1,000 sq ft", "1,000–2,500 sq ft", "Over 2,500 sq ft"] },
+    { key: "dimensions", label: "Dimensions in feet, if you know them", short: "Dimensions", options: [], text: { placeholder: "e.g. 15 x 25", maxLength: 60 } },
     { key: "current_ground", label: "What's there now?", short: "Now", options: ["Grass", "Dirt", "Gravel or rock", "Concrete"] },
     { key: "use", label: "Mainly for", short: "For", options: ["Front yard", "Back yard", "Pet area", "Putting green"] },
   ],
@@ -43,7 +51,19 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
 /** "Bathrooms: 2" style labels for a job's answers (older jobs may use keys no longer asked; those show the answer alone). */
 export function detailLines(details: Record<string, string> | null | undefined): string[] {
   const shortOf = new Map(Object.values(categoryQuestions).flat().map((q) => [q.key, q.short]));
-  return Object.entries(details ?? {}).map(([k, v]) => (shortOf.has(k) ? `${shortOf.get(k)}: ${v}` : v));
+  return Object.entries(details ?? {}).map(([k, v]) => {
+    const area = k === "dimensions" ? areaFromDimensions(v) : null;
+    const value = area ? `${v} (≈ ${area.toLocaleString("en-US")} sq ft)` : v;
+    return shortOf.has(k) ? `${shortOf.get(k)}: ${value}` : value;
+  });
+}
+
+/** "15 x 25", "15x25 ft", "15 by 25" → 375 (square feet), or null if it isn't width × length. */
+export function areaFromDimensions(text: string): number | null {
+  const m = text.toLowerCase().replace(/,/g, "").match(/^\s*(\d+(?:\.\d+)?)\s*(?:'|ft|feet)?\s*(?:x|×|\*|by)\s*(\d+(?:\.\d+)?)\s*(?:'|ft|feet)?\s*$/);
+  if (!m) return null;
+  const sq = Number(m[1]) * Number(m[2]);
+  return sq > 0 && sq < 1_000_000 ? Math.round(sq) : null;
 }
 
 export const launchAreaName = "Austin, TX";

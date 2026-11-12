@@ -8,7 +8,7 @@ import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
+import { areaFromDimensions, categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { cancelRequest } from "../../customer/requests/actions";
@@ -223,7 +223,13 @@ export function PostJobWizard({
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} autoFocus
               placeholder={category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
           </Field>
-          {(categoryQuestions[category?.slug ?? ""] ?? []).map((q) => (
+          {(categoryQuestions[category?.slug ?? ""] ?? []).map((q) => q.text ? (
+            <Field key={q.key} label={`${q.label} (optional)`} htmlFor={`q-${q.key}`}
+              hint={areaFromDimensions(details[q.key] ?? "") ? `≈ ${areaFromDimensions(details[q.key] ?? "")!.toLocaleString("en-US")} sq ft` : undefined}>
+              <Input id={`q-${q.key}`} value={details[q.key] ?? ""} maxLength={q.text.maxLength} placeholder={q.text.placeholder} inputMode="text"
+                onChange={(e) => { const v = e.target.value; setDetails((d) => { const n = { ...d }; if (v.trim()) n[q.key] = v; else delete n[q.key]; return n; }); }} />
+            </Field>
+          ) : (
             <fieldset key={q.key} className="space-y-2">
               <legend className="text-sm font-medium">{q.label} <span className="font-normal text-muted-foreground">(optional)</span></legend>
               <div className="flex flex-wrap gap-2">

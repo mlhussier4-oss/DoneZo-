@@ -29,7 +29,7 @@ async function postJobAsNewCustomer(page: Page, description: string) {
   await expect(page.getByRole("img", { name: "Photo 1" })).toBeVisible();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByLabel("What needs to be done?").fill(description);
-  await page.getByRole("button", { name: "Medium" }).click();
+  await page.getByRole("button", { name: /^Medium:/ }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("radio", { name: "Later this week" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
@@ -247,6 +247,24 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(pro.locator("li").filter({ hasText: description })).toHaveCount(0);
     await pro.getByRole("link", { name: "← Back to jobs near you" }).click();
     await expect(pro.locator("li").filter({ hasText: description })).toBeVisible();
+  });
+
+  test("turf installation lets the homeowner type dimensions and shows the square footage", async ({ page }) => {
+    await page.goto("/post-job?category=turf-installation");
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("What needs to be done?").fill("Replace back lawn with turf");
+    await page.getByRole("button", { name: "Under 500 sq ft" }).click();
+    await page.getByLabel("Dimensions in feet, if you know them (optional)").fill("15x25");
+    await expect(page.getByText("≈ 375 sq ft")).toBeVisible();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("radio", { name: "Tomorrow" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Street address").fill("1 Turf Ln");
+    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText(/Under 500 sq ft · 15x25/)).toBeVisible();
   });
 
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
