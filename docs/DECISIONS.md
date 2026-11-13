@@ -99,3 +99,6 @@ New service "Movers" with quick questions: about how many items (1–5 / 6–15 
 - Customer log-in and sign-up show four benefits: quick, no stuffed inbox, easy to choose, your info stays private.
 - Optional profile photo. Providers see only the customer's first name and photo (job board, job page, booking), never their email or phone.
 - Posting asks for the ZIP code only (no street address or phone). DoneZo never hands the address, email or phone to providers; the customer sends the address (and anything else they choose) in the chat after the provider confirms. This replaces the earlier "address shared on confirm" behaviour.
+
+## 2026-11-13 — Misc / other service, on for every provider by default
+New service "Misc / other" for odd jobs that don't fit a listed service. It is on by default for every provider (existing and new), so they get misc jobs within their radius; on the Marketplace profile, "Services you get jobs for" lets them untick misc or any other service to stop receiving those jobs. The job board links to that setting. Service categories have a `default_on` flag for this.

@@ -7,7 +7,7 @@ test.describe("public site", () => {
   test("homepage shows the promise and every service", async ({ page }) => {
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Post a job. Receive bids. Choose your provider.");
-    for (const name of ["Junk removal", "Lawn mowing", "Pet waste pickup", "Pressure washing", "House cleaning", "Car detailing", "Movers"]) {
+    for (const name of ["Junk removal", "Lawn mowing", "Pet waste pickup", "Pressure washing", "House cleaning", "Car detailing", "Movers", "Misc / other"]) {
       await expect(page.getByRole("link", { name: new RegExp(name) })).toBeVisible();
     }
     await expect(page.getByRole("link", { name: /Turf installation/ })).toHaveCount(0);

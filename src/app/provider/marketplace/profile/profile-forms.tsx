@@ -22,7 +22,7 @@ type Values = {
   methods: string[];
 };
 
-export function MarketplaceProfileForm({ values, allCategories }: { values: Values; allCategories: { id: string; name: string }[] }) {
+export function MarketplaceProfileForm({ values, allCategories }: { values: Values; allCategories: { id: string; name: string; default_on?: boolean }[] }) {
   const [state, form] = useFormAction(saveMarketplaceProfile, idle);
   const e = state.fieldErrors ?? {};
   return (
@@ -39,12 +39,14 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
         </Field>
       </div>
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium">Services you offer</legend>
+        <legend className="text-sm font-medium">Services you get jobs for</legend>
+        <p className="text-xs text-muted-foreground">Untick any service you don&apos;t want jobs for. Misc / other (odd jobs that don&apos;t fit a service) is on for everyone unless you turn it off.</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {allCategories.map((c) => (
             <label key={c.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 hover:bg-muted">
               <input type="checkbox" name="categories" value={c.id} defaultChecked={values.categories.includes(c.id)} className="size-5 accent-[var(--primary)]" />
-              {c.name}
+              <span className="flex-1">{c.name}</span>
+              {c.default_on ? <span className="text-xs text-muted-foreground">On by default</span> : null}
             </label>
           ))}
         </div>
