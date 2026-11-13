@@ -757,6 +757,20 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"push_subscriptions": {
+                  Row: {
+                    "auth": string,"created_at": string,"endpoint": string,"id": string,"p256dh": string,"user_agent": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "auth": string,"created_at"?: string,"endpoint": string,"id"?: string,"p256dh": string,"user_agent"?: string | null,"user_id"?: string
+                  }
+                  Update: {
+                    "auth"?: string,"created_at"?: string,"endpoint"?: string,"id"?: string,"p256dh"?: string,"user_agent"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"recurring_schedules": {
                   Row: {
                     "address_id": string | null,"business_id": string,"category_id": string | null,"created_at": string,"created_by": string | null,"customer_id": string,"default_assignee": string | null,"description": string | null,"duration_minutes": number,"end_date": string | null,"frequency": Database["public"]['Enums']["recurrence_frequency"],"generated_through": string | null,"id": string,"interval_days": number | null,"price_cents": number,"start_date": string,"start_time": string,"status": Database["public"]['Enums']["recurrence_status"],"title": string,"updated_at": string
@@ -1619,6 +1633,9 @@ isOneToOne: false
                            },
 "plan_has_feature":
 { Args: { "p_business_id": string,"p_feature": string }; Returns: boolean
+                           },
+"register_push_subscription":
+{ Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
                            },
 "remove_member":
 { Args: { "p_business_id": string,"p_user_id": string }; Returns: undefined

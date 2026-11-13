@@ -86,3 +86,6 @@ Fix: removing a provider from the marketplace no longer blocks their paid access
 
 ## 2026-11-12 — Turf installation removed; Car detailing added
 Turf installation is hidden as a service (kept in the database so past jobs keep their history). New service: Car detailing (mobile, at the customer's home) with quick questions: vehicle type, number of vehicles, what's needed (Interior detail / Exterior detail / Both), condition, and water/power available.
+
+## 2026-11-13 — Push notifications
+Every in-app notification is also sent as a push notification (with the device's sound) to devices the person turned on: customers get new bids and messages; providers get new jobs near them, "you were chosen, confirm within 5 minutes", accepted bids and messages; plus the other existing alerts. Uses standard Web Push (free). A dismissible "Turn on notifications" prompt appears on the customer dashboard and provider area, with a permanent switch in provider Settings and at the bottom of the customer dashboard. iPhone requires Add to Home Screen first (instructions shown). The site now has an app manifest and icons so it can be installed.

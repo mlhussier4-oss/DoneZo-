@@ -70,6 +70,10 @@ Total to start: **about $45–$65/month** plus the domain.
 | `STRIPE_SECRET_KEY` | `sk_test_...` until live payments are approved (secret) |
 | `STRIPE_WEBHOOK_SECRET`, `STRIPE_CONNECT_WEBHOOK_SECRET` | from step 5 (secret) |
 | `STRIPE_ALLOW_LIVE` | `false` |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push notifications public key (`npx web-push generate-vapid-keys`). Set **before** the build: it is built into the page. |
+| `VAPID_PRIVATE_KEY` | Push notifications private key (secret) |
+| `VAPID_SUBJECT` | `mailto:support@donezo.org` |
+| `PUSH_WEBHOOK_SECRET` | Random secret the database sends to `/api/push` (secret; same value as the Vault secret below) |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | optional, e.g. `support@<your domain>` |
 
 Never set `STRIPE_API_HOST`, `MAILPIT_URL` or other test settings in production.
@@ -92,3 +96,16 @@ the Stripe test simulator is configured, or a live Stripe key is present without
 - **Backups**: Supabase Pro takes daily backups. Consider point-in-time recovery once real payments flow.
 - **Database changes**: always via new files in `supabase/migrations/` and `npx supabase db push`; never edit tables by hand in production.
 - **Security checks**: `npm test` includes an automated audit (row-level security on every table, no public write access, server-only payment functions). Run it before every database change.
+
+## Push notifications
+
+Every row added to `notifications` is pushed to the person's registered phones/computers (Web Push, free, no third-party account).
+The database calls the website with pg_net; set these once per Supabase project (SQL editor), never in a migration:
+
+```sql
+select vault.create_secret('https://donezo.org/api/push', 'push_webhook_url');
+select vault.create_secret('<same value as PUSH_WEBHOOK_SECRET>', 'push_webhook_secret');
+```
+
+iPhones receive push only after DoneZo is added to the Home Screen (Safari → Share → Add to Home Screen); the site shows these steps.
+Android and computers (Chrome, Edge, Firefox, Safari on Mac) work straight from the browser.

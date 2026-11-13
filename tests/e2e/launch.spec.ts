@@ -203,3 +203,31 @@ test.describe("phone sweep @mobile", () => {
     await sweep(browser, admPage, ["/admin", "/admin/users", "/admin/businesses", "/admin/categories", "/admin/marketplace", "/admin/service-areas", "/admin/payments", "/admin/reports", "/admin/audit-log"]);
   });
 });
+
+test.describe("push notifications", () => {
+  test("customers are offered notifications, the app can be installed, and only the database can trigger a push", async ({ page, context, request }) => {
+    // Test browsers start with notifications blocked; a real visitor's browser asks instead.
+    await context.grantPermissions(["notifications"]);
+    await signInCustomer(page, uniqueEmail("push-cust"));
+    await page.goto("/customer");
+    const prompt = page.getByTestId("push-prompt");
+    await expect(prompt).toBeVisible();
+    await expect(prompt).toContainText("new bid arrives");
+    await expect(prompt.getByRole("button", { name: "Turn on notifications" })).toBeVisible();
+    await prompt.getByRole("button", { name: "Not now" }).click();
+    await expect(prompt).toHaveCount(0);
+    await page.reload();
+    await expect(page.getByTestId("push-prompt")).toHaveCount(0);
+    await expect(page.getByTestId("push-setting").getByRole("button", { name: "Turn on notifications" })).toBeVisible();
+
+    const manifest = await (await request.get("/manifest.webmanifest")).json();
+    expect(manifest).toMatchObject({ name: "DoneZo", display: "standalone" });
+    expect((await request.get("/sw.js")).ok()).toBe(true);
+    expect((await request.get("/icons/icon-192.png")).ok()).toBe(true);
+
+    expect((await request.post("/api/push", { data: { notification_id: randomUUID() } })).status()).toBe(401);
+    expect((await request.post("/api/push", { headers: { "x-push-secret": "wrong" }, data: { notification_id: randomUUID() } })).status()).toBe(401);
+    const ok = await request.post("/api/push", { headers: { "x-push-secret": process.env.PUSH_WEBHOOK_SECRET! }, data: { notification_id: randomUUID() } });
+    expect(await ok.json()).toEqual({ sent: 0, removed: 0 });
+  });
+});

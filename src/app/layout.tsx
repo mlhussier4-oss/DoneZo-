@@ -9,6 +9,8 @@ const privateTest = process.env.NEXT_PUBLIC_PRIVATE_TEST === "true";
 export const metadata: Metadata = {
   title: { default: `${brand.name}: home services, done`, template: `%s · ${brand.name}` },
   description: brand.description,
+  icons: { apple: "/icons/apple-touch-icon.png" },
+  appleWebApp: { capable: true, title: brand.name, statusBarStyle: "default" },
   ...(privateTest ? { robots: { index: false, follow: false } } : {}),
 };
 

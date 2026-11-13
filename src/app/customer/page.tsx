@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
+import { PushToggle } from "@/components/push/push-toggle";
 import { requireRole } from "@/lib/auth";
 import { isPast } from "@/lib/crm/time";
 import { formatMoney } from "@/lib/format";
@@ -59,6 +60,7 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
           <CardContent className="text-sm"><span className="font-semibold">Your job is posted.</span> Providers near you have been notified. Keep this page open; bids appear below as they arrive.</CardContent>
         </Card>
       ) : null}
+      <PushToggle text="We'll let you know the moment a new bid arrives and when your pro sends you a message." />
       {!user.email ? (
         <p className="mb-4 flex items-center gap-2 text-xs text-muted-foreground"><Smartphone className="size-4" aria-hidden />Your jobs are saved on this device. Use the same phone or browser to come back to them.</p>
       ) : null}
@@ -80,6 +82,7 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
         </EmptyState>
       )}
       <p className="mt-6 text-sm"><Link href="/customer/requests" className="text-primary hover:underline">All my jobs →</Link></p>
+      <div className="mt-8 border-t border-border pt-4"><PushToggle variant="setting" text="Notifications for new bids and messages:" /></div>
     </>
   );
 }

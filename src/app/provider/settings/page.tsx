@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PushToggle } from "@/components/push/push-toggle";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireManager } from "@/lib/auth";
 import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
@@ -23,6 +24,13 @@ export default async function ProviderSettingsPage() {
     <>
       <PageHeader title="Business settings" />
       <div className="grid gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Notifications</CardTitle>
+            <CardDescription>Get a notification with sound on this phone or computer for new jobs near you, accepted bids and customer messages, even when DoneZo is closed.</CardDescription>
+          </CardHeader>
+          <CardContent><PushToggle variant="setting" text="Notifications are off for this device." /></CardContent>
+        </Card>
         <Card>
           <CardHeader>
             <CardTitle>Business details</CardTitle>
