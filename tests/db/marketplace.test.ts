@@ -686,3 +686,21 @@ describe("customer privacy and profile photo", () => {
     expect((await a.client.from("profiles").update({ avatar_path: "../../etc/passwd" }).eq("id", a.id)).error).not.toBeNull();
   });
 });
+
+describe("misc / other jobs (owner request 2026-11-13)", () => {
+  it("every provider gets misc jobs in their radius by default, and can turn them off", async () => {
+    const pro = await provider({ name: "Handy", categories: ["lawn-mowing"] }); // never picked misc
+    const far = await provider({ name: "Far", zip: "78613", radius: 1 });
+    const c = await customer();
+    const misc = await categoryId("misc");
+    const { data: r, error } = await c.client.from("service_requests")
+      .insert({ category_id: misc, description: "Hang two shelves", timing: "asap", zip: "78745" }).select().single();
+    expect(error).toBeNull();
+    const sees = async (p: Provider) => ((await p.client.rpc("marketplace_feed")).data ?? []).some((j: { id: string }) => j.id === r!.id);
+    expect(await sees(pro)).toBe(true);
+    expect(await sees(far)).toBe(false); // outside their radius
+    // Turned off: no longer on their board.
+    expect((await pro.client.from("provider_categories").delete().eq("business_id", pro.businessId).eq("category_id", misc)).error).toBeNull();
+    expect(await sees(pro)).toBe(false);
+  });
+});

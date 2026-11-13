@@ -915,14 +915,14 @@ isOneToOne: false
                   ]
                 },"service_categories": {
                   Row: {
-                    "created_at": string,"description": string | null,"icon": string,"id": string,"is_active": boolean,"name": string,"slug": string,"sort_order": number,"updated_at": string
+                    "created_at": string,"default_on": boolean,"description": string | null,"icon": string,"id": string,"is_active": boolean,"name": string,"slug": string,"sort_order": number,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"description"?: string | null,"icon"?: string,"id"?: string,"is_active"?: boolean,"name": string,"slug": string,"sort_order"?: number,"updated_at"?: string
+                    "created_at"?: string,"default_on"?: boolean,"description"?: string | null,"icon"?: string,"id"?: string,"is_active"?: boolean,"name": string,"slug": string,"sort_order"?: number,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"description"?: string | null,"icon"?: string,"id"?: string,"is_active"?: boolean,"name"?: string,"slug"?: string,"sort_order"?: number,"updated_at"?: string
+                    "created_at"?: string,"default_on"?: boolean,"description"?: string | null,"icon"?: string,"id"?: string,"is_active"?: boolean,"name"?: string,"slug"?: string,"sort_order"?: number,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1238,6 +1238,7 @@ isOneToOne: false
 "admin_upsert_service_category":
 { Args: { "p_description": string,"p_icon": string,"p_id": string,"p_is_active": boolean,"p_name": string,"p_slug": string,"p_sort_order": number }; Returns: {
               "created_at": string,
+"default_on": boolean,
 "description": string | null,
 "icon": string,
 "id": string,

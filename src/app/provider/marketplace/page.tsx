@@ -81,6 +81,11 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
           Your marketplace access has been removed under the <Link href="/terms#provider-terms" className="underline">Provider terms</Link>, so you can&apos;t see or bid on new jobs. Your business tools still work. Questions? <Link href="/help" className="underline">Contact support</Link>.
         </Alert>
       ) : null}
+      {profileReady && tab === "jobs" ? (
+        <p className="mb-4 text-sm text-muted-foreground">
+          Getting jobs you don&apos;t want? <Link href="/provider/marketplace/profile" className="font-medium text-primary hover:underline">Turn services on or off</Link>, including Misc / other.
+        </p>
+      ) : null}
       {!profileReady ? (
         <Alert tone="warning" className="mb-4">
           Set your home ZIP code and the services you offer to start seeing jobs.{" "}

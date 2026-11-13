@@ -206,7 +206,7 @@ export function PostJobWizard({
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Describe the job</h1>
           <Field label="What needs to be done?" htmlFor="description" hint="A sentence or two is plenty.">
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} autoFocus
-              placeholder={category?.slug === "moving" ? "E.g. 2-bedroom apartment: couch, bed, dresser and about 20 boxes" : category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
+              placeholder={category?.slug === "misc" ? "E.g. assemble a bookshelf, hang curtains, or clean out the gutters" : category?.slug === "moving" ? "E.g. 2-bedroom apartment: couch, bed, dresser and about 20 boxes" : category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
           </Field>
           {(categoryQuestions[category?.slug ?? ""] ?? []).map((q) => q.text ? (
             <Field key={q.key} label={`${q.label} (optional)`} htmlFor={`q-${q.key}`}
