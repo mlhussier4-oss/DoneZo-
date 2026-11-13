@@ -200,7 +200,7 @@ describe("the public (not logged in)", () => {
     const { data, error } = await anonClient().from("service_categories").select("slug").order("sort_order");
     expect(error).toBeNull();
     const slugs = data!.map((c) => c.slug);
-    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning", "car-detailing"]) {
+    for (const slug of ["junk-removal", "lawn-mowing", "pet-waste-pickup", "pressure-washing", "house-cleaning", "car-detailing", "moving"]) {
       expect(slugs).toContain(slug);
     }
     expect(slugs).not.toContain("turf-installation"); // removed as a service (owner request 2026-11-12)

@@ -18,7 +18,9 @@ const requestSchema = z
     id: z.string().uuid(),
     categoryId: z.string().uuid("Choose a service."),
     description: z.string().trim().min(1, "Describe the job in a few words.").max(2000),
-    details: z.record(z.string().max(40), z.string().max(80)).refine((d) => Object.keys(d).length <= 6),
+    details: z.record(z.string().max(40), z.string().max(80))
+      .refine((d) => Object.keys(d).length <= 6)
+      .refine((d) => Object.entries(d).every(([k, v]) => !k.endsWith("_zip") || /^\d{5}$/.test(v)), "Enter 5-digit ZIP codes."),
     timing: z.enum(["asap", "tomorrow", "within_3_days", "this_week", "specific_date"]),
     preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
     zip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP code."),

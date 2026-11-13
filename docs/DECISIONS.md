@@ -89,3 +89,6 @@ Turf installation is hidden as a service (kept in the database so past jobs keep
 
 ## 2026-11-13 — Push notifications
 Every in-app notification is also sent as a push notification (with the device's sound) to devices the person turned on: customers get new bids and messages; providers get new jobs near them, "you were chosen, confirm within 5 minutes", accepted bids and messages; plus the other existing alerts. Uses standard Web Push (free). A dismissible "Turn on notifications" prompt appears on the customer dashboard and provider area, with a permanent switch in provider Settings and at the bottom of the customer dashboard. iPhone requires Add to Home Screen first (instructions shown). The site now has an app manifest and icons so it can be installed.
+
+## 2026-11-13 — Movers added as a service
+New service "Movers" with quick questions: about how many items (1–5 / 6–15 / 16–30 / whole home 30+), stairs at pickup and at delivery (ground floor or elevator / 1 / 2 / 3+ flights), and pickup and delivery ZIP codes (5 digits, checked on the page and the server). Owner confirmed the site is not going live yet (private test continues).

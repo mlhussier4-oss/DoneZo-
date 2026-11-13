@@ -16,7 +16,7 @@ export const timingLabel = (t: string) => timingOptions.find((o) => o.value === 
  */
 export type CategoryQuestion = {
   key: string; label: string; short: string; options: string[]; multiple?: boolean;
-  text?: { placeholder: string; maxLength: number };
+  text?: { placeholder: string; maxLength: number; zip?: boolean };
 };
 
 /** One or two optional quick-pick questions per service. Keys are stored in service_requests.details. */
@@ -39,6 +39,13 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
     { key: "bathrooms", label: "Bathrooms", short: "Bathrooms", options: ["1", "2", "3", "4+"] },
     { key: "rooms", label: "What needs cleaning? (pick all that apply)", short: "Clean", options: ["Whole home", "Kitchen", "Living room", "Bathrooms", "Bedrooms"], multiple: true },
     { key: "type", label: "Type of clean", short: "Type", options: ["Standard", "Deep clean", "Move-out"] },
+  ],
+  moving: [
+    { key: "items", label: "About how many items?", short: "Items", options: ["1–5 items", "6–15 items", "16–30 items", "Whole home (30+ items)"] },
+    { key: "pickup_stairs", label: "Stairs at pickup", short: "Pickup stairs", options: ["Ground floor or elevator", "1 flight", "2 flights", "3+ flights"] },
+    { key: "pickup_zip", label: "Pickup ZIP code", short: "Pickup ZIP", options: [], text: { placeholder: "e.g. 78704", maxLength: 5, zip: true } },
+    { key: "delivery_stairs", label: "Stairs at delivery", short: "Delivery stairs", options: ["Ground floor or elevator", "1 flight", "2 flights", "3+ flights"] },
+    { key: "delivery_zip", label: "Delivery ZIP code", short: "Delivery ZIP", options: [], text: { placeholder: "e.g. 78745", maxLength: 5, zip: true } },
   ],
   "car-detailing": [
     { key: "vehicle", label: "Type of vehicle", short: "Vehicle", options: ["Car", "SUV or crossover", "Pickup truck", "Minivan or van"] },
