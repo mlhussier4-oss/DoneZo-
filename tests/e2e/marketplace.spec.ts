@@ -305,6 +305,29 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByText(/SUV or crossover · Both · Water and power/)).toBeVisible();
   });
 
+  test("movers: number of items, stairs at both ends, and pickup and delivery ZIP codes", async ({ page }) => {
+    await page.goto("/post-job?category=moving");
+    await page.waitForLoadState("networkidle");
+    await page.getByTestId("request-photos").setInputFiles({ name: "boxes.png", mimeType: "image/png", buffer: PNG });
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("What needs to be done?").fill("Move a 2-bedroom apartment");
+    await page.getByRole("button", { name: "16–30 items" }).click();
+    await page.getByRole("group", { name: "Stairs at pickup" }).getByRole("button", { name: "2 flights" }).click();
+    await page.getByRole("group", { name: "Stairs at delivery" }).getByRole("button", { name: "Ground floor or elevator" }).click();
+    await page.getByLabel("Pickup ZIP code (optional)").fill("787a04"); // letters are ignored
+    await expect(page.getByLabel("Pickup ZIP code (optional)")).toHaveValue("78704");
+    await page.getByLabel("Delivery ZIP code (optional)").fill("7874");
+    await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled(); // incomplete ZIP
+    await page.getByLabel("Delivery ZIP code (optional)").fill("78745");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("radio", { name: "Tomorrow" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByLabel("Street address").fill("1 Box St");
+    await page.getByLabel("ZIP code", { exact: true }).fill("78704");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText(/16–30 items · 2 flights · Ground floor or elevator · 78704 · 78745/)).toBeVisible();
+  });
+
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
     await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");

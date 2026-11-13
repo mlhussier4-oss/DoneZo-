@@ -139,7 +139,8 @@ export function PostJobWizard({
   const canContinue = [
     Boolean(category),
     photos.length > 0, // photos are required (owner decision 2026-11-12)
-    description.trim().length > 0,
+    // A typed ZIP (movers' pickup/delivery) must be complete if given.
+    description.trim().length > 0 && (categoryQuestions[category?.slug ?? ""] ?? []).every((q) => !q.text?.zip || !details[q.key] || /^\d{5}$/.test(details[q.key])),
     Boolean(timing) && (timing !== "specific_date" || Boolean(preferredDate)),
     zip.trim().length === 5,
     true,
@@ -221,13 +222,13 @@ export function PostJobWizard({
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Describe the job</h1>
           <Field label="What needs to be done?" htmlFor="description" hint="A sentence or two is plenty.">
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} autoFocus
-              placeholder={category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
+              placeholder={category?.slug === "moving" ? "E.g. 2-bedroom apartment: couch, bed, dresser and about 20 boxes" : category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
           </Field>
           {(categoryQuestions[category?.slug ?? ""] ?? []).map((q) => q.text ? (
             <Field key={q.key} label={`${q.label} (optional)`} htmlFor={`q-${q.key}`}
               hint={areaFromDimensions(details[q.key] ?? "") ? `≈ ${areaFromDimensions(details[q.key] ?? "")!.toLocaleString("en-US")} sq ft` : undefined}>
-              <Input id={`q-${q.key}`} value={details[q.key] ?? ""} maxLength={q.text.maxLength} placeholder={q.text.placeholder} inputMode="text"
-                onChange={(e) => { const v = e.target.value; setDetails((d) => { const n = { ...d }; if (v.trim()) n[q.key] = v; else delete n[q.key]; return n; }); }} />
+              <Input id={`q-${q.key}`} value={details[q.key] ?? ""} maxLength={q.text.zip ? undefined : q.text.maxLength} placeholder={q.text.placeholder} inputMode={q.text.zip ? "numeric" : "text"} autoComplete={q.text.zip ? "off" : undefined}
+                onChange={(e) => { const v = q.text?.zip ? e.target.value.replace(/\D/g, "").slice(0, 5) : e.target.value; setDetails((d) => { const n = { ...d }; if (v.trim()) n[q.key] = v; else delete n[q.key]; return n; }); }} />
             </Field>
           ) : (
             <fieldset key={q.key} className="space-y-2">
