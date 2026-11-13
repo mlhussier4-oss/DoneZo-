@@ -92,3 +92,10 @@ Every in-app notification is also sent as a push notification (with the device's
 
 ## 2026-11-13 — Movers added as a service
 New service "Movers" with quick questions: about how many items (1–5 / 6–15 / 16–30 / whole home 30+), stairs at pickup and at delivery (ground floor or elevator / 1 / 2 / 3+ flights), and pickup and delivery ZIP codes (5 digits, checked on the page and the server). Owner confirmed the site is not going live yet (private test continues).
+
+## 2026-11-13 — Customer accounts and privacy
+- Customers create an account **before** posting: first name only, email and password (email confirmed by link; the link returns them to the job form). Log in with password, or a one-time code as a fallback. Guest posting is gone; earlier guests can "Save your account" on their Profile page.
+- "Keep me signed in" (ticked by default) keeps people signed in across visits and app launches; unticked, the login ends when the browser closes.
+- Customer log-in and sign-up show four benefits: quick, no stuffed inbox, easy to choose, your info stays private.
+- Optional profile photo. Providers see only the customer's first name and photo (job board, job page, booking), never their email or phone.
+- Posting asks for the ZIP code only (no street address or phone). DoneZo never hands the address, email or phone to providers; the customer sends the address (and anything else they choose) in the chat after the provider confirms. This replaces the earlier "address shared on confirm" behaviour.

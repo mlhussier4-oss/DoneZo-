@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 /**
  * Phase 3 marketplace rules, tested as real signed-in users against the local database.
  */
@@ -238,16 +239,19 @@ describe("accepting a bid", () => {
     expect((await c.client.from("service_requests").select("status").eq("id", r.id).single()).data?.status).toBe("booked");
     expect((await loser.client.from("bids").select("status").eq("id", losing.id).single()).data?.status).toBe("closed");
 
-    // Winner's CRM now has the customer, address, phone and a scheduled marketplace job at the agreed price and arrival time.
+    // Winner's CRM now has the customer (first name only: no email, phone or address, which the customer shares in
+    // the chat; owner decision 2026-11-13) and a scheduled marketplace job at the agreed price and arrival time.
     const { data: crm } = await winner.client
       .from("crm_customers")
-      .select("full_name, phone, source, crm_customer_addresses(line1, postal_code), jobs(price_cents, source, status, scheduled_start)")
+      .select("full_name, phone, email, source, crm_customer_addresses(line1, postal_code), jobs(price_cents, source, status, scheduled_start, address_id)")
       .eq("profile_id", c.id)
       .single();
-    expect(crm?.full_name).toBe("Casey Homeowner");
-    expect(crm?.phone).toBe("512-555-0199");
+    expect(crm?.full_name).toBe("Casey");
+    expect(crm?.phone).toBeNull();
+    expect(crm?.email).toBeNull();
     expect(crm?.source).toBe("marketplace");
-    expect(crm?.crm_customer_addresses).toEqual([{ line1: "1100 Secret Lane", postal_code: "78745" }]);
+    expect(crm?.crm_customer_addresses).toEqual([]);
+    expect(crm?.jobs[0]?.address_id).toBeNull();
     expect(crm?.jobs).toHaveLength(1);
     expect(crm?.jobs[0]).toMatchObject({ price_cents: 6500, source: "marketplace", status: "scheduled" });
     expect(Date.parse(crm!.jobs[0].scheduled_start!)).toBe(Date.parse(arrival));
@@ -511,7 +515,7 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     const confirmed = await p.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
     expect(confirmed.error).toBeNull();
     expect((await anon.from("messages").insert({ booking_id: booking.id, body: "Hi! I'm Sam, 512-555-0123" })).error).toBeNull();
-    expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("DoneZo customer");
+    expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("Customer");
   });
 });
 
@@ -661,5 +665,31 @@ describe("marketplace removal keeps business tools", () => {
     const admin = await createAdmin();
     await admin.client.rpc("admin_set_marketplace_removed", { p_business_id: pro.businessId, p_removed: true, p_reason: "test" });
     expect((await pro.client.rpc("business_has_access", { p_business_id: pro.businessId })).data).toBe(true);
+  });
+});
+
+describe("customer privacy and profile photo", () => {
+  it("providers see only the first name and photo on the job board and job page", async () => {
+    const pro = await provider({ name: "Viewer" });
+    const c = await customer();
+    const photo = `${c.id}/${randomUUID()}.jpg`;
+    expect((await c.client.storage.from("avatars").upload(photo, new Blob([new Uint8Array([255, 216, 255])], { type: "image/jpeg" }), { contentType: "image/jpeg" })).error).toBeNull();
+    expect((await c.client.from("profiles").update({ avatar_path: photo }).eq("id", c.id)).error).toBeNull();
+    const r = await postJob(c);
+    const { data: feed } = await pro.client.rpc("marketplace_feed");
+    const row = (feed ?? []).find((j: { id: string }) => j.id === r.id);
+    expect(row?.customer).toEqual({ first_name: "Casey", avatar_path: photo });
+    const { data: detail } = await pro.client.rpc("marketplace_request_detail", { p_request_id: r.id });
+    expect((detail as { customer: unknown }).customer).toEqual({ first_name: "Casey", avatar_path: photo });
+    expect(JSON.stringify(detail)).not.toContain("Homeowner");
+  });
+
+  it("a photo can only go in your own folder, and only you can point your profile at it", async () => {
+    const a = await customer();
+    const b = await customer();
+    const blob = () => new Blob([new Uint8Array([255, 216, 255])], { type: "image/jpeg" });
+    expect((await b.client.storage.from("avatars").upload(`${a.id}/${randomUUID()}.jpg`, blob(), { contentType: "image/jpeg" })).error).not.toBeNull();
+    expect((await a.client.from("profiles").update({ avatar_path: `${b.id}/${randomUUID()}.jpg` }).eq("id", a.id)).error).not.toBeNull();
+    expect((await a.client.from("profiles").update({ avatar_path: "../../etc/passwd" }).eq("id", a.id)).error).not.toBeNull();
   });
 });

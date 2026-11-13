@@ -1,6 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse, type NextRequest } from "next/server";
-import { homePathFor, safeNextPath, type AppRole } from "@/lib/auth";
+import { homePathFor, safeNextPath, type AppRole, nextAllowedFor } from "@/lib/auth";
 import { siteUrl } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
   } else if (type !== "recovery") {
     const { data: profile } = await supabase.from("profiles").select("role").eq("id", data.user.id).single();
     const home = homePathFor((profile?.role as AppRole) ?? "customer");
-    destination = next && next.startsWith(home) ? next : home;
+    destination = nextAllowedFor((profile?.role as AppRole) ?? "customer", next) ? next : home;
   }
   return NextResponse.redirect(siteUrl(destination ?? "/dashboard"));
 }

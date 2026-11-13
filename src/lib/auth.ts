@@ -33,6 +33,12 @@ export function homePathFor(role: AppRole): string {
   return role === "admin" ? "/admin" : role === "provider" ? "/provider" : "/customer";
 }
 
+/** Where someone may be sent after signing in: their own area, account pages, or (customers) posting a job. */
+export function nextAllowedFor(role: AppRole, next: string | null): boolean {
+  if (!next) return false;
+  return next.startsWith(homePathFor(role)) || next.startsWith("/account") || next === "/" || (role === "customer" && next.startsWith("/post-job"));
+}
+
 /**
  * Only allow redirects to paths on this site (prevents "open redirect" attacks
  * where a link sends someone to a look-alike site after signing in).

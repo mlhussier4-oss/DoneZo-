@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
 import { getActiveCategories } from "@/lib/data/categories";
 import { localDateKey } from "@/lib/format";
@@ -9,11 +10,15 @@ export const metadata: Metadata = { title: "Post a job" };
 
 async function Wizard({ searchParams }: { searchParams: PageProps<"/post-job">["searchParams"] }) {
   const [categories, user, params] = await Promise.all([getActiveCategories(), getCurrentUser(), searchParams]);
+  // An account comes first (owner decision 2026-11-13): new customers sign up, returning ones log in, guests save theirs.
+  const here = `/post-job${typeof params.category === "string" ? `?category=${encodeURIComponent(params.category)}` : ""}`;
+  if (!user) redirect(`/signup/customer?next=${encodeURIComponent(here)}`);
+  if (user.role === "customer" && !user.email) redirect(`/customer/account?save=1&next=${encodeURIComponent(here)}`);
   return (
     <PostJobWizard
       categories={categories}
       initialCategory={typeof params.category === "string" ? params.category : undefined}
-      signedInRole={user?.role ?? null}
+      signedInRole={user.role}
       today={localDateKey(new Date(), "America/Chicago")}
     />
   );

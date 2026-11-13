@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { Camera, Inbox, MapPin, UserCog } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
+import { CustomerTag } from "@/components/marketplace/customer-tag";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -118,7 +119,8 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
                         <Badge tone="primary">{timingLabel(j.timing)}{j.preferred_date ? `: ${formatDate(j.preferred_date)}` : ""}</Badge>
                       </div>
                       <p className="line-clamp-2 text-sm">{j.description}</p>
-                      <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                      <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                        <CustomerTag customer={j.customer} />
                         <span className="flex items-center gap-1"><MapPin className="size-3.5" aria-hidden />{j.zip} · {j.miles} mi away</span>
                         {j.photo_count ? <span className="flex items-center gap-1"><Camera className="size-3.5" aria-hidden />{j.photo_count} photos</span> : null}
                         <span>Posted {formatDateTime(j.created_at, tz)}</span>

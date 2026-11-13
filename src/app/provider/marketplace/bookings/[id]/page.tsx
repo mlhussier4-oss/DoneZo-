@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Avatar } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
 import { Briefcase, Mail, MapPin, Phone } from "lucide-react";
 import { JobStatusBadge } from "@/components/crm/status-badges";
@@ -34,12 +35,15 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
   if (!b) notFound();
   // Repeat visits share the original booking's chat (owner decision 2026-11-12).
   const chatId = b.parent_booking_id ?? id;
-  const [{ data: changes }, thread, { data: repeatReqs }, { data: visitRows }] = await Promise.all([
+  const [{ data: changes }, thread, { data: repeatReqs }, { data: visitRows }, { data: cardData }] = await Promise.all([
     supabase.from("change_orders").select("id, new_price_cents, description, status, created_at").eq("booking_id", id).order("created_at", { ascending: false }),
     getThread(chatId),
     supabase.from("repeat_requests").select("id, status, frequency, visits, first_date, arrival_time, price_cents").eq("booking_id", id).order("created_at", { ascending: false }).limit(1),
     supabase.from("bookings").select("id, status, jobs(scheduled_start)").eq("parent_booking_id", id),
+    // First name and photo only (owner decision 2026-11-13).
+    supabase.rpc("booking_customer", { p_booking_id: id }),
   ]);
+  const card = cardData as { first_name: string; avatar_path: string | null } | null;
   const repeatReq = repeatReqs?.[0];
   const visits = ((visitRows ?? []) as unknown as { id: string; status: string; jobs: { scheduled_start: string | null } | null }[])
     .sort((x, y) => (x.jobs?.scheduled_start ?? "").localeCompare(y.jobs?.scheduled_start ?? ""));
@@ -63,7 +67,7 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-2xl font-semibold tracking-tight">{b.service_requests?.service_categories?.name}{c?.full_name ? ` for ${c.full_name}` : ` in ${b.service_requests?.zip ?? ""}`}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight">{b.service_requests?.service_categories?.name}{card?.first_name ?? c?.full_name ? ` for ${card?.first_name ?? c?.full_name}` : ` in ${b.service_requests?.zip ?? ""}`}</h1>
               <Badge tone={b.status === "active" ? "primary" : b.status === "completed" ? "success" : waiting ? "accent" : "danger"} className="capitalize">{statusLabel}</Badge>
             </div>
             <p className="mt-1 text-lg font-medium">{formatMoney(b.agreed_price_cents)} <span className="text-sm font-normal text-muted-foreground">agreed price{b.agreed_price_cents !== b.original_price_cents ? ` (originally ${formatMoney(b.original_price_cents)})` : ""}</span></p>
@@ -125,7 +129,7 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           {!lost && !waiting ? <Card>
             <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
             <CardContent>
-              <MessageThread bookingId={chatId} currentUserId={user.id} otherPartyName={c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
+              <MessageThread bookingId={chatId} currentUserId={user.id} otherPartyName={card?.first_name ?? c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
             </CardContent>
           </Card> : null}
           <Card>
@@ -143,10 +147,14 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           <Card>
             <CardHeader><CardTitle className="text-base">Customer</CardTitle></CardHeader>
             <CardContent className="space-y-2 text-sm">
-              <Link href={`/provider/customers/${c?.id}`} className="font-medium text-primary hover:underline">{c?.full_name}</Link>
+              <div className="flex items-center gap-3">
+                <Avatar path={card?.avatar_path} name={card?.first_name ?? c?.full_name ?? "Customer"} />
+                <Link href={`/provider/customers/${c?.id}`} className="font-medium text-primary hover:underline">{card?.first_name ?? c?.full_name}</Link>
+              </div>
               {c?.phone ? <a href={`tel:${c.phone}`} className="flex items-center gap-2"><Phone className="size-4 text-muted-foreground" aria-hidden />{c.phone}</a> : null}
               {c?.email ? <a href={`mailto:${c.email}`} className="flex items-center gap-2 break-all"><Mail className="size-4 text-muted-foreground" aria-hidden />{c.email}</a> : null}
               {addr ? <p className="flex gap-2"><MapPin className="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden />{addr.line1}{addr.line2 ? `, ${addr.line2}` : ""}, {addr.city}, {addr.state} {addr.postal_code}</p> : null}
+              {!addr ? <p className="text-muted-foreground">Your customer will send the address in the chat. Ask them there for anything else you need.</p> : null}
               {b.jobs ? <p className="flex items-center gap-2 pt-1"><JobStatusBadge status={b.jobs.status} />{b.jobs.scheduled_start ? formatDateTime(b.jobs.scheduled_start, tz) : "Not scheduled"}</p> : null}
             </CardContent>
           </Card>

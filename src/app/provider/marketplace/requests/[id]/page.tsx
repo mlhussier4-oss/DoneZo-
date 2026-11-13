@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Avatar } from "@/components/ui/avatar";
 import { notFound, redirect } from "next/navigation";
 import { Lock, MapPin } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
@@ -18,6 +19,7 @@ export const metadata: Metadata = { title: "Job request" };
 type Detail = {
   id: string; status: string; category_name: string; description: string; details: Record<string, string>;
   timing: string; preferred_date: string | null; zip: string; miles: number; created_at: string; expires_at: string; photos: string[];
+  customer: { first_name: string; avatar_path: string | null } | null;
 };
 
 export default async function ProviderRequestPage({ params }: PageProps<"/provider/marketplace/requests/[id]">) {
@@ -45,6 +47,7 @@ export default async function ProviderRequestPage({ params }: PageProps<"/provid
           <h1 className="text-2xl font-semibold tracking-tight">{r.category_name}</h1>
           <Badge tone="primary">{timingLabel(r.timing)}{r.preferred_date ? `: ${formatDate(r.preferred_date)}` : ""}</Badge>
         </div>
+        <div className="flex items-center gap-2 text-sm"><Avatar path={r.customer?.avatar_path} name={r.customer?.first_name ?? "Customer"} size="sm" /><span>Posted by <strong>{r.customer?.first_name ?? "a customer"}</strong></span></div>
         <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4" aria-hidden />ZIP {r.zip} · {r.miles} miles from you · posted {formatDateTime(r.created_at, business.timezone)}</p>
       </div>
 

@@ -83,9 +83,30 @@ export async function activateSubscriptionFor(email: string) {
   await serviceClient().from("business_subscriptions").upsert({ business_id: businessId, status: "active" });
 }
 
-export async function signInWithCode(page: Page, email: string, opts: { path?: string; fullName?: string } = {}) {
+/** Creates a confirmed customer account directly (for tests that aren't about signing up). */
+export async function createCustomer(email: string, firstName = "Casey", password = "Correct-horse-9") {
+  const { error } = await serviceClient().auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { full_name: firstName } });
+  if (error && !/already/i.test(error.message)) throw error;
+  return { email, password };
+}
+
+/** A new customer signs up the real way (first name, email, password), then confirms from the email. */
+export async function signUpCustomer(page: Page, email: string, opts: { firstName?: string; startAt?: string } = {}) {
+  await page.goto(opts.startAt ?? "/signup/customer");
+  await expect(page.getByTestId("customer-benefits")).toBeVisible();
+  await page.getByLabel("First name").fill(opts.firstName ?? "Casey");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill("Correct-horse-9");
+  await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByText("Check your email")).toBeVisible();
+  await page.goto(extractConfirmLink((await latestEmail(email)).html));
+}
+
+/** Signs in an existing customer (created here if needed) with a one-time code. */
+export async function signInWithCode(page: Page, email: string, opts: { path?: string; firstName?: string } = {}) {
+  await createCustomer(email, opts.firstName);
   await page.goto(opts.path ?? "/login");
-  if (opts.fullName) await page.getByLabel("Your name").fill(opts.fullName);
+  await page.getByRole("button", { name: "Email me a sign-in code instead" }).click();
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Email me a code" }).click();
   await expect(page.getByText("We sent a 6-digit code")).toBeVisible();

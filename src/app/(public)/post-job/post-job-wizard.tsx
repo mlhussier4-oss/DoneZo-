@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Camera, Check, X } from "lucide-react";
@@ -30,7 +29,7 @@ export function PostJobWizard({
 }: {
   categories: Category[];
   initialCategory?: string;
-  signedInRole: "customer" | "provider" | "admin" | null;
+  signedInRole: "customer" | "provider" | "admin";
   today: string;
 }) {
   const router = useRouter();
@@ -43,11 +42,6 @@ export function PostJobWizard({
   const [timing, setTiming] = useState<Timing | "">("");
   const [preferredDate, setPreferredDate] = useState("");
   const [zip, setZip] = useState("");
-  const [line1, setLine1] = useState("");
-  const [line2, setLine2] = useState("");
-  const [city, setCity] = useState("Austin");
-  const [phone, setPhone] = useState("");
-  const [smsConsent, setSmsConsent] = useState(false);
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [pending, start] = useTransition();
@@ -75,7 +69,6 @@ export function PostJobWizard({
 
   function nextFromLocation() {
     start(async () => {
-      if (!line1.trim() || !city.trim()) { setError("Enter the street address and city."); return; }
       const result = await checkZip(zip.trim());
       if (!result.ok) { setError(result.message); return; }
       go(5);
@@ -94,11 +87,6 @@ export function PostJobWizard({
       preferredDate: timing === "specific_date" ? preferredDate : null,
       zip: zip.trim(),
       photoCount: photos.length,
-      line1,
-      line2,
-      city,
-      phone,
-      smsConsent,
     });
     if (!result.ok) { setStatus(undefined); setError(result.message); return; }
 
@@ -126,12 +114,8 @@ export function PostJobWizard({
 
   function submit() {
     start(async () => {
-      if (signedInRole === "customer") return post();
-      if (signedInRole) { setError("You're signed in with a provider or admin account. Sign out, then post the job as a customer."); return; }
-      // No email, password or card: a private guest account is created on this device (owner decision 2026-11-12).
-      setStatus("Posting your job…");
-      const { error: signInError } = await createBrowserSupabase().auth.signInAnonymously();
-      if (signInError) { setStatus(undefined); setError("We couldn't post your job just now. Please try again in a minute."); return; }
+      // Customers have an account before they start (owner decision 2026-11-13); the page checks it too.
+      if (signedInRole !== "customer") { setError("You're signed in with a provider or admin account. Sign out, then post the job as a customer."); return; }
       await post();
     });
   }
@@ -281,26 +265,13 @@ export function PostJobWizard({
       {step === 4 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Where is the job?</h1>
-          <Alert tone="info">Providers only see your ZIP code. Your address and phone are shared only with the provider you choose.</Alert>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="sm:col-span-2">
-              <Field label="Street address" htmlFor="line1"><Input id="line1" value={line1} onChange={(e) => setLine1(e.target.value)} autoComplete="address-line1" /></Field>
-            </div>
-            <Field label="Apt / unit" htmlFor="line2"><Input id="line2" value={line2} onChange={(e) => setLine2(e.target.value)} autoComplete="address-line2" /></Field>
-            <div className="sm:col-span-2">
-              <Field label="City" htmlFor="city"><Input id="city" value={city} onChange={(e) => setCity(e.target.value)} autoComplete="address-level2" /></Field>
-            </div>
-            <Field label="ZIP code" htmlFor="zip"><Input id="zip" value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" autoComplete="postal-code" /></Field>
-          </div>
-          <Field label="Mobile phone (optional)" htmlFor="phone" hint="For your provider to reach you once you've hired them.">
-            <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} autoComplete="tel" maxLength={30} />
+          <Field label="ZIP code" htmlFor="zip">
+            <Input id="zip" value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" autoComplete="postal-code" className="max-w-40" />
           </Field>
-          {phone.trim() ? (
-            <label className="flex items-start gap-3 text-sm">
-              <input type="checkbox" checked={smsConsent} onChange={(e) => setSmsConsent(e.target.checked)} className="mt-0.5 size-5 accent-[var(--primary)]" />
-              <span>Text me updates about this job (bids, messages and payment links). Message and data rates may apply. Reply STOP to opt out.</span>
-            </label>
-          ) : null}
+          <Alert tone="info">
+            Providers only see your ZIP code, first name and profile photo. Once a pro confirms your job, you send them your
+            address in the chat. Your email and phone are never shared unless you choose to share them.
+          </Alert>
         </section>
       ) : null}
 
@@ -313,7 +284,7 @@ export function PostJobWizard({
               ["Photos", photos.length ? `${photos.length} added` : "None", 1],
               ["Details", [description, ...Object.values(details)].filter(Boolean).join(" · "), 2],
               ["When", timing === "specific_date" ? preferredDate : timingLabel(timing), 3],
-              ["Where", `${line1}${line2 ? `, ${line2}` : ""}, ${city} ${zip}`, 4],
+              ["Where", `ZIP ${zip}`, 4],
             ].map(([label, value, s]) => (
               <div key={label as string} className="flex items-start justify-between gap-3 px-4 py-3">
                 <dt className="w-20 shrink-0 text-muted-foreground">{label}</dt>
@@ -323,8 +294,7 @@ export function PostJobWizard({
             ))}
           </dl>
 
-          <p className="text-sm text-muted-foreground">No email, password or card needed. Bids appear live on your dashboard, and you only pay the provider you choose, after the job is done.</p>
-          {signedInRole === null ? <p className="mt-2 text-xs text-muted-foreground">By posting you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p> : null}
+          <p className="text-sm text-muted-foreground">No card needed. Bids appear live on your dashboard, and you only pay the provider you choose, after the job is done.</p>
         </section>
       ) : null}
 

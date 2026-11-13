@@ -1,5 +1,5 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { atPath, serviceClient, signUpProvider, uniqueEmail } from "./helpers";
+import { atPath, createCustomer, serviceClient, signUpCustomer, signUpProvider, uniqueEmail } from "./helpers";
 
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
@@ -24,9 +24,12 @@ async function marketplaceProvider(browser: Browser, name: string, zip = "78704"
   return page;
 }
 
-/** A first-time visitor posts a job through the wizard: no email, password or card (owner decision 2026-11-12). */
+/** A first-time visitor creates their account first (owner decision 2026-11-13), then posts a job. No card. */
+let lastCustomerEmail = "";
 async function postJobAsNewCustomer(page: Page, description: string) {
-  await page.goto("/post-job?category=lawn-mowing");
+  lastCustomerEmail = uniqueEmail("cust");
+  await signUpCustomer(page, lastCustomerEmail, { firstName: "Riley", startAt: "/post-job?category=lawn-mowing" });
+  await expect(page).toHaveURL(/\/post-job\?category=lawn-mowing/);
   await page.waitForLoadState("networkidle"); // the wizard must be interactive before a file is attached
   await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
   await expect(page.getByRole("img", { name: "Photo 1" })).toBeVisible();
@@ -36,16 +39,24 @@ async function postJobAsNewCustomer(page: Page, description: string) {
   await page.getByRole("button", { name: "Continue" }).click();
   await page.getByRole("radio", { name: "Later this week" }).click();
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel("Street address").fill("1100 Bluebonnet Ln");
-  await page.getByLabel("ZIP code").fill("78745");
-  await page.getByLabel("Mobile phone (optional)").fill("512-555-0199");
+  await page.getByLabel("ZIP code", { exact: true }).fill("78745");
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("heading", { name: "Review and post" })).toBeVisible();
-  await expect(page.getByLabel("Email")).toHaveCount(0);
+  await expect(page.getByText("Where", { exact: true })).toBeVisible();
   await page.getByRole("button", { name: "Post job" }).click();
   await expect(page.getByText("Your job is posted.")).toBeVisible({ timeout: 15_000 });
   await expect(page).toHaveURL(/\/customer\?posted=/);
   return new URL(page.url()).searchParams.get("posted")!;
+}
+
+/** An existing customer signs in with email and password. */
+async function signedInCustomer(page: Page) {
+  const { email, password } = await createCustomer(uniqueEmail("cust"));
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(email);
+  await page.getByLabel("Password").fill(password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(atPath("/customer"));
 }
 
 async function sendBid(pro: Page, description: string, price: string, included: string, when: string) {
@@ -64,7 +75,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     const alpha = await marketplaceProvider(browser, "Alpha Lawn Co");
     const bravo = await marketplaceProvider(browser, "Bravo Yard Pros");
 
-    // 1. A new customer posts a job: no email, password or card. They land on their dashboard.
+    // 1. A new customer creates an account (first name, email, password), posts a job with no card, and lands on their dashboard.
     const description = `Front and back yard, quarter acre, ref ${Date.now()}`;
     const requestId = await postJobAsNewCustomer(page, description);
     const requestPath = `/customer/requests/${requestId}`;
@@ -73,15 +84,15 @@ test.describe("marketplace: post → bid → accept → message → change → c
     // A red "new jobs" badge appears on Marketplace by itself (no reload) while the provider is on another page.
     await expect(alpha.getByTestId("new-jobs-badge")).toHaveText("1", { timeout: 20_000 });
 
-    // 2. Both providers see it on their job board, with the photo but without the address or phone.
+    // 2. Both providers see it on their job board with the photo and the customer's first name, and nothing else about them.
     for (const pro of [alpha, bravo]) {
       await pro.goto("/provider/marketplace");
       await pro.getByRole("link", { name: new RegExp(description) }).click();
       await expect(pro.getByText(description)).toBeVisible();
       await expect(pro.getByRole("img", { name: "Customer photo 1" })).toBeVisible();
       await expect(pro.getByText("ZIP 78745")).toBeVisible();
-      await expect(pro.getByText("Bluebonnet")).toHaveCount(0);
-      await expect(pro.getByText("512-555-0199")).toHaveCount(0);
+      await expect(pro.getByText("Posted by Riley")).toBeVisible();
+      await expect(pro.getByText(lastCustomerEmail)).toHaveCount(0);
     }
     // Having opened the job board, the badge is cleared.
     await alpha.goto("/provider/marketplace");
@@ -113,11 +124,11 @@ test.describe("marketplace: post → bid → accept → message → change → c
     const confirmPanel = alpha.getByTestId("confirm-panel");
     await expect(confirmPanel.getByRole("timer")).toHaveText(/^[45]:\d\d$/);
     await expect(alpha.getByLabel("Message", { exact: true })).toHaveCount(0); // no chat before confirming
-    await expect(alpha.getByText("1100 Bluebonnet Ln")).toHaveCount(0); // address only after confirming
     await confirmPanel.getByRole("button", { name: "Confirm job" }).click();
     const alphaBookingUrl = alpha.url();
-    await expect(alpha.getByText("1100 Bluebonnet Ln")).toBeVisible();
-    await expect(alpha.getByText("512-555-0199")).toBeVisible();
+    // DoneZo shares no address, phone or email: only the first name. The customer sends what they choose in the chat.
+    await expect(alpha.getByText("Your customer will send the address in the chat.")).toBeVisible();
+    await expect(alpha.getByText(lastCustomerEmail)).toHaveCount(0);
     await expect(alpha.getByTestId("confirm-panel")).toHaveCount(0);
     await bravo.goto("/provider/marketplace?tab=bids");
     await expect(bravo.getByText("Not chosen")).toBeVisible();
@@ -125,10 +136,10 @@ test.describe("marketplace: post → bid → accept → message → change → c
     // 6. The customer sees the confirmation live, and the chat opens under the job for both sides.
     await expect(page.getByText("Alpha Lawn Co confirmed · $65.00")).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText(/^Arriving /)).toBeVisible();
-    await page.getByLabel("Message", { exact: true }).fill("Hi, I'm Riley. Gate code is 4512");
+    await page.getByLabel("Message", { exact: true }).fill("Hi, I'm Riley. Address is 1100 Bluebonnet Ln, gate code 4512");
     await page.getByRole("button", { name: "Send", exact: true }).click();
-    await expect(page.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible();
-    await expect(alpha.getByText("Hi, I'm Riley. Gate code is 4512")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText("Hi, I'm Riley. Address is 1100 Bluebonnet Ln, gate code 4512")).toBeVisible();
+    await expect(alpha.getByText("Hi, I'm Riley. Address is 1100 Bluebonnet Ln, gate code 4512")).toBeVisible({ timeout: 15_000 });
     await alpha.getByLabel("Message", { exact: true }).fill("Thanks Riley, see you then!");
     await alpha.getByRole("button", { name: "Send", exact: true }).click();
     await expect(page.getByText("Thanks Riley, see you then!")).toBeVisible({ timeout: 15_000 });
@@ -228,6 +239,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
   });
 
   test("house cleaning asks type of home, size, bathrooms and which rooms (several allowed)", async ({ page }) => {
+    await signedInCustomer(page);
     await page.goto("/post-job?category=house-cleaning");
     await page.waitForLoadState("networkidle");
     await page.getByTestId("request-photos").setInputFiles({ name: "room.png", mimeType: "image/png", buffer: PNG });
@@ -246,8 +258,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "Tomorrow" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Test Ave");
-    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByLabel("ZIP code", { exact: true }).fill("78745");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText(/Apartment · 1,000–1,500 sq ft · 2 · Kitchen, Bathrooms/)).toBeVisible();
   });
@@ -272,6 +283,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
   });
 
   test("lawn dimensions show the square footage, and car detailing asks its own questions", async ({ page }) => {
+    await signedInCustomer(page);
     await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");
     await page.getByTestId("request-photos").setInputFiles({ name: "yard.png", mimeType: "image/png", buffer: PNG });
@@ -283,8 +295,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "Tomorrow" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Lawn Ln");
-    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByLabel("ZIP code", { exact: true }).fill("78745");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText(/Small: under 3,000 sq ft · 40x60/)).toBeVisible();
 
@@ -299,13 +310,13 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "Tomorrow" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Drive Way");
-    await page.getByLabel("ZIP code").fill("78745");
+    await page.getByLabel("ZIP code", { exact: true }).fill("78745");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText(/SUV or crossover · Both · Water and power/)).toBeVisible();
   });
 
   test("movers: number of items, stairs at both ends, and pickup and delivery ZIP codes", async ({ page }) => {
+    await signedInCustomer(page);
     await page.goto("/post-job?category=moving");
     await page.waitForLoadState("networkidle");
     await page.getByTestId("request-photos").setInputFiles({ name: "boxes.png", mimeType: "image/png", buffer: PNG });
@@ -322,13 +333,13 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "Tomorrow" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Box St");
     await page.getByLabel("ZIP code", { exact: true }).fill("78704");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText(/16–30 items · 2 flights · Ground floor or elevator · 78704 · 78745/)).toBeVisible();
   });
 
   test("ZIP codes outside the Austin area are turned away", async ({ page }) => {
+    await signedInCustomer(page);
     await page.goto("/post-job?category=lawn-mowing");
     await page.waitForLoadState("networkidle");
     // Photos are required: no way past this step without one (owner decision 2026-11-12).
@@ -339,9 +350,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("radio", { name: "As soon as possible" }).click();
     await page.getByRole("button", { name: "Continue" }).click();
-    await page.getByLabel("Street address").fill("1 Main St");
-    await page.getByLabel("City").fill("Dallas");
-    await page.getByLabel("ZIP code").fill("75201");
+    await page.getByLabel("ZIP code", { exact: true }).fill("75201");
     await page.getByRole("button", { name: "Continue" }).click();
     await expect(page.getByText("We're starting in the Austin, TX area")).toBeVisible();
   });
@@ -359,6 +368,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
 
 test.describe("posting a job on a phone @mobile", () => {
   test("the wizard fits the screen and starts with large service buttons @mobile", async ({ page }) => {
+    await signedInCustomer(page);
     await page.goto("/post-job");
     await expect(page.getByRole("heading", { name: "What do you need done?" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Lawn mowing" })).toBeVisible();

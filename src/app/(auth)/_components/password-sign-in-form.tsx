@@ -6,6 +6,7 @@ import { passwordSignIn, type FormState } from "../actions";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/input";
 import { SubmitButton } from "./submit-button";
+import { RememberMe } from "./remember-me";
 
 export function PasswordSignInForm({ next }: { next?: string }) {
   const [state, action] = useFormAction<FormState>(passwordSignIn, { status: "idle" });
@@ -18,6 +19,7 @@ export function PasswordSignInForm({ next }: { next?: string }) {
       <Field label="Password" htmlFor="password" error={state.fieldErrors?.password}>
         <Input id="password" name="password" type="password" autoComplete="current-password" required />
       </Field>
+      <RememberMe />
       {state.message ? <Alert tone="error">{state.message}</Alert> : null}
       <SubmitButton className="w-full" pendingText="Signing in…">
         Sign in

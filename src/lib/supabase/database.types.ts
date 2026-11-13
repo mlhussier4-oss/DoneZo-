@@ -719,14 +719,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1203,7 +1203,8 @@ isOneToOne: false
       } },
 "admin_set_user_suspended":
 { Args: { "p_reason": string,"p_suspended": boolean,"p_user_id": string }; Returns: {
-              "created_at": string,
+              "avatar_path": string | null,
+"created_at": string,
 "email": string | null,
 "full_name": string | null,
 "id": string,
@@ -1252,6 +1253,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"booking_customer":
+{ Args: { "p_booking_id": string }; Returns: Json
+                           },
 "business_can_see_request":
 { Args: { "p_business_id": string,"p_request_id": string }; Returns: boolean
                            },
@@ -1477,6 +1481,9 @@ isOneToOne: false
 "customer_booking":
 { Args: { "p_request_id": string }; Returns: Json
                            },
+"customer_card":
+{ Args: { "p_customer_id": string }; Returns: Json
+                           },
 "customer_invoices":
 { Args: Record<PropertyKey, never>; Returns: {
               "amount_paid_cents": number,"business_name": string,"due_date": string,"issue_date": string,"number": number,"request_id": string,"status": Database["public"]['Enums']["invoice_status"],"token": string,"total_cents": number
@@ -1613,7 +1620,7 @@ isOneToOne: false
                            },
 "marketplace_feed":
 { Args: Record<PropertyKey, never>; Returns: {
-              "category_icon": string,"category_name": string,"created_at": string,"description": string,"details": Json,"expires_at": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
+              "category_icon": string,"category_name": string,"created_at": string,"customer": Json,"description": string,"details": Json,"expires_at": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
             }[]
                            },
 "marketplace_request_detail":

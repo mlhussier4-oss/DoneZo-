@@ -7,7 +7,7 @@ export function customerNav(unread = 0): NavItem[] {
     { href: "/customer/messages", label: "Messages", icon: "message" },
     { href: "/customer/payments", label: "Payments", icon: "card" },
     { href: "/customer/notifications", label: "Notifications", icon: "bell", badge: unread },
-    { href: "/customer/account", label: "Account", icon: "settings" },
+    { href: "/customer/account", label: "Profile", icon: "settings" },
   ];
 }
 
