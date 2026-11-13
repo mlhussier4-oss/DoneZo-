@@ -6,7 +6,7 @@ export function LegalPage({ title, updated, children }: { title: string; updated
     <article className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <div role="note" className="mb-8 flex gap-3 rounded-lg border border-warning/40 bg-warning-soft p-4 text-sm">
         <AlertTriangle className="mt-0.5 size-5 shrink-0 text-warning" aria-hidden />
-        <p><strong>Draft, not yet reviewed by a lawyer.</strong> This page describes how DoneZo works today in plain language. It must be reviewed by an attorney, and the bracketed details filled in, before DoneZo opens to the public.</p>
+        <p><strong>Draft, not yet reviewed by a lawyer.</strong> This page describes how HomeHire works today in plain language. It must be reviewed by an attorney, and the bracketed details filled in, before HomeHire opens to the public.</p>
       </div>
       <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">Last updated: {updated}</p>

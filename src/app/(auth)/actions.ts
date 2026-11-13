@@ -162,7 +162,7 @@ export async function sendEmailCode(_prev: FormState, formData: FormData): Promi
   });
   if (error) {
     const noAccount = /signups not allowed|user not found/i.test(error.message);
-    return { status: "error", message: noAccount ? "We couldn't find a DoneZo account with that email. Create one below." : friendlyAuthError(error.message), email: parsed.data.email };
+    return { status: "error", message: noAccount ? "We couldn't find a HomeHire account with that email. Create one below." : friendlyAuthError(error.message), email: parsed.data.email };
   }
   return { status: "verify", email: parsed.data.email };
 }

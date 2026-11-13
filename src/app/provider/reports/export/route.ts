@@ -15,7 +15,7 @@ export async function GET(request: Request) {
   const { data, error } = await supabase.rpc("business_report_payments", { p_business_id: business.id, p_from: from, p_to: to });
   if (error) return new Response("Could not build the report.", { status: 400 });
 
-  const header = ["Date", "Customer", "Invoice", "Job", "Method", "Confirmation", "Amount", "Refunded", "Net", "DoneZo fee", "Note"];
+  const header = ["Date", "Customer", "Invoice", "Job", "Method", "Confirmation", "Amount", "Refunded", "Net", "HomeHire fee", "Note"];
   const lines = (data ?? []).map((r) => [
     r.received_on, r.customer, r.invoice_number ? `#${r.invoice_number}` : "", r.job_title ?? "",
     paymentMethodLabel(r.method), r.verification === "stripe_verified" ? "Verified by Stripe" : "Recorded by you",
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
   return new Response(body, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="donezo-payments-${from}-to-${to}.csv"`,
+      "Content-Disposition": `attachment; filename="homehire-payments-${from}-to-${to}.csv"`,
       "Cache-Control": "no-store",
     },
   });

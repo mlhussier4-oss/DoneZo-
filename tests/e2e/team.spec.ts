@@ -101,7 +101,7 @@ test.describe("Team: employees see and do only their assigned work", () => {
     await expect(byPerson.getByRole("row", { name: /Riley Crew 1 \$120\.00/ })).toBeVisible();
     const csv = await page.request.get("/provider/reports/export?range=month");
     expect(csv.headers()["content-type"]).toContain("text/csv");
-    expect(await csv.text()).toContain("Date,Customer,Invoice,Job,Method,Confirmation,Amount,Refunded,Net,DoneZo fee,Note");
+    expect(await csv.text()).toContain("Date,Customer,Invoice,Job,Method,Confirmation,Amount,Refunded,Net,HomeHire fee,Note");
 
     await page.goto(`/provider/route?date=${day}`);
     await expect(page.getByText("2 stops")).toBeVisible();

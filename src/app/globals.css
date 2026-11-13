@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /*
- * DoneZo design tokens. Components use these names (bg-primary, text-muted-foreground…),
+ * HomeHire design tokens. Components use these names (bg-primary, text-muted-foreground…),
  * never raw hex values, so the brand can be changed in one place.
  * Light theme only for now; dark mode can be added by redefining these tokens.
  */

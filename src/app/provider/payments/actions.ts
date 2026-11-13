@@ -31,7 +31,7 @@ export async function checkStripeStatus(): Promise<void> {
   refresh();
 }
 
-/** Full refund of a Stripe card payment, including DoneZo's fee (owner decision). Confirmed by webhook. */
+/** Full refund of a Stripe card payment, including HomeHire's fee (owner decision). Confirmed by webhook. */
 export async function refundCardPayment(paymentRecordId: string): Promise<{ error?: string; ok?: boolean }> {
   const { business } = await requireManager();
   if (business.memberRole === "employee") return { error: "Only the owner or a manager can issue refunds." };

@@ -1,11 +1,11 @@
-/* DoneZo service worker: shows push notifications (with the device's sound) and opens the right page when tapped. */
+/* HomeHire service worker: shows push notifications (with the device's sound) and opens the right page when tapped. */
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim()));
 
 self.addEventListener("push", (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch { data = { title: "DoneZo", body: event.data ? event.data.text() : "" }; }
-  const title = data.title || "DoneZo";
+  try { data = event.data ? event.data.json() : {}; } catch { data = { title: "HomeHire", body: event.data ? event.data.text() : "" }; }
+  const title = data.title || "HomeHire";
   event.waitUntil(self.registration.showNotification(title, {
     body: data.body || "",
     icon: "/icons/icon-192.png",

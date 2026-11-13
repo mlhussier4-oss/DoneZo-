@@ -33,7 +33,7 @@ async function currentSubscription() {
 
 /**
  * "Turn on notifications" (owner request 2026-11-13). `variant="banner"` is the dismissible prompt shown on dashboards;
- * `variant="setting"` is the always-available switch. iPhones need DoneZo added to the Home Screen first.
+ * `variant="setting"` is the always-available switch. iPhones need HomeHire added to the Home Screen first.
  */
 export function PushToggle({ text, variant = "banner" }: { text: string; variant?: "banner" | "setting" }) {
   const [state, setState] = useState<State>("loading");
@@ -98,10 +98,10 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
       <div className="mb-4 flex flex-col gap-3 rounded-lg border border-border border-l-4 border-l-cta bg-card p-4 shadow-sm sm:flex-row sm:items-center" data-testid="push-prompt">
         <BellRing className="hidden size-5 shrink-0 text-primary sm:block" aria-hidden />
         <div className="flex-1 text-sm">
-          <p className="font-semibold">{state === "ios-install" ? "Get notifications on your iPhone" : "Get a notification, even when DoneZo is closed"}</p>
+          <p className="font-semibold">{state === "ios-install" ? "Get notifications on your iPhone" : "Get a notification, even when HomeHire is closed"}</p>
           <p className="text-muted-foreground">
             {state === "ios-install"
-              ? <>Tap the <strong>Share</strong> button, choose <strong>Add to Home Screen</strong>, then open DoneZo from your home screen and turn notifications on.</>
+              ? <>Tap the <strong>Share</strong> button, choose <strong>Add to Home Screen</strong>, then open HomeHire from your home screen and turn notifications on.</>
               : text}
           </p>
           {error ? <p className="mt-1 text-destructive">{error}</p> : null}
@@ -122,9 +122,9 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
           <Button size="sm" variant="outline" disabled={busy} onClick={turnOff}><BellOff /> Turn off</Button>
         </div>
       ) : state === "blocked" ? (
-        <p className="text-muted-foreground">Notifications are blocked for DoneZo in this browser. Allow them in your browser&apos;s site settings, then reload.</p>
+        <p className="text-muted-foreground">Notifications are blocked for HomeHire in this browser. Allow them in your browser&apos;s site settings, then reload.</p>
       ) : state === "ios-install" ? (
-        <p className="text-muted-foreground">On iPhone, tap <strong>Share</strong> → <strong>Add to Home Screen</strong>, then open DoneZo from your home screen to turn notifications on.</p>
+        <p className="text-muted-foreground">On iPhone, tap <strong>Share</strong> → <strong>Add to Home Screen</strong>, then open HomeHire from your home screen to turn notifications on.</p>
       ) : (
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-muted-foreground">{text}</span>

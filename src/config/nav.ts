@@ -14,7 +14,7 @@ export function customerNav(unread = 0): NavItem[] {
 /** Provider navigation (Blueprint §10). Marketplace appears only when enabled; business tools only on Pro. */
 export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = true, newJobs = 0): NavItem[] {
   if (!hasCrm) {
-    // DoneZo Basic: the marketplace plan.
+    // HomeHire Basic: the marketplace plan.
     return [
       { href: "/provider/marketplace", label: "Marketplace", icon: "store", badge: newJobs, badgeTone: "alert" },
       { href: "/provider/calendar", label: "Calendar", icon: "calendar" },

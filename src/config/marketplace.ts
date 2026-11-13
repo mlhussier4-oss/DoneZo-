@@ -85,10 +85,10 @@ export const frequencyLabel = (f: string) => REPEAT_FREQUENCIES.find((x) => x.va
 export const launchAreaName = "Austin, TX";
 
 export const paymentMethodOptions = [
-  { value: "card", label: "Card (through DoneZo)" },
+  { value: "card", label: "Card (through HomeHire)" },
   { value: "cash", label: "Cash" },
   { value: "venmo", label: "Venmo" },
   { value: "cash_app", label: "Cash App" },
   { value: "check", label: "Check" },
 ] as const;
-export const paymentMethodName = (m: string) => paymentMethodOptions.find((o) => o.value === m)?.label.replace(" (through DoneZo)", "") ?? m;
+export const paymentMethodName = (m: string) => paymentMethodOptions.find((o) => o.value === m)?.label.replace(" (through HomeHire)", "") ?? m;

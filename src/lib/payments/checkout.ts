@@ -16,7 +16,7 @@ export type InvoiceForPayment = {
 
 /**
  * A secure Stripe Checkout page for an invoice's balance, created on the provider's own Stripe
- * account (direct charge) with DoneZo's fee as the application fee. An existing open link for
+ * account (direct charge) with HomeHire's fee as the application fee. An existing open link for
  * the same amount is reused. The invoice is only marked paid by the verified webhook.
  */
 export async function getOrCreateInvoiceCheckout(inv: InvoiceForPayment, createdBy: string | null): Promise<string> {

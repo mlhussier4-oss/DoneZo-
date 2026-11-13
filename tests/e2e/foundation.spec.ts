@@ -24,7 +24,7 @@ test.describe("public site", () => {
 test.describe("provider accounts", () => {
   test("payment terms: required at sign-up, and an existing owner must accept before continuing", async ({ page }) => {
     await page.goto("/signup/provider");
-    await page.getByText("DoneZo Basic · $9.99/month").click();
+    await page.getByText("HomeHire Basic · $9.99/month").click();
     await page.getByLabel("Business name").fill("No Terms Co");
     await page.getByLabel("Your name").fill("Test Owner");
     await page.getByLabel("Email").fill(uniqueEmail("noterms"));
@@ -43,14 +43,14 @@ test.describe("provider accounts", () => {
     await gate.getByLabel(/I agree to the Provider terms/).check();
     await gate.getByRole("button", { name: "Accept and continue" }).click();
     await expect(gate).toHaveCount(0);
-    await expect(page.getByText("Terms Co · DoneZo Pro", { exact: true })).toBeVisible();
+    await expect(page.getByText("Terms Co · HomeHire Pro", { exact: true })).toBeVisible();
   });
 
   test("CRM-only provider: signs up, never sees the marketplace, and can switch it on later", async ({ page }) => {
     const email = uniqueEmail("crm");
     await signUpProvider(page, { usage: "crm", businessName: "Green Blade Lawn Care", email });
 
-    await expect(page.getByText("Green Blade Lawn Care · DoneZo Pro", { exact: true })).toBeVisible();
+    await expect(page.getByText("Green Blade Lawn Care · HomeHire Pro", { exact: true })).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Business navigation" }).first();
     await expect(nav.getByRole("link", { name: "Customers" })).toBeVisible();
     await expect(nav.getByRole("link", { name: "Marketplace" })).toHaveCount(0);
@@ -75,7 +75,7 @@ test.describe("provider accounts", () => {
 
   test("Marketplace provider: signs up with the marketplace already on", async ({ page }) => {
     await signUpProvider(page, { usage: "marketplace", businessName: "Shine Pressure Washing", email: uniqueEmail("mkt") });
-    await expect(page.getByText("Shine Pressure Washing · DoneZo Pro with the marketplace")).toBeVisible();
+    await expect(page.getByText("Shine Pressure Washing · HomeHire Pro with the marketplace")).toBeVisible();
     const nav = page.getByRole("navigation", { name: "Business navigation" }).first();
     await expect(nav.getByRole("link", { name: "Marketplace" })).toBeVisible();
   });
@@ -100,7 +100,7 @@ test.describe("provider accounts", () => {
     await page.getByLabel("Password").fill(password);
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(atPath("/provider"));
-    await expect(page.getByText("New Name LLC · DoneZo Pro", { exact: true })).toBeVisible();
+    await expect(page.getByText("New Name LLC · HomeHire Pro", { exact: true })).toBeVisible();
   });
 
   test("wrong password shows a clear error", async ({ page }) => {
@@ -125,7 +125,7 @@ test.describe("provider accounts", () => {
 
 test.describe("customer accounts", () => {
   test("posting needs an account first; customers sign up with first name, email and password and set a photo", async ({ page }) => {
-    // Signed out, "Post a job" leads to sign-up, which shows why DoneZo is worth it.
+    // Signed out, "Post a job" leads to sign-up, which shows why HomeHire is worth it.
     await page.goto("/post-job?category=lawn-mowing");
     await expect(page).toHaveURL(/\/signup\/customer\?next=/);
     const benefits = page.getByTestId("customer-benefits");

@@ -85,7 +85,7 @@ describe("paid access", () => {
 });
 
 describe("Stripe-verified payments", () => {
-  it("a paid Checkout Session records a verified card payment with DoneZo's 10% fee, once", async () => {
+  it("a paid Checkout Session records a verified card payment with HomeHire's 10% fee, once", async () => {
     const p = await provider();
     const { invoiceId, jobId } = await sentInvoice(p, 10000);
     const session = await paymentRequest(p, invoiceId, 10000);

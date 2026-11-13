@@ -72,7 +72,7 @@ export async function confirmSubscriptionSession(sessionId: string, businessId: 
 }
 
 /**
- * Stripe's billing page settings for DoneZo (created once, reused): update card, receipts, cancel at the end
+ * Stripe's billing page settings for HomeHire (created once, reused): update card, receipts, cancel at the end
  * of the period, and switch between Basic and Pro. Owner decision: upgrades start now and Stripe charges the
  * prorated difference; downgrades take effect at the next billing date.
  */
@@ -85,7 +85,7 @@ async function portalConfiguration(): Promise<string> {
   const productOf = (p: Stripe.Price) => (typeof p.product === "string" ? p.product : p.product.id);
   const created = await stripe().billingPortal.configurations.create({
     metadata: { donezo: tag },
-    business_profile: { headline: "DoneZo subscription" },
+    business_profile: { headline: "HomeHire subscription" },
     features: {
       payment_method_update: { enabled: true },
       invoice_history: { enabled: true },

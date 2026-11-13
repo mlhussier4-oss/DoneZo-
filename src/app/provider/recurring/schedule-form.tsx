@@ -97,7 +97,7 @@ export function ScheduleForm({
         {frequency === "monthly"
           ? "Monthly visits fall on the same day of the month as the first visit (or the last day, in shorter months)."
           : "Visits repeat on the same weekday as the first visit."}{" "}
-        DoneZo keeps the next 90 days of visits on your calendar.
+        HomeHire keeps the next 90 days of visits on your calendar.
       </p>
       <FormAlert state={state} />
       <SubmitButton>{submitLabel}</SubmitButton>

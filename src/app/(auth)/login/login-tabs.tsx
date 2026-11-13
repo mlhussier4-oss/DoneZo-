@@ -51,7 +51,7 @@ function CustomerLogin({ next }: { next?: string }) {
         {withCode ? "Use my password instead" : "Email me a sign-in code instead"}
       </button>
       <p className="text-center text-sm text-muted-foreground">
-        New to DoneZo?{" "}
+        New to HomeHire?{" "}
         <Link href={next ? `/signup/customer?next=${encodeURIComponent(next)}` : "/signup/customer"} className="font-medium text-primary hover:underline">Create your account</Link>
       </p>
     </div>

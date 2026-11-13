@@ -29,7 +29,7 @@ export default async function PlanPage({ searchParams }: PageProps<"/provider/pl
     <>
       <PageHeader title="Plan & billing" description={`${business.name} is on ${planInfo[current].name}, ${planInfo[current].price}/month.`} />
       {params.need === "pro" ? (
-        <Alert tone="info" className="mb-4">That&apos;s part of <strong>DoneZo Pro</strong>: business tools for all your customers. {isOwner ? "Upgrade below; it starts right away." : "Ask the business owner to upgrade."}</Alert>
+        <Alert tone="info" className="mb-4">That&apos;s part of <strong>HomeHire Pro</strong>: business tools for all your customers. {isOwner ? "Upgrade below; it starts right away." : "Ask the business owner to upgrade."}</Alert>
       ) : null}
       {params.changed ? <Alert tone="success" className="mb-4">Your plan change was saved. If you switched to Basic, it takes effect at your next billing date.</Alert> : null}
       {sub?.current_period_end ? (

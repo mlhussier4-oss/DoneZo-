@@ -73,7 +73,7 @@ export function CompleteJobPanel({ bookingId, amountCents, cardsOn }: { bookingI
         ))}
       </div>
       {!cardsOn ? <p className="text-xs text-muted-foreground">Card payments appear here once you connect Stripe under Payments.</p> : null}
-      <p className="text-xs text-muted-foreground">You collect payment from your customer. Choosing cash, Venmo, Cash App or check confirms you&apos;ve received it; DoneZo doesn&apos;t collect or guarantee payments (<a href="/terms#provider-terms" className="underline" target="_blank">Provider terms</a>).</p>
+      <p className="text-xs text-muted-foreground">You collect payment from your customer. Choosing cash, Venmo, Cash App or check confirms you&apos;ve received it; HomeHire doesn&apos;t collect or guarantee payments (<a href="/terms#provider-terms" className="underline" target="_blank">Provider terms</a>).</p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button size="lg" className="flex-1" disabled={!method || pending} onClick={submit}>
           {pending ? "Finishing…" : method === "card" ? "Send invoice & card link" : method ? "Mark paid & complete job" : "Choose a form of payment"}

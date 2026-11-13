@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { applicationFeeCents, formatFeePercent } from "./fees";
 
-describe("DoneZo card fee", () => {
+describe("HomeHire card fee", () => {
   it("is 10% of the payment, to the cent", () => {
     expect(applicationFeeCents(6500, 1000)).toBe(650);
     expect(applicationFeeCents(999, 1000)).toBe(100); // 99.9 rounds to 100

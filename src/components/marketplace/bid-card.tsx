@@ -21,7 +21,7 @@ export function BidCard({ bid: b, children }: { bid: BidCardData; children?: Rea
           </div>
           <Rating rating={b.business.stats.rating} count={b.business.stats.review_count} />
           <p className="text-sm text-muted-foreground">
-            {b.business.stats.completed_jobs} {b.business.stats.completed_jobs === 1 ? "job" : "jobs"} on DoneZo
+            {b.business.stats.completed_jobs} {b.business.stats.completed_jobs === 1 ? "job" : "jobs"} on HomeHire
             {b.business.years_experience ? ` · ${b.business.years_experience} yrs experience` : ""}
           </p>
         </div>

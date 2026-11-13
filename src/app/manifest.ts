@@ -1,10 +1,10 @@
 import type { MetadataRoute } from "next";
 
-/** Lets people add DoneZo to their home screen (needed for notifications on iPhone). */
+/** Lets people add HomeHire to their home screen (needed for notifications on iPhone). */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "DoneZo",
-    short_name: "DoneZo",
+    name: "HomeHire",
+    short_name: "HomeHire",
     description: "Post a job. Receive bids. Choose your provider.",
     start_url: "/",
     display: "standalone",

@@ -10,7 +10,7 @@ export function SuspendButton({ userId, suspended }: { userId: string; suspended
     <form
       action={action}
       onSubmit={(e) => {
-        if (!suspended && !confirm("Suspend this user? They will be signed out and unable to use DoneZo.")) e.preventDefault();
+        if (!suspended && !confirm("Suspend this user? They will be signed out and unable to use HomeHire.")) e.preventDefault();
       }}
       className="flex items-center gap-2"
     >

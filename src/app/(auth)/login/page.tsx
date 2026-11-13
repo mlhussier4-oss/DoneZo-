@@ -11,8 +11,8 @@ export const metadata: Metadata = { title: "Log in" };
 const errors: Record<string, string> = {
   suspended: "This account has been suspended. Please contact support.",
   link: "That link is invalid or has expired. Please try again.",
-  no_business: "You're no longer part of a DoneZo business team. Ask the business owner if you think this is a mistake.",
-  team_plan: "Your business is on DoneZo Basic, which doesn't include team members. Ask the business owner to switch to DoneZo Pro.",
+  no_business: "You're no longer part of a HomeHire business team. Ask the business owner if you think this is a mistake.",
+  team_plan: "Your business is on HomeHire Basic, which doesn't include team members. Ask the business owner to switch to HomeHire Pro.",
 };
 
 async function LoginContent({ searchParams }: { searchParams: PageProps<"/login">["searchParams"] }) {
@@ -39,7 +39,7 @@ export default function LoginPage({ searchParams }: PageProps<"/login">) {
           <LoginContent searchParams={searchParams} />
         </Suspense>
         <p className="mt-6 text-center text-sm text-muted-foreground">
-          New to DoneZo?{" "}
+          New to HomeHire?{" "}
           <Link href="/signup" className="font-medium text-primary hover:underline">
             Create an account
           </Link>

@@ -8,7 +8,7 @@ import { createServiceClient } from "@/lib/supabase/service";
  * Stripe webhook endpoint.
  *  1. The signature is verified with the endpoint secret(s); anything else is rejected.
  *  2. Each event id is stored once; a duplicate delivery is acknowledged and ignored.
- *  3. Only then does DoneZo change payment or subscription status.
+ *  3. Only then does HomeHire change payment or subscription status.
  * Two endpoints can point here: one for the platform account (subscriptions) and one for
  * connected accounts (providers' card payments, refunds, account updates).
  */
@@ -110,6 +110,6 @@ async function handle(event: Stripe.Event) {
       return;
     }
     default:
-      return; // not used by DoneZo
+      return; // not used by HomeHire
   }
 }

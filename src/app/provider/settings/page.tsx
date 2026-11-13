@@ -27,7 +27,7 @@ export default async function ProviderSettingsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Notifications</CardTitle>
-            <CardDescription>Get a notification with sound on this phone or computer for new jobs near you, accepted bids and customer messages, even when DoneZo is closed.</CardDescription>
+            <CardDescription>Get a notification with sound on this phone or computer for new jobs near you, accepted bids and customer messages, even when HomeHire is closed.</CardDescription>
           </CardHeader>
           <CardContent><PushToggle variant="setting" text="Notifications are off for this device." /></CardContent>
         </Card>
@@ -54,7 +54,7 @@ export default async function ProviderSettingsPage() {
           </CardHeader>
           <CardContent>
             {!business.hasCrm ? (
-              <p className="text-sm text-muted-foreground">DoneZo Basic is the marketplace plan, so the marketplace stays on. <Link href="/provider/plan" className="text-primary hover:underline">Switch to Pro</Link> to use business tools without it.</p>
+              <p className="text-sm text-muted-foreground">HomeHire Basic is the marketplace plan, so the marketplace stays on. <Link href="/provider/plan" className="text-primary hover:underline">Switch to Pro</Link> to use business tools without it.</p>
             ) : canManage ? (
               <MarketplaceToggle enabled={business.marketplaceEnabled} />
             ) : (

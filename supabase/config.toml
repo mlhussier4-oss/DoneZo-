@@ -250,19 +250,19 @@ otp_expiry = 900
 # sender_name = "Admin"
 
 [auth.email.template.confirmation]
-subject = "Confirm your DoneZo account"
+subject = "Confirm your HomeHire account"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
-subject = "Your DoneZo sign-in code"
+subject = "Your HomeHire sign-in code"
 content_path = "./supabase/templates/magic_link.html"
 
 [auth.email.template.recovery]
-subject = "Reset your DoneZo password"
+subject = "Reset your HomeHire password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.invite]
-subject = "You're invited to join your team on DoneZo"
+subject = "You're invited to join your team on HomeHire"
 content_path = "./supabase/templates/invite.html"
 
 # Uncomment to customize notification email template

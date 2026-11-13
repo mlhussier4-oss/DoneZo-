@@ -7,7 +7,7 @@ import { atPath, businessIdForEmail, signUpProvider, uniqueEmail } from "./helpe
 /**
  * Payments, end to end: the site talks to Stripe's local simulator (stripe-mock), and these tests
  * play Stripe's part for webhooks by sending events signed exactly as Stripe signs them.
- * Stripe's hosted pages (checkout, onboarding) are outside DoneZo, so navigations there are stubbed.
+ * Stripe's hosted pages (checkout, onboarding) are outside HomeHire, so navigations there are stubbed.
  */
 const db = () =>
   createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
@@ -27,7 +27,7 @@ async function stubStripePages(page: Page) {
 }
 
 test.describe("subscription required for providers", () => {
-  test("a new provider must subscribe before using DoneZo; the plan paid for decides Basic or Pro", async ({ page }) => {
+  test("a new provider must subscribe before using HomeHire; the plan paid for decides Basic or Pro", async ({ page }) => {
     await stubStripePages(page);
     const email = uniqueEmail("subscriber");
     await signUpProvider(page, { usage: "basic", businessName: "Pay First Co", email, subscribe: false });
@@ -38,7 +38,7 @@ test.describe("subscription required for providers", () => {
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(atPath("/subscribe")); // every provider page is locked
 
-    await page.getByRole("button", { name: "Subscribe: DoneZo Pro, $19.99/month" }).click();
+    await page.getByRole("button", { name: "Subscribe: HomeHire Pro, $19.99/month" }).click();
     await expect(page.getByText("Stripe hosted page")).toBeVisible();
 
     // The Stripe customer was created and saved; no access until Stripe confirms the subscription.
@@ -61,7 +61,7 @@ test.describe("subscription required for providers", () => {
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(atPath("/provider/customers"));
     await page.goto("/provider/settings");
-    await expect(page.getByText("DoneZo Pro, $19.99/month")).toBeVisible();
+    await expect(page.getByText("HomeHire Pro, $19.99/month")).toBeVisible();
     await expect(page.getByText(/Renews/)).toBeVisible();
 
     // Switched to Basic at the billing date: marketplace menu, business tools show the upgrade page.
@@ -73,7 +73,7 @@ test.describe("subscription required for providers", () => {
     await expect(nav.getByRole("link", { name: "Plan & billing" })).toBeVisible();
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(/\/provider\/plan\?need=pro/);
-    await expect(page.getByText("part of DoneZo Pro", { exact: false }).first()).toBeVisible();
+    await expect(page.getByText("part of HomeHire Pro", { exact: false }).first()).toBeVisible();
     await expect(page.getByRole("button", { name: "Upgrade to Pro, $19.99/month" })).toBeVisible();
 
     // Canceled subscription → locked again.
@@ -84,7 +84,7 @@ test.describe("subscription required for providers", () => {
   });
 });
 
-test.describe("card payments with DoneZo's 10% fee", () => {
+test.describe("card payments with HomeHire's 10% fee", () => {
   test("connect Stripe → card link → customer pays → verified webhook → paid → refund", async ({ page, browser }) => {
     test.setTimeout(120_000);
     await stubStripePages(page);
@@ -162,9 +162,9 @@ test.describe("card payments with DoneZo's 10% fee", () => {
     await anon.close();
 
     await page.goto("/provider/payments");
-    await expect(page.getByRole("cell", { name: "$12.00" })).toBeVisible(); // DoneZo's 10% fee
+    await expect(page.getByRole("cell", { name: "$12.00" })).toBeVisible(); // HomeHire's 10% fee
 
-    // 7. Refund (DoneZo's fee refunded too), confirmed by Stripe's webhook.
+    // 7. Refund (HomeHire's fee refunded too), confirmed by Stripe's webhook.
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: "Refund" }).click();
     await expect(page.getByText("Refund requested")).toBeVisible();

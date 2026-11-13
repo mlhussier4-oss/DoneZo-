@@ -8,7 +8,7 @@ export function AcceptPaymentTerms({ businessId }: { businessId: string }) {
     <section className="mx-auto max-w-2xl space-y-5 rounded-xl border border-border bg-card p-6" data-testid="accept-payment-terms">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Provider terms</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Please review and accept these terms to keep using DoneZo.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Please review and accept these terms to keep using HomeHire.</p>
       </div>
       <div className="text-sm leading-relaxed"><ProviderPaymentTerms /></div>
       <form action={acceptPaymentTerms} className="space-y-4 border-t border-border pt-4">

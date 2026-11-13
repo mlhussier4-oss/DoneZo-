@@ -51,11 +51,11 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Why DoneZo: quick summary for both sides (owner request 2026-11-12) */}
+      {/* Why HomeHire: quick summary for both sides (owner request 2026-11-12) */}
       <section className="mx-auto max-w-6xl px-4 pt-14 sm:px-6" aria-labelledby="why-donezo">
         <h2 id="why-donezo" className="text-center text-2xl font-semibold tracking-tight sm:text-3xl">Home services, minus the hassle</h2>
         <p className="mx-auto mt-2 max-w-2xl text-center text-muted-foreground">
-          DoneZo connects homeowners with local pros: fast for the people who need work done, fair for the people who do it.
+          HomeHire connects homeowners with local pros: fast for the people who need work done, fair for the people who do it.
         </p>
         <div className="mt-8 grid gap-6 md:grid-cols-2">
           {[
@@ -81,7 +81,7 @@ export default async function HomePage() {
                 "Local jobs with photos and details, sent to your job board as they're posted",
                 "No paying per lead: bid only on the jobs you want, at your price",
                 "Sealed bids, so you compete on your own terms",
-                "Schedule, invoice and take card payments; cash, Venmo, Cash App and check carry no DoneZo fee",
+                "Schedule, invoice and take card payments; cash, Venmo, Cash App and check carry no HomeHire fee",
                 "Simple monthly plans from $9.99, cancel any time",
               ],
               cta: { href: "/for-providers", label: "See plans for pros", variant: "primary" as const },
@@ -107,7 +107,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* No back-and-forth (owner request 2026-11-12), in DoneZo's own voice */}
+      {/* No back-and-forth (owner request 2026-11-12), in HomeHire's own voice */}
       <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6">
         <div className="rounded-xl bg-primary px-6 py-8 text-center text-white sm:px-10">
           <p className="text-xl font-semibold text-balance sm:text-2xl">No phone tag. No inbox full of sales pitches. No back-and-forth.</p>

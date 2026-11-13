@@ -5,7 +5,7 @@ import Stripe from "stripe";
 /**
  * Stripe client (server only).
  *
- * Safety (Blueprint rule 19): DoneZo refuses to use a live key, or act on live-mode objects,
+ * Safety (Blueprint rule 19): HomeHire refuses to use a live key, or act on live-mode objects,
  * unless STRIPE_ALLOW_LIVE=true has been set deliberately with the owner's approval.
  *
  * In this project's cloud sessions the real test key is injected by a network proxy, so
@@ -32,7 +32,7 @@ export function stripe(): Stripe {
   const proxy = process.env.HTTPS_PROXY || process.env.https_proxy;
   client = new Stripe(key, {
     maxNetworkRetries: 2,
-    appInfo: { name: "DoneZo" },
+    appInfo: { name: "HomeHire" },
     ...(proxy && !process.env.STRIPE_API_HOST ? { httpAgent: new HttpsProxyAgent(proxy) } : {}),
     ...(process.env.STRIPE_API_HOST
       ? {
@@ -48,6 +48,6 @@ export function stripe(): Stripe {
 /** Throws if Stripe returned a live-mode object while live mode isn't approved. */
 export function assertTestMode(obj: { livemode?: boolean | null }) {
   if (obj.livemode && !liveModeAllowed()) {
-    throw new Error("Stripe returned a live-mode object, but live payments are not approved for DoneZo.");
+    throw new Error("Stripe returned a live-mode object, but live payments are not approved for HomeHire.");
   }
 }

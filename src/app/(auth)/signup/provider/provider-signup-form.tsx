@@ -14,17 +14,17 @@ import { ProviderPaymentTerms } from "@/components/legal/provider-payment-terms"
 const usageOptions = [
   {
     value: "basic",
-    title: "DoneZo Basic · $9.99/month",
+    title: "HomeHire Basic · $9.99/month",
     text: "The marketplace: a public profile, local job requests to bid on, and getting paid for the jobs you win.",
   },
   {
     value: "marketplace",
-    title: "DoneZo Pro · $19.99/month, with marketplace",
+    title: "HomeHire Pro · $19.99/month, with marketplace",
     text: "Everything in Basic, plus business tools for all your customers: calendar, recurring visits, invoices, reports and your team.",
   },
   {
     value: "crm",
-    title: "DoneZo Pro · $19.99/month, business tools only",
+    title: "HomeHire Pro · $19.99/month, business tools only",
     text: "The same business tools for the customers you already have, with the marketplace switched off. Turn it on any time.",
   },
 ] as const;
@@ -124,7 +124,7 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "basic" | "
       <SubmitButton className="w-full" size="lg" pendingText="Creating account…">
         Create provider account
       </SubmitButton>
-      <p className="text-center text-xs text-muted-foreground">By continuing you agree to DoneZo&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p>
+      <p className="text-center text-xs text-muted-foreground">By continuing you agree to HomeHire&apos;s <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy policy</Link>.</p>
     </Form>
   );
 }

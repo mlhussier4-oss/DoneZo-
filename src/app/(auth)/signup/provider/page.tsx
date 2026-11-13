@@ -17,7 +17,7 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
     <Card>
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Set up your business</CardTitle>
-        <CardDescription>DoneZo Basic $9.99/month for the marketplace, or DoneZo Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</CardDescription>
+        <CardDescription>HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</CardDescription>
       </CardHeader>
       <CardContent>
         <Suspense fallback={<div className="h-96" />}>

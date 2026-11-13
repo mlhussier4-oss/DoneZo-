@@ -11,7 +11,7 @@ export function FeeForm({ percent }: { percent: number }) {
   return (
     <Form form={form} className="flex flex-wrap items-end gap-3">
       <div className="space-y-1.5">
-        <Label htmlFor="percent">DoneZo fee on card payments (%)</Label>
+        <Label htmlFor="percent">HomeHire fee on card payments (%)</Label>
         <Input id="percent" name="percent" defaultValue={percent} inputMode="decimal" className="w-32" />
       </div>
       <SubmitButton size="sm" variant="outline">Save</SubmitButton>

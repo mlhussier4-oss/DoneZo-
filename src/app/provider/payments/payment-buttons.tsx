@@ -28,7 +28,7 @@ export function RefundButton({ paymentId, amountLabel }: { paymentId: string; am
   return (
     <>
       <button type="button" disabled={pending} className="cursor-pointer text-xs text-muted-foreground hover:text-destructive"
-        onClick={() => confirm(`Refund ${amountLabel} to the customer's card? DoneZo's 10% fee is refunded too. This can't be undone.`) && start(async () => setResult(await refundCardPayment(paymentId)))}>
+        onClick={() => confirm(`Refund ${amountLabel} to the customer's card? HomeHire's 10% fee is refunded too. This can't be undone.`) && start(async () => setResult(await refundCardPayment(paymentId)))}>
         {pending ? "Refunding…" : "Refund"}
       </button>
       {result?.error ? <span className="text-xs text-destructive">{result.error}</span> : null}
