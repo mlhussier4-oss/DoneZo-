@@ -8,6 +8,7 @@ import { newJobCount, unreadCount } from "@/lib/marketplace/notifications";
 import { PendingAlert } from "@/components/marketplace/pending-alert";
 import { AcceptPaymentTerms } from "@/components/legal/accept-payment-terms";
 import { PAYMENT_TERMS_VERSION } from "@/config/legal";
+import { PushToggle } from "@/components/push/push-toggle";
 
 async function ProviderShell({ children }: { children: React.ReactNode }) {
   // Server-side check: only providers reach this area. Data is also protected by RLS.
@@ -31,6 +32,11 @@ async function ProviderShell({ children }: { children: React.ReactNode }) {
       userSubLabel={user.email ?? undefined}
     >
       {business.memberRole !== "employee" && business.marketplaceEnabled ? <PendingAlert /> : null}
+      {mustAcceptTerms ? null : (
+        <PushToggle text={business.memberRole === "employee"
+          ? "We'll let you know when you're assigned a job."
+          : "We'll let you know when a new job is posted near you, when a customer picks your bid, and when customers message you."} />
+      )}
       {mustAcceptTerms ? <AcceptPaymentTerms businessId={business.id} /> : children}
     </AppShell>
   );
