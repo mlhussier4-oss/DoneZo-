@@ -501,21 +501,14 @@ describe("live booking: the 5-minute confirmation window (owner decision 2026-11
     expect((await other.c.client.from("bookings").select("status").eq("id", other.booking.id).single()).data?.status).toBe("lapsed");
   });
 
-  it("anonymous homeowners (no email) can post, pick a bid and chat", async () => {
-    const p = await provider();
+  it("guest (anonymous) sessions can no longer post jobs: an account comes first (owner decision 2026-11-13)", async () => {
     const anon = anonClient();
     const { data: auth, error } = await anon.auth.signInAnonymously();
     expect(error).toBeNull();
-    const { data: profile } = await anon.from("profiles").select("role, email").eq("id", auth.user!.id).single();
-    expect(profile).toEqual({ role: "customer", email: null });
-    const r = await postJob({ id: auth.user!.id, email: "", client: anon });
-    const b = await bid(p, r.id);
-    const { data: booking, error: acceptError } = await anon.rpc("accept_bid", { p_bid_id: b.id });
-    expect(acceptError).toBeNull();
-    const confirmed = await p.client.rpc("confirm_booking", { p_booking_id: booking.id, p_arrival_at: new Date(Date.now() + 3_600_000).toISOString() });
-    expect(confirmed.error).toBeNull();
-    expect((await anon.from("messages").insert({ booking_id: booking.id, body: "Hi! I'm Sam, 512-555-0123" })).error).toBeNull();
-    expect((await p.client.from("crm_customers").select("full_name").eq("profile_id", auth.user!.id).single()).data?.full_name).toBe("Customer");
+    const { error: postError } = await anon.from("service_requests")
+      .insert({ category_id: await categoryId("lawn-mowing"), description: "x", timing: "asap", zip: "78745" });
+    expect(postError).not.toBeNull();
+    expect((await anon.from("service_requests").select("id").eq("customer_id", auth.user!.id)).data).toEqual([]);
   });
 });
 

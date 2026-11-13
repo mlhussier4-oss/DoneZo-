@@ -106,6 +106,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
 
     // 4. Bids appear live in the drop-down under the job, without reloading. The customer picks one.
     await expect(page.getByText("Bids (2)")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("pick-note")).toContainText("that provider has 5 minutes to confirm your job");
     await expect(page.getByRole("link", { name: /^Alpha Lawn Co/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Bravo Yard Pros/ })).toBeVisible();
     page.once("dialog", (d) => d.accept());
