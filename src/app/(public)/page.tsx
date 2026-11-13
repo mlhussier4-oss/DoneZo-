@@ -18,7 +18,7 @@ export default async function HomePage() {
             <h1 className="text-4xl font-bold tracking-tight text-balance sm:text-5xl">{brand.tagline}</h1>
             <p className="max-w-xl text-lg text-white/80">
               Snap a photo, describe the job, and local pros send you their best price. No calling around, and no card
-              needed to get quotes.
+              needed to get quotes. And no blown-up inbox of messages to answer.
             </p>
             <div className="flex flex-col gap-3 sm:flex-row">
               <Link href="/post-job" className={buttonVariants({ variant: "accent", size: "lg" })}>
