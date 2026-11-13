@@ -71,7 +71,7 @@ export default async function ReportsPage({ searchParams }: PageProps<"/provider
         <>
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
             <StatTile label="Revenue" value={formatMoney(r.summary.net_cents)} context={r.summary.refunded_cents ? `${formatMoney(r.summary.refunded_cents)} refunded` : `${r.summary.payments} ${r.summary.payments === 1 ? "payment" : "payments"}`} />
-            <StatTile label="Card (Stripe-verified)" value={formatMoney(r.summary.card_cents)} context={`DoneZo fee ${formatMoney(r.summary.fee_cents)}`} />
+            <StatTile label="Card (Stripe-verified)" value={formatMoney(r.summary.card_cents)} context={`HomeHire fee ${formatMoney(r.summary.fee_cents)}`} />
             <StatTile label="Recorded by you" value={formatMoney(r.summary.recorded_cents)} context="cash, Venmo, Cash App, check" />
             <StatTile label="Invoiced" value={formatMoney(r.summary.invoiced_cents)} context="invoices issued" />
             <StatTile label="Completed jobs" value={String(r.summary.completed_jobs)} context={`${formatMoney(r.summary.completed_value_cents)} of work`} />

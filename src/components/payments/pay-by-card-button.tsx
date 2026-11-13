@@ -14,7 +14,7 @@ export function PayByCardButton({ token, amountLabel }: { token: string; amountL
       <Button size="lg" variant="accent" className="w-full" disabled={pending} onClick={() => start(async () => setError((await payInvoiceByCard(token))?.error))}>
         <CreditCard /> {pending ? "Opening secure payment…" : `Pay ${amountLabel} by card`}
       </Button>
-      <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground"><Lock className="size-3.5" aria-hidden />Secure payment by Stripe. Your card details never touch DoneZo.</p>
+      <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground"><Lock className="size-3.5" aria-hidden />Secure payment by Stripe. Your card details never touch HomeHire.</p>
       {error ? <Alert tone="error">{error}</Alert> : null}
     </div>
   );

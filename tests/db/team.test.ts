@@ -208,7 +208,7 @@ describe("accepting an invitation", () => {
   it("an existing account can't be invited, but a never-accepted invitee can be invited again", async () => {
     const o = await owner();
     const existing = await createUser({ role: "customer" });
-    expect((await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: existing.email, p_full_name: "", p_role: "employee" })).error?.message).toMatch(/already has a DoneZo account/);
+    expect((await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: existing.email, p_full_name: "", p_role: "employee" })).error?.message).toMatch(/already has a HomeHire account/);
     const email = `again-${crypto.randomUUID()}@example.com`;
     const { data: inv } = await o.client.rpc("create_invitation", { p_business_id: o.businessId, p_email: email, p_full_name: "", p_role: "employee" });
     await adminClient().auth.admin.createUser({ email, user_metadata: { invite_token: inv.token } });

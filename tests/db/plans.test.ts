@@ -1,5 +1,5 @@
 /**
- * Owner decision 2026-11-11: DoneZo Basic ($9.99, marketplace only) and DoneZo Pro ($19.99, marketplace + business tools).
+ * Owner decision 2026-11-11: HomeHire Basic ($9.99, marketplace only) and HomeHire Pro ($19.99, marketplace + business tools).
  * Every check runs as the real signed-in provider; the database enforces the plan.
  */
 import { describe, expect, it } from "vitest";
@@ -35,7 +35,7 @@ async function wonJob(p: Provider) {
   return job!;
 }
 
-describe("DoneZo Basic (marketplace only)", () => {
+describe("HomeHire Basic (marketplace only)", () => {
   it("signing up for Basic puts the business on Basic with the marketplace on, and it can't be switched off", async () => {
     const p = await basic();
     const { data: b } = await p.client.from("businesses").select("marketplace_enabled, plans(code)").eq("id", p.businessId).single();
@@ -59,16 +59,16 @@ describe("DoneZo Basic (marketplace only)", () => {
   it("can't use business tools: own customers, own jobs, recurring, estimates, recorded payments, team, reports", async () => {
     const p = await basic();
     const job = await wonJob(p);
-    const pro = "part of DoneZo Pro";
+    const pro = "part of HomeHire Pro";
     expect((await p.client.from("crm_customers").insert({ business_id: p.businessId, full_name: "Outside customer" })).error?.message).toMatch(pro);
     expect((await p.client.from("crm_customer_notes").insert({ business_id: p.businessId, customer_id: job.customer_id, body: "note" })).error?.message).toMatch(pro);
     expect((await p.client.from("jobs").insert({ business_id: p.businessId, customer_id: job.customer_id, title: "Side job", price_cents: 1000 })).error?.message).toMatch(pro);
     expect((await p.client.from("recurring_schedules").insert({ business_id: p.businessId, customer_id: job.customer_id, title: "Weekly", price_cents: 1000, frequency: "weekly", start_date: "2026-12-01", start_time: "09:00" })).error?.message).toMatch(pro);
     expect((await p.client.from("estimates").insert({ business_id: p.businessId, customer_id: job.customer_id })).error?.message).toMatch(pro);
     expect((await p.client.from("invoices").insert({ business_id: p.businessId, customer_id: job.customer_id })).error?.message).toMatch(pro); // an invoice not for a marketplace job
-    expect((await p.client.rpc("create_invitation", { p_business_id: p.businessId, p_email: `crew-${Date.now()}@example.com`, p_full_name: "", p_role: "employee" })).error?.message).toMatch(/Team members are part of DoneZo Pro/);
-    expect((await p.client.rpc("business_report", { p_business_id: p.businessId, p_from: "2026-01-01", p_to: "2026-12-31" })).error?.message).toMatch(/Reports are part of DoneZo Pro/);
-    expect((await p.client.rpc("business_report_payments", { p_business_id: p.businessId, p_from: "2026-01-01", p_to: "2026-12-31" })).error?.message).toMatch(/Reports are part of DoneZo Pro/);
+    expect((await p.client.rpc("create_invitation", { p_business_id: p.businessId, p_email: `crew-${Date.now()}@example.com`, p_full_name: "", p_role: "employee" })).error?.message).toMatch(/Team members are part of HomeHire Pro/);
+    expect((await p.client.rpc("business_report", { p_business_id: p.businessId, p_from: "2026-01-01", p_to: "2026-12-31" })).error?.message).toMatch(/Reports are part of HomeHire Pro/);
+    expect((await p.client.rpc("business_report_payments", { p_business_id: p.businessId, p_from: "2026-01-01", p_to: "2026-12-31" })).error?.message).toMatch(/Reports are part of HomeHire Pro/);
   });
 });
 
@@ -83,10 +83,10 @@ describe("switching plans", () => {
 
     await admin.rpc("set_business_plan_by_lookup_key", { p_business_id: p.businessId, p_lookup_key: "donezo_basic_monthly" });
     expect((await admin.from("crm_customers").select("id").eq("id", c!.id)).data).toHaveLength(1); // kept
-    expect((await p.client.from("crm_customers").update({ full_name: "Changed" }).eq("id", c!.id)).error?.message).toMatch(/part of DoneZo Pro/);
+    expect((await p.client.from("crm_customers").update({ full_name: "Changed" }).eq("id", c!.id)).error?.message).toMatch(/part of HomeHire Pro/);
   });
 
-  it("only DoneZo's server can change a plan; sign-up choices and direct edits can't buy Pro for free", async () => {
+  it("only HomeHire's server can change a plan; sign-up choices and direct edits can't buy Pro for free", async () => {
     const p = await basic();
     expect((await p.client.rpc("set_business_plan_by_lookup_key", { p_business_id: p.businessId, p_lookup_key: "donezo_pro_monthly" })).error).not.toBeNull();
     const { data: pro } = await p.client.from("plans").select("id").eq("code", "pro").single();
@@ -97,8 +97,8 @@ describe("switching plans", () => {
   it("both plans are listed publicly with their prices", async () => {
     const { data } = await anonClient().from("plans").select("code, name, price_cents").eq("is_active", true).order("sort_order");
     expect(data).toEqual([
-      { code: "basic", name: "DoneZo Basic", price_cents: 999 },
-      { code: "pro", name: "DoneZo Pro", price_cents: 1999 },
+      { code: "basic", name: "HomeHire Basic", price_cents: 999 },
+      { code: "pro", name: "HomeHire Pro", price_cents: 1999 },
     ]);
   });
 });

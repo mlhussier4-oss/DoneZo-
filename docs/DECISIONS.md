@@ -102,3 +102,6 @@ New service "Movers" with quick questions: about how many items (1–5 / 6–15 
 
 ## 2026-11-13 — Misc / other service, on for every provider by default
 New service "Misc / other" for odd jobs that don't fit a listed service. It is on by default for every provider (existing and new), so they get misc jobs within their radius; on the Marketplace profile, "Services you get jobs for" lets them untick misc or any other service to stop receiving those jobs. The job board links to that setting. Service categories have a `default_on` flag for this.
+
+## 2026-11-13 — Renamed to HomeHire (homehire.us)
+An active handyman app already uses "Donezo", so the brand is now **HomeHire** (domain homehire.us, bought by the owner on Cloudflare). Every customer-facing mention is renamed (site, emails, terms, plan names "HomeHire Basic/Pro", database messages). Logo keeps the navy-and-yellow style: a house with a check mark. Internal identifiers (Stripe lookup keys donezo_*, metadata keys, the local project id) are unchanged so existing records keep working. donezo.org will redirect to homehire.us.

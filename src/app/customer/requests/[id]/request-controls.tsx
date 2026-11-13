@@ -122,7 +122,7 @@ export function ReportProblemForm({ bookingId, requestId }: { bookingId?: string
         <Textarea id="report-message" name="message" maxLength={4000} required />
       </Field>
       {state.status === "error" ? <Alert tone="error">{state.message}</Alert> : null}
-      <Button type="submit" variant="outline" size="sm" disabled={pending}>Send to DoneZo support</Button>
+      <Button type="submit" variant="outline" size="sm" disabled={pending}>Send to HomeHire support</Button>
     </form>
   );
 }

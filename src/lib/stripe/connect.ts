@@ -8,14 +8,14 @@ import { syncStripeAccount } from "./sync";
 /**
  * The provider's own Stripe account. Direct charges (owner decision): the provider is the seller
  * of record with their own Stripe dashboard, pays Stripe's processing fees and handles disputes;
- * DoneZo collects its fee as an application fee.
+ * HomeHire collects its fee as an application fee.
  */
 async function accountFor(business: { id: string; name: string; email: string | null }): Promise<string> {
   const db = createServiceClient();
   const { data } = await db.from("stripe_accounts").select("stripe_account_id").eq("business_id", business.id).maybeSingle();
   if (data) return data.stripe_account_id;
   // Stripe Accounts v2 (required for new Connect platforms). "Full" dashboard and Stripe-collected
-  // fees/losses = the provider runs their own Stripe account; DoneZo charges an application fee.
+  // fees/losses = the provider runs their own Stripe account; HomeHire charges an application fee.
   const account = await stripe().v2.core.accounts.create(
     {
       display_name: business.name,
@@ -34,7 +34,7 @@ async function accountFor(business: { id: string; name: string; email: string | 
   return account.id;
 }
 
-/** A one-time link to Stripe's hosted onboarding (bank details and identity are entered on Stripe, never DoneZo). */
+/** A one-time link to Stripe's hosted onboarding (bank details and identity are entered on Stripe, never HomeHire). */
 export async function onboardingLink(business: { id: string; name: string; email: string | null }): Promise<string> {
   const account = await accountFor(business);
   const link = await stripe().v2.core.accountLinks.create({

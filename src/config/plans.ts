@@ -6,7 +6,7 @@ export type PlanCode = "basic" | "pro";
 
 export const planInfo: Record<PlanCode, { name: string; price: string; tagline: string; features: string[] }> = {
   basic: {
-    name: "DoneZo Basic",
+    name: "HomeHire Basic",
     price: "$9.99",
     tagline: "The marketplace: find local jobs, bid, and get paid.",
     features: [
@@ -19,7 +19,7 @@ export const planInfo: Record<PlanCode, { name: string; price: string; tagline: 
     ],
   },
   pro: {
-    name: "DoneZo Pro",
+    name: "HomeHire Pro",
     price: "$19.99",
     tagline: "The marketplace plus business tools for all your customers.",
     features: [
@@ -33,4 +33,4 @@ export const planInfo: Record<PlanCode, { name: string; price: string; tagline: 
   },
 };
 
-export const cardFeeNote = "DoneZo keeps 10% of card payments your customers make through DoneZo (both plans). No fee on cash, Venmo, Cash App or check.";
+export const cardFeeNote = "HomeHire keeps 10% of card payments your customers make through HomeHire (both plans). No fee on cash, Venmo, Cash App or check.";

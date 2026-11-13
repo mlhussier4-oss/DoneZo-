@@ -15,7 +15,7 @@ const rows = async (sql: string) => (await db.query(sql)).rows.map((r) => Object
 const ANON_READABLE = ["plan_features", "plans", "platform_settings", "portfolio_photos", "provider_categories", "reviews", "service_areas", "service_categories", "zip_codes"];
 // Functions signed-out visitors may call; each checks its own inputs (invoice/estimate links, public profiles).
 const ANON_FUNCTIONS = ["business_public_stats", "get_provider_profile", "get_public_estimate", "get_public_invoice", "is_admin", "zip_in_service_area"];
-// Called only by DoneZo's server with the service key (Stripe webhook, invitations).
+// Called only by HomeHire's server with the service key (Stripe webhook, invitations).
 const SERVICE_ONLY = ["set_business_plan_by_lookup_key", "signup_plan_id", "business_report_unchecked", "business_report_payments_unchecked", "stripe_record_checkout_paid", "stripe_mark_payment_request", "stripe_record_refund", "invoice_for_payment", "accept_invitation_for", "is_unaccepted_invitee"];
 
 describe("database security audit", () => {

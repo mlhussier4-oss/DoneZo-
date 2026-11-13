@@ -73,7 +73,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
 
       {posted && req.status === "open" ? (
         <Alert tone="success" className="mb-6">
-          Your job is posted. Nearby providers have been notified, and you&apos;ll see their bids here. We&apos;ll also notify you in DoneZo.
+          Your job is posted. Nearby providers have been notified, and you&apos;ll see their bids here. We&apos;ll also notify you in HomeHire.
         </Alert>
       ) : null}
 

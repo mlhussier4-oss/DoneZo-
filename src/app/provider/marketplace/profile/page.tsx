@@ -62,7 +62,7 @@ export default async function MarketplaceProfilePage() {
             <CardHeader>
               <CardTitle className="text-base">Verification</CardTitle>
               <CardDescription>
-                {b?.verified_at ? <Badge tone="success">Verified</Badge> : "Not verified yet. DoneZo checks your business documents before showing a Verified badge. Contact support to start."}
+                {b?.verified_at ? <Badge tone="success">Verified</Badge> : "Not verified yet. HomeHire checks your business documents before showing a Verified badge. Contact support to start."}
               </CardDescription>
             </CardHeader>
           </Card>

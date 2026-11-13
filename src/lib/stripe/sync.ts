@@ -35,7 +35,7 @@ export async function syncSubscription(sub: Stripe.Subscription) {
     const { data } = await db.from("business_subscriptions").select("business_id").eq("stripe_customer_id", customerId).maybeSingle();
     businessId = data?.business_id ?? null;
   }
-  if (!businessId) throw new Error(`No DoneZo business for Stripe customer ${customerId}`);
+  if (!businessId) throw new Error(`No HomeHire business for Stripe customer ${customerId}`);
   const periodEnd = (sub.items?.data?.[0] as { current_period_end?: number } | undefined)?.current_period_end
     ?? (sub as unknown as { current_period_end?: number }).current_period_end;
   const { error } = await db.from("business_subscriptions").upsert({

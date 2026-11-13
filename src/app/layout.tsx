@@ -26,7 +26,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="flex min-h-full flex-col">
         {privateTest ? (
           <div role="note" className="bg-warning px-4 py-1.5 text-center text-xs font-medium text-white">
-            DoneZo is in private testing. Payments are test-only: no real money is charged.
+            HomeHire is in private testing. Payments are test-only: no real money is charged.
           </div>
         ) : null}
         {children}

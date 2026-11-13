@@ -10,7 +10,7 @@ export async function checkZip(zip: string): Promise<{ ok: boolean; message?: st
   if (!/^\d{5}$/.test(zip)) return { ok: false, message: "Enter a 5-digit ZIP code." };
   const { data, error } = await createPublicClient().rpc("zip_in_service_area", { p_zip: zip });
   if (error) return { ok: false, message: "Could not check that ZIP code. Please try again." };
-  return data ? { ok: true } : { ok: false, message: "DoneZo isn't available there yet. We're starting in the Austin, TX area." };
+  return data ? { ok: true } : { ok: false, message: "HomeHire isn't available there yet. We're starting in the Austin, TX area." };
 }
 
 const requestSchema = z

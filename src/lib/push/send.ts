@@ -20,7 +20,7 @@ export async function sendNotificationPush(notificationId: string): Promise<{ se
   const { data: subs } = await db.from("push_subscriptions").select("id, endpoint, p256dh, auth").eq("user_id", n.user_id);
   if (!subs?.length) return { sent: 0, removed: 0 };
 
-  webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "mailto:support@donezo.org", process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!, process.env.VAPID_PRIVATE_KEY!);
+  webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "mailto:support@homehire.us", process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!, process.env.VAPID_PRIVATE_KEY!);
   const payload = pushPayload(n);
   let sent = 0;
   const gone: string[] = [];

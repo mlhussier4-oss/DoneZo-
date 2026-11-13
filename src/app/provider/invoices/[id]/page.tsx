@@ -31,7 +31,7 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
     .eq("id", id)
     .single();
   if (!inv) notFound();
-  // DoneZo Basic: only invoices for marketplace jobs.
+  // HomeHire Basic: only invoices for marketplace jobs.
   if (!business.hasCrm && inv.source !== "marketplace") redirect("/provider/plan?need=pro");
   const [{ data: payments }, { data: requests }, { data: acct }] = await Promise.all([
     supabase.from("payment_records")

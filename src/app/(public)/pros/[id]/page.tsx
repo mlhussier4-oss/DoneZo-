@@ -31,11 +31,11 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
         <div className="flex-1 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">{p.name}</h1>
-            {p.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified by DoneZo</Badge> : null}
+            {p.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified by HomeHire</Badge> : null}
           </div>
           <Rating rating={p.stats.rating} count={p.stats.review_count} />
           <p className="text-sm text-muted-foreground">
-            {p.stats.completed_jobs} {p.stats.completed_jobs === 1 ? "job" : "jobs"} completed on DoneZo
+            {p.stats.completed_jobs} {p.stats.completed_jobs === 1 ? "job" : "jobs"} completed on HomeHire
             {p.years_experience ? ` · ${p.years_experience} years in business` : ""}
           </p>
           {p.home_zip ? <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4" aria-hidden />Serves within {p.service_radius_miles} miles of {p.home_zip}</p> : null}
@@ -76,7 +76,7 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
                     </li>
                   ))}
                 </ul>
-              ) : <p className="text-sm text-muted-foreground">No reviews yet. Reviews come only from customers who booked through DoneZo.</p>}
+              ) : <p className="text-sm text-muted-foreground">No reviews yet. Reviews come only from customers who booked through HomeHire.</p>}
             </CardContent>
           </Card>
         </div>

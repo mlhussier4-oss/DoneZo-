@@ -19,7 +19,7 @@ export const metadata: Metadata = { title: "Overview" };
 export default async function ProviderOverviewPage() {
   const { user, business } = await requireProvider();
   if (business.memberRole === "employee") redirect("/provider/my-jobs");
-  if (!business.hasCrm) redirect("/provider/marketplace"); // DoneZo Basic starts on the marketplace
+  if (!business.hasCrm) redirect("/provider/marketplace"); // HomeHire Basic starts on the marketplace
   const tz = business.timezone;
   const d = await getDashboard(business.id);
   const supabase = await createClient();

@@ -61,7 +61,7 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
           </PlanCard>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; DoneZo never sees your card number. No free trial. {cardFeeNote}</p>
+      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. No free trial. {cardFeeNote}</p>
       {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
     </div>
   );

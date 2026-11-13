@@ -68,7 +68,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/provide
           <CardContent className="space-y-3 text-sm">
             {status === "not_connected" ? (
               <>
-                <p>Customers pay your invoices by card on a secure Stripe page, and the money goes to your own Stripe account. DoneZo&apos;s fee is {fee} of each card payment; Stripe&apos;s processing fee is charged by Stripe. No fee on cash, Venmo or Cash App.</p>
+                <p>Customers pay your invoices by card on a secure Stripe page, and the money goes to your own Stripe account. HomeHire&apos;s fee is {fee} of each card payment; Stripe&apos;s processing fee is charged by Stripe. No fee on cash, Venmo or Cash App.</p>
                 <ConnectStripeButton label="Connect Stripe" />
               </>
             ) : status !== "active" ? (
@@ -120,7 +120,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/provide
                 <th className="px-4 py-3 font-medium">Invoice</th>
                 <th className="px-4 py-3 font-medium">Method</th>
                 <th className="px-4 py-3 text-right font-medium">Amount</th>
-                <th className="px-4 py-3 text-right font-medium">DoneZo fee</th>
+                <th className="px-4 py-3 text-right font-medium">HomeHire fee</th>
                 <th className="px-4 py-3 font-medium">Confirmation</th>
               </tr>
             </thead>

@@ -15,7 +15,7 @@ async function marketplaceProvider(browser: Browser, name: string, zip = "78704"
   await page.getByLabel("Service radius (miles)").fill("20");
   await page.getByLabel("Lawn mowing").check();
   await expect(page.getByRole("checkbox", { name: /Misc \/ other/ })).toBeChecked(); // on for everyone by default
-  const card = page.getByRole("checkbox", { name: /Card \(through DoneZo\)/ });
+  const card = page.getByRole("checkbox", { name: /Card \(through HomeHire\)/ });
   await expect(card).toBeChecked();
   await expect(card).toBeDisabled(); // mandatory, can't be unticked
   await page.getByLabel("Cash", { exact: true }).check();
@@ -128,7 +128,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(alpha.getByLabel("Message", { exact: true })).toHaveCount(0); // no chat before confirming
     await confirmPanel.getByRole("button", { name: "Confirm job" }).click();
     const alphaBookingUrl = alpha.url();
-    // DoneZo shares no address, phone or email: only the first name. The customer sends what they choose in the chat.
+    // HomeHire shares no address, phone or email: only the first name. The customer sends what they choose in the chat.
     await expect(alpha.getByText("Your customer will send the address in the chat.")).toBeVisible();
     await expect(alpha.getByText(lastCustomerEmail)).toHaveCount(0);
     await expect(alpha.getByTestId("confirm-panel")).toHaveCount(0);
@@ -205,7 +205,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     // Previous pages stay mounted (hidden) for instant back-navigation, so look at visible text only.
     await expect(page.getByText("5.0").filter({ visible: true }).first()).toBeVisible();
     await expect(page.getByText("On time and did a great job.").filter({ visible: true })).toBeVisible();
-    await expect(page.getByText(/1 job completed on DoneZo/).filter({ visible: true })).toBeVisible();
+    await expect(page.getByText(/1 job completed on HomeHire/).filter({ visible: true })).toBeVisible();
   });
 
   test("the customer can give the chosen provider 10 more minutes, or drop them and pick another bid", async ({ page, browser }) => {

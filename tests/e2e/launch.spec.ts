@@ -223,7 +223,7 @@ test.describe("push notifications", () => {
     await expect(page.getByTestId("push-setting").getByRole("button", { name: "Turn on notifications" })).toBeVisible();
 
     const manifest = await (await request.get("/manifest.webmanifest")).json();
-    expect(manifest).toMatchObject({ name: "DoneZo", display: "standalone" });
+    expect(manifest).toMatchObject({ name: "HomeHire", display: "standalone" });
     expect((await request.get("/sw.js")).ok()).toBe(true);
     expect((await request.get("/icons/icon-192.png")).ok()).toBe(true);
 

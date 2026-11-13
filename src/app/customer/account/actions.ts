@@ -57,7 +57,7 @@ export async function saveGuestAccount(_prev: ProfileState, formData: FormData):
     { emailRedirectTo: `${publicEnv.siteUrl()}/auth/confirm?next=/customer` },
   );
   if (error) {
-    return { status: "error", message: /already|registered|exists/i.test(error.message) ? "That email already has a DoneZo account. Log in with it instead." : "Could not save your account. Please try again." };
+    return { status: "error", message: /already|registered|exists/i.test(error.message) ? "That email already has a HomeHire account. Log in with it instead." : "Could not save your account. Please try again." };
   }
   await supabase.from("profiles").update({ full_name: parsed.data.firstName }).eq("id", user.id);
   refresh();

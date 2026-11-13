@@ -1,4 +1,4 @@
-/** "Keep me signed in" (owner request 2026-11-13): ticked by default so DoneZo opens already signed in. */
+/** "Keep me signed in" (owner request 2026-11-13): ticked by default so HomeHire opens already signed in. */
 export function RememberMe() {
   return (
     <label className="flex cursor-pointer items-center gap-2 text-sm">

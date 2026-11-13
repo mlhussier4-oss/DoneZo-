@@ -30,7 +30,7 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
     .eq("id", id)
     .single();
   if (!job) notFound();
-  // DoneZo Basic: only marketplace jobs.
+  // HomeHire Basic: only marketplace jobs.
   if (!business.hasCrm && job.source !== "marketplace") redirect("/provider/plan?need=pro");
 
   const [{ data: photos }, { data: invoices }, { data: history }, { data: booking }, { data: assignments }, team] = await Promise.all([

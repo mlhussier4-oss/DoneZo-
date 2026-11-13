@@ -10,7 +10,7 @@ export default function UpdatePasswordPage() {
     <Card>
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Choose a password</CardTitle>
-        <p className="text-sm text-muted-foreground">You&apos;ll use it with your email to sign in to DoneZo.</p>
+        <p className="text-sm text-muted-foreground">You&apos;ll use it with your email to sign in to HomeHire.</p>
       </CardHeader>
       <CardContent>
         <UpdatePasswordForm />

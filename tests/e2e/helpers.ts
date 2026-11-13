@@ -43,7 +43,7 @@ export async function signUpProvider(
 ) {
   const password = opts.password ?? "Correct-horse-9";
   await page.goto("/signup/provider");
-  const planLabel = { basic: "DoneZo Basic · $9.99/month", crm: "DoneZo Pro · $19.99/month, business tools only", marketplace: "DoneZo Pro · $19.99/month, with marketplace" }[opts.usage];
+  const planLabel = { basic: "HomeHire Basic · $9.99/month", crm: "HomeHire Pro · $19.99/month, business tools only", marketplace: "HomeHire Pro · $19.99/month, with marketplace" }[opts.usage];
   await page.getByText(planLabel).click();
   await page.getByLabel("Business name").fill(opts.businessName);
   await page.getByLabel("Your name").fill("Test Owner");

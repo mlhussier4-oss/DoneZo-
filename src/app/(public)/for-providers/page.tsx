@@ -17,11 +17,11 @@ export default function ForProvidersPage() {
         </p>
       </div>
 
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Why pros choose DoneZo">
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Why pros choose HomeHire">
         {[
           { title: "New customers nearby", text: "Real local jobs with photos and details land on your job board as they're posted." },
           { title: "No paying for leads", text: "Bid only on the jobs you want, at your price. Bids are sealed." },
-          { title: "Get paid your way", text: "Take cards through DoneZo, or cash, Venmo, Cash App and check with no DoneZo fee." },
+          { title: "Get paid your way", text: "Take cards through HomeHire, or cash, Venmo, Cash App and check with no HomeHire fee." },
           { title: "Your business in one place", text: "With Pro: customers, calendar, recurring visits, invoices, reports and your team." },
         ].map((item) => (
           <li key={item.title} className="rounded-lg border border-border border-t-4 border-t-cta bg-card p-4 shadow-sm">

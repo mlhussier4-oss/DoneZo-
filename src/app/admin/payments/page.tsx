@@ -23,17 +23,17 @@ export default async function AdminPaymentsPage() {
   const { data: names } = businessIds.length ? await supabase.from("businesses").select("id, name").in("id", businessIds) : { data: [] };
   const nameOf = new Map((names ?? []).map((b) => [b.id, b.name]));
   const active = (subs ?? []).filter((s) => s.status === "active" || s.status === "past_due");
-  // Stripe refunds DoneZo's fee in proportion to the amount refunded.
+  // Stripe refunds HomeHire's fee in proportion to the amount refunded.
   const feesEarned = (payments ?? []).reduce((sum, p) => sum + Math.round(p.application_fee_cents * (1 - p.refunded_cents / p.amount_cents)), 0);
   const cardVolume = (payments ?? []).reduce((sum, p) => sum + p.amount_cents - p.refunded_cents, 0);
 
   return (
     <>
-      <PageHeader title="Payments" description="Stripe test mode. Card payments go to each provider's own Stripe account; DoneZo receives its fee." />
+      <PageHeader title="Payments" description="Stripe test mode. Card payments go to each provider's own Stripe account; HomeHire receives its fee." />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile label="Active subscriptions" value={String(active.length)} context={`${formatMoney(active.reduce((sum, s) => sum + (s.businesses?.plans?.price_cents ?? 0), 0))} / month · ${active.filter((s) => s.businesses?.plans?.price_cents === 1999).length} Pro, ${active.filter((s) => s.businesses?.plans?.price_cents === 999).length} Basic`} />
         <StatTile label="Card volume" value={formatMoney(cardVolume)} context="after refunds, last 200 payments" />
-        <StatTile label="DoneZo card fees" value={formatMoney(feesEarned)} context="after refunds" />
+        <StatTile label="HomeHire card fees" value={formatMoney(feesEarned)} context="after refunds" />
         <StatTile label="Card fee rate" value={`${(settings?.card_fee_bps ?? 1000) / 100}%`} />
       </div>
       <Card className="mt-6">
@@ -48,7 +48,7 @@ export default async function AdminPaymentsPage() {
               <tbody>
                 {(subs ?? []).map((s) => (
                   <tr key={s.business_id} className="border-t border-border">
-                    <td className="py-2">{s.businesses?.name} <span className="text-xs text-muted-foreground">{s.businesses?.plans?.name?.replace("DoneZo ", "")}</span></td>
+                    <td className="py-2">{s.businesses?.name} <span className="text-xs text-muted-foreground">{s.businesses?.plans?.name?.replace("HomeHire ", "")}</span></td>
                     <td className="py-2"><Badge tone={s.status === "active" ? "success" : s.status === "past_due" ? "warning" : "neutral"}>{s.status ?? "not started"}</Badge></td>
                     <td className="py-2">{s.current_period_end ? `${s.cancel_at_period_end ? "Ends" : "Renews"} ${formatDate(s.current_period_end)}` : "—"}</td>
                   </tr>

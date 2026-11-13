@@ -114,7 +114,7 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
     timezone: b.timezone,
     defaultTaxRateBps: b.default_tax_rate_bps,
     memberRole: data.role as CurrentBusiness["memberRole"],
-    plan: { code: b.plans?.code === "basic" ? "basic" : "pro", name: b.plans?.name ?? "DoneZo Pro", priceCents: b.plans?.price_cents ?? 1999 },
+    plan: { code: b.plans?.code === "basic" ? "basic" : "pro", name: b.plans?.name ?? "HomeHire Pro", priceCents: b.plans?.price_cents ?? 1999 },
     hasCrm: b.plans?.code !== "basic",
   };
 });
