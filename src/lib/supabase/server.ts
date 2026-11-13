@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { connection } from "next/server";
 import { publicEnv } from "@/lib/env";
 import type { Database } from "./database.types";
+import { REMEMBER_COOKIE, sessionOnly } from "./remember";
 
 /**
  * Supabase client for Server Components, Server Actions and Route Handlers.
@@ -20,7 +21,8 @@ export async function createClient() {
       },
       setAll(cookiesToSet) {
         try {
-          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options));
+          const remember = cookieStore.get(REMEMBER_COOKIE)?.value;
+          cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, sessionOnly(options, remember)));
         } catch {
           // Called from a Server Component, where cookies are read-only.
           // The proxy refreshes the session cookie instead.

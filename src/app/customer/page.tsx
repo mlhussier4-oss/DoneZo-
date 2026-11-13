@@ -78,7 +78,7 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
         </div>
       ) : (
         <EmptyState icon={ClipboardList} title="No jobs in progress" action={<Link href="/post-job" className={buttonVariants({ size: "sm" })}>Post a job</Link>}>
-          Post a job in about a minute. Nearby providers send bids, and you choose. No card or email needed.
+          Post a job in about a minute. Nearby providers send bids, and you choose. No card needed.
         </EmptyState>
       )}
       <p className="mt-6 text-sm"><Link href="/customer/requests" className="text-primary hover:underline">All my jobs →</Link></p>

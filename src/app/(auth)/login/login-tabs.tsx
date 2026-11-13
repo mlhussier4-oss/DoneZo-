@@ -1,6 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
+import { CustomerBenefits } from "@/components/marketing/customer-benefits";
 import { cn } from "@/lib/utils";
 import { EmailCodeForm } from "../_components/email-code-form";
 import { PasswordSignInForm } from "../_components/password-sign-in-form";
@@ -33,7 +35,25 @@ export function LoginTabs({ initialTab, next }: { initialTab: Tab; next?: string
           </button>
         ))}
       </div>
-      {tab === "customer" ? <EmailCodeForm next={next} /> : <PasswordSignInForm next={next} />}
+      {tab === "customer" ? <CustomerLogin next={next} /> : <PasswordSignInForm next={next} />}
+    </div>
+  );
+}
+
+/** Customers: the benefits at a glance, then email + password (or a one-time code). */
+function CustomerLogin({ next }: { next?: string }) {
+  const [withCode, setWithCode] = useState(false);
+  return (
+    <div className="space-y-5">
+      <CustomerBenefits className="grid gap-2" />
+      {withCode ? <EmailCodeForm next={next} /> : <PasswordSignInForm next={next} />}
+      <button type="button" onClick={() => setWithCode(!withCode)} className="w-full cursor-pointer text-center text-sm text-primary hover:underline">
+        {withCode ? "Use my password instead" : "Email me a sign-in code instead"}
+      </button>
+      <p className="text-center text-sm text-muted-foreground">
+        New to DoneZo?{" "}
+        <Link href={next ? `/signup/customer?next=${encodeURIComponent(next)}` : "/signup/customer"} className="font-medium text-primary hover:underline">Create your account</Link>
+      </p>
     </div>
   );
 }

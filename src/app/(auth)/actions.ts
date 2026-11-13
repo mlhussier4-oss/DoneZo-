@@ -1,10 +1,13 @@
 "use server";
 
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { REMEMBER_COOKIE } from "@/lib/supabase/remember";
 import { z } from "zod";
-import { homePathFor, safeNextPath, type AppRole } from "@/lib/auth";
+import { homePathFor, nextAllowedFor, safeNextPath, type AppRole } from "@/lib/auth";
 import { PAYMENT_TERMS_VERSION } from "@/config/legal";
 import { publicEnv } from "@/lib/env";
+import { firstNameSchema } from "@/lib/validation/names";
 import { createClient } from "@/lib/supabase/server";
 
 export type FormState = {
@@ -32,6 +35,13 @@ const password = z
 
 type ServerClient = Awaited<ReturnType<typeof createClient>>;
 
+/** Saves the "Keep me signed in" choice before the login cookies are written (see lib/supabase/remember.ts). */
+async function saveRememberChoice(formData: FormData) {
+  (await cookies()).set(REMEMBER_COOKIE, formData.get("remember") === "on" ? "1" : "0", {
+    path: "/", maxAge: 60 * 60 * 24 * 400, sameSite: "lax", secure: publicEnv.siteUrl().startsWith("https://"),
+  });
+}
+
 /** Send a freshly signed-in user to their own area (uses the client that holds the new session). */
 async function redirectAfterSignIn(supabase: ServerClient, userId: string | undefined, next: unknown): Promise<never> {
   let role: AppRole = "customer";
@@ -40,10 +50,8 @@ async function redirectAfterSignIn(supabase: ServerClient, userId: string | unde
     if (profile?.role) role = profile.role as AppRole;
   }
   const safeNext = safeNextPath(next);
-  // Only follow "next" when it is inside the user's own area (or a neutral page).
-  const home = homePathFor(role);
-  const allowed = safeNext && (safeNext.startsWith(home) || safeNext.startsWith("/account") || safeNext === "/");
-  redirect(allowed ? safeNext : home);
+  // Only follow "next" when it is inside the user's own area (or a neutral page, or posting a job).
+  redirect(nextAllowedFor(role, safeNext) ? safeNext! : homePathFor(role));
 }
 
 // ---------------------------------------------------------------------------
@@ -89,11 +97,39 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
 }
 
 // ---------------------------------------------------------------------------
-// Password sign-in (providers and admins)
+// Customer sign-up (owner decision 2026-11-13): first name only, email and password, before posting a job.
+// ---------------------------------------------------------------------------
+const customerSignUpSchema = z.object({ firstName: firstNameSchema, email, password, next: z.string().optional() });
+
+export async function customerSignUp(_prev: FormState, formData: FormData): Promise<FormState> {
+  await saveRememberChoice(formData);
+  const parsed = customerSignUpSchema.safeParse(Object.fromEntries(formData));
+  if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error) };
+  const { firstName, email: address, password: pw } = parsed.data;
+  const next = safeNextPath(parsed.data.next);
+  const after = next && nextAllowedFor("customer", next) ? next : "/customer";
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signUp({
+    email: address,
+    password: pw,
+    options: {
+      emailRedirectTo: `${publicEnv.siteUrl()}/auth/confirm?next=${encodeURIComponent(after)}`,
+      // signup_next: where the confirmation email returns them (e.g. back to posting their job).
+      data: { full_name: firstName, signup_next: after },
+    },
+  });
+  if (error) return { status: "error", message: friendlyAuthError(error.message) };
+  // Same message whether or not the email was already registered (privacy).
+  return { status: "success", email: address };
+}
+
+// ---------------------------------------------------------------------------
+// Password sign-in (customers, providers and admins)
 // ---------------------------------------------------------------------------
 const passwordSignInSchema = z.object({ email, password: z.string().min(1, "Enter your password.") });
 
 export async function passwordSignIn(_prev: FormState, formData: FormData): Promise<FormState> {
+  await saveRememberChoice(formData);
   const parsed = passwordSignInSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) return { status: "error", fieldErrors: fieldErrors(parsed.error) };
 
@@ -119,13 +155,15 @@ export async function sendEmailCode(_prev: FormState, formData: FormData): Promi
   const { error } = await supabase.auth.signInWithOtp({
     email: parsed.data.email,
     options: {
-      shouldCreateUser: true,
-      // Only applied when this creates a new account; role is re-checked by the database.
-      data: { role: "customer", full_name: parsed.data.fullName || null },
+      // Codes are a sign-in option for existing accounts; new customers sign up with a password (owner decision 2026-11-13).
+      shouldCreateUser: false,
       emailRedirectTo: `${publicEnv.siteUrl()}/auth/confirm?next=/customer`,
     },
   });
-  if (error) return { status: "error", message: friendlyAuthError(error.message), email: parsed.data.email };
+  if (error) {
+    const noAccount = /signups not allowed|user not found/i.test(error.message);
+    return { status: "error", message: noAccount ? "We couldn't find a DoneZo account with that email. Create one below." : friendlyAuthError(error.message), email: parsed.data.email };
+  }
   return { status: "verify", email: parsed.data.email };
 }
 
@@ -138,6 +176,7 @@ const verifyCodeSchema = z.object({
 });
 
 export async function verifyEmailCode(_prev: FormState, formData: FormData): Promise<FormState> {
+  await saveRememberChoice(formData);
   const parsed = verifyCodeSchema.safeParse(Object.fromEntries(formData));
   if (!parsed.success) {
     return { status: "verify", email: String(formData.get("email") ?? ""), fieldErrors: fieldErrors(parsed.error) };

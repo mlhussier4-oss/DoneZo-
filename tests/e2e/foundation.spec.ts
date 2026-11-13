@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
-import { atPath, createAdminUser, deleteTestCategories, signInAsAdmin, signInWithCode, businessIdForEmail, serviceClient, signUpProvider, uniqueEmail } from "./helpers";
+import { atPath, createAdminUser, deleteTestCategories, signInAsAdmin, signInWithCode, signUpCustomer, createCustomer, businessIdForEmail, serviceClient, signUpProvider, uniqueEmail } from "./helpers";
+
+const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", "base64");
 
 test.describe("public site", () => {
   test("homepage shows the promise and every service", async ({ page }) => {
@@ -122,21 +124,56 @@ test.describe("provider accounts", () => {
 });
 
 test.describe("customer accounts", () => {
-  test("customer signs up with an email code (no password) and can edit their profile", async ({ page }) => {
+  test("posting needs an account first; customers sign up with first name, email and password and set a photo", async ({ page }) => {
+    // Signed out, "Post a job" leads to sign-up, which shows why DoneZo is worth it.
+    await page.goto("/post-job?category=lawn-mowing");
+    await expect(page).toHaveURL(/\/signup\/customer\?next=/);
+    const benefits = page.getByTestId("customer-benefits");
+    for (const t of ["Quick", "No stuffed inbox", "Easy to choose", "Your info stays private"]) await expect(benefits.getByText(t, { exact: true })).toBeVisible();
+
+    // A first and last name is turned away: first name only.
+    await page.getByLabel("First name").fill("Casey Homeowner");
+    await page.getByLabel("Email").fill(uniqueEmail("x"));
+    await page.getByLabel("Password").fill("Correct-horse-9");
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Just your first name, please (no last name).")).toBeVisible();
+
     const email = uniqueEmail("cust");
-    await signInWithCode(page, email, { path: "/signup/customer", fullName: "Casey Homeowner" });
-    await expect(page).toHaveURL(atPath("/customer"));
+    await signUpCustomer(page, email, { firstName: "Casey", startAt: "/post-job?category=lawn-mowing" });
+    await expect(page).toHaveURL(/\/post-job\?category=lawn-mowing/); // straight back to posting
+    await page.goto("/customer");
     await expect(page.getByRole("heading", { name: "Hi, Casey" })).toBeVisible();
 
-    await page.getByRole("navigation", { name: "My account navigation" }).first().getByRole("link", { name: "Account" }).click();
-    await page.getByLabel("Phone").fill("555-0199");
+    await page.getByRole("navigation", { name: "My account navigation" }).first().getByRole("link", { name: "Profile" }).click();
+    await page.getByTestId("avatar-input").setInputFiles({ name: "me.png", mimeType: "image/png", buffer: PNG });
+    await expect(page.getByRole("img", { name: "Casey's photo" })).toBeVisible({ timeout: 15_000 });
+    await page.getByLabel("First name").fill("Cassie");
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.getByText("Saved.")).toBeVisible();
+
+    // "Keep me signed in" (ticked by default) keeps the login across visits: the login cookie has an expiry date.
+    const authCookies = async () => (await page.context().cookies()).filter((c) => c.name.startsWith("sb-") && c.name.includes("auth-token"));
+    expect((await authCookies()).every((c) => c.expires > Date.now() / 1000 + 86_400)).toBe(true);
+
+    // On a shared computer they untick it: the login then ends when the browser closes (no expiry date).
+    await page.context().clearCookies();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill("Correct-horse-9");
+    const remember = page.getByLabel(/Keep me signed in/);
+    await expect(remember).toBeChecked();
+    await remember.uncheck();
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("heading", { name: "Hi, Cassie" })).toBeVisible();
+    expect((await authCookies()).length).toBeGreaterThan(0);
+    expect((await authCookies()).every((c) => c.expires === -1)).toBe(true);
   });
 
   test("a wrong code is rejected", async ({ page }) => {
     const email = uniqueEmail("badcode");
+    await createCustomer(email);
     await page.goto("/login");
+    await page.getByRole("button", { name: "Email me a sign-in code instead" }).click();
     await page.getByLabel("Email").fill(email);
     await page.getByRole("button", { name: "Email me a code" }).click();
     await page.getByLabel("Code").fill("000000");

@@ -68,9 +68,9 @@ describe("database security audit", () => {
         and (has_function_privilege('anon', p.oid, 'execute') or has_function_privilege('authenticated', p.oid, 'execute'))`)).toEqual([]);
   });
 
-  it("only the business logo/portfolio bucket is public; private photos have size and type limits", async () => {
+  it("only business logos/portfolio and customer profile photos are public; every bucket has size and type limits", async () => {
     const { rows: buckets } = await db.query(`select id, public, file_size_limit, allowed_mime_types from storage.buckets order by id`);
-    expect(buckets.filter((b) => b.public).map((b) => b.id)).toEqual(["business-media"]);
+    expect(buckets.filter((b) => b.public).map((b) => b.id)).toEqual(["avatars", "business-media"]);
     for (const b of buckets) {
       expect(Number(b.file_size_limit)).toBeGreaterThan(0);
       expect(b.allowed_mime_types.every((m: string) => m.startsWith("image/"))).toBe(true);

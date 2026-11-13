@@ -4,7 +4,7 @@
  */
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
-import { createAdminUser, latestEmail, extractCode, serviceClient, uniqueEmail } from "./helpers";
+import { createAdminUser, createCustomer, latestEmail, extractCode, serviceClient, uniqueEmail } from "./helpers";
 import { PAYMENT_TERMS_VERSION } from "../../src/config/legal";
 
 type Person = { email: string; password: string; id: string };
@@ -45,7 +45,9 @@ async function signInWithPassword(page: Page, who: { email: string; password: st
 }
 
 async function signInCustomer(page: Page, email: string) {
+  await createCustomer(email);
   await page.goto("/login");
+  await page.getByRole("button", { name: "Email me a sign-in code instead" }).click();
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Email me a code" }).click();
   await expect(page.getByText("We sent a 6-digit code")).toBeVisible();

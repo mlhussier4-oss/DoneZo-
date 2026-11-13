@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CalendarCheck, ChevronDown, Inbox, MessageSquare } from "lucide-react";
+import { CalendarCheck, ChevronDown, Inbox, MessageSquare, Timer } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { BidCard } from "@/components/marketplace/bid-card";
 import { MessageThread } from "@/components/marketplace/message-thread";
@@ -67,6 +67,15 @@ export function JobCard({ req, bids, booking, thread, userId }: {
               <ChevronDown className="size-5 transition-transform group-open:rotate-180" aria-hidden />
             </summary>
             <div className="mt-3 space-y-3">
+              {/* How picking works (owner request 2026-11-13), shown above the bids. */}
+              <div className="flex items-start gap-3 rounded-lg border border-cta/60 bg-accent-soft p-3 text-sm" data-testid="pick-note">
+                <Timer className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
+                <p>
+                  <span className="font-semibold">When you pick a bid, that provider has 5 minutes to confirm your job.</span>{" "}
+                  If time is running low, you can give them more time when asked. If they don&apos;t confirm, they lose the job and
+                  you can pick any of your other bids, so you don&apos;t waste time.
+                </p>
+              </div>
               {available.length ? available.map((b) => (
                 <BidCard key={b.id} bid={b}>
                   <AcceptBidButton bidId={b.id} businessName={b.business.name} priceCents={b.price_cents} />

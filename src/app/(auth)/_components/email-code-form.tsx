@@ -7,6 +7,7 @@ import { sendEmailCode, verifyEmailCode, type FormState } from "../actions";
 import { Alert } from "@/components/ui/alert";
 import { Field, Input } from "@/components/ui/input";
 import { SubmitButton } from "./submit-button";
+import { RememberMe } from "./remember-me";
 
 /**
  * Passwordless sign-in / sign-up with a 6-digit email code.
@@ -27,6 +28,7 @@ export function EmailCodeForm({ askName = false, next }: { askName?: boolean; ne
           </span>
         </Alert>
         <input type="hidden" name="email" value={email} />
+        <RememberMe />
         {next ? <input type="hidden" name="next" value={next} /> : null}
         <Field label="Code" htmlFor="token" error={verifyState.fieldErrors?.token}>
           <Input

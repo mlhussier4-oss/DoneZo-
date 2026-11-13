@@ -25,11 +25,6 @@ const requestSchema = z
     preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
     zip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP code."),
     photoCount: z.number().int().min(1, "Add at least one photo of the job.").max(10),
-    line1: z.string().trim().min(1, "Enter the street address.").max(200),
-    line2: z.string().trim().max(200),
-    city: z.string().trim().min(1, "Enter the city.").max(100),
-    phone: z.string().trim().max(30),
-    smsConsent: z.boolean(),
   })
   .refine((v) => v.timing !== "specific_date" || v.preferredDate, { message: "Choose a date.", path: ["preferredDate"] });
 
@@ -37,7 +32,8 @@ export type NewRequest = z.input<typeof requestSchema>;
 
 export async function createRequest(input: NewRequest): Promise<{ ok: true; id: string; userId: string } | { ok: false; message: string }> {
   const user = await getCurrentUser();
-  if (!user) return { ok: false, message: "Please confirm your email first." };
+  if (!user) return { ok: false, message: "Please log in or create your account first." };
+  if (user.role === "customer" && !user.email) return { ok: false, message: "Please create your account (first name, email and password) to post a job." };
   if (user.role !== "customer") {
     return { ok: false, message: "You're signed in with a provider or admin account. Sign in with a customer account to post a job." };
   }
@@ -55,16 +51,6 @@ export async function createRequest(input: NewRequest): Promise<{ ok: true; id: 
     zip: v.zip,
   });
   if (error) return { ok: false, message: dbErrorMessage(error, "Could not post your job. Please try again.") };
-  const { error: locError } = await supabase.from("service_request_locations").insert({
-    request_id: v.id,
-    line1: v.line1,
-    line2: v.line2 || null,
-    city: v.city,
-    state: "TX",
-    phone: v.phone || null,
-    sms_consent: v.smsConsent && Boolean(v.phone),
-  });
-  if (locError) return { ok: false, message: "Your job was posted but the address could not be saved. Please contact support." };
   return { ok: true, id: v.id, userId: user.id };
 }
 
