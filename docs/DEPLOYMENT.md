@@ -1,6 +1,6 @@
 # Deploying DoneZo
 
-**Domain: donezo.org** (bought by the owner on Cloudflare, 2026-11-11).
+**Domain: homehire.us** (bought by the owner on Cloudflare, 2026-11-11).
 
 ## Status (private test, free plans, Stripe test mode)
 | Step | State |
@@ -8,11 +8,11 @@
 | Supabase project `DoneZo1` (US East) | ✅ all migrations applied (through `20261119000100`); permissions identical to the tested setup; guest sign-in on (30/hour per IP) |
 | Supabase sign-in settings | ✅ site URL, password rules, 15-min codes, DoneZo email templates |
 | Vercel project `donezo-` | ✅ builds from `main`; settings added (Supabase, webhook secrets, private-test mode) |
-| Stripe test-mode webhooks for https://donezo.org/api/stripe/webhook | ✅ subscriptions + connected accounts |
+| Stripe test-mode webhooks for https://homehire.us/api/stripe/webhook | ✅ subscriptions + connected accounts |
 | `STRIPE_SECRET_KEY` in Vercel | ✅ test key |
-| DNS in Cloudflare | ✅ donezo.org live; www redirects |
+| DNS in Cloudflare | ✅ homehire.us live; www redirects |
 | Live end-to-end check (2026-11-12) | ✅ post → bid → pick → confirm → chat |
-| Resend sending domain + Supabase SMTP | ✅ no-reply@donezo.org via smtp.resend.com; live provider sign-up email verified 2026-11-12 |
+| Resend sending domain + Supabase SMTP | ✅ no-reply@homehire.us via smtp.resend.com; live provider sign-up email verified 2026-11-12 |
 | First admin account | ⏳ after the site is reachable |
 
 Earlier text:  Putting DoneZo online needs the owner's approval
@@ -33,11 +33,11 @@ Total to start: **about $45–$65/month** plus the domain.
 
 **Owner decision 2026-11-11: start on free plans** for a private test (Vercel Hobby, Supabase Free, Resend Free; Stripe test mode, no real charges). Move to Supabase Pro and paid hosting before charging real providers.
 
-### donezo.org on Cloudflare
+### homehire.us on Cloudflare
 - The owner manages the domain in their own Cloudflare account; nobody else needs the login.
-- Website: add the DNS records Vercel shows when the domain is added to the Vercel project (usually an `A` record for `donezo.org` and a `CNAME` for `www`), with Cloudflare's proxy set to **DNS only** (grey cloud) so Vercel can issue the HTTPS certificate.
-- Sending email (Resend): add the SPF/DKIM records Resend shows for a sending subdomain such as `mail.donezo.org`; sender `DoneZo <no-reply@donezo.org>`.
-- Receiving email: Cloudflare Email Routing (free) can forward `support@donezo.org` to the owner's inbox; set `NEXT_PUBLIC_SUPPORT_EMAIL=support@donezo.org`.
+- Website: add the DNS records Vercel shows when the domain is added to the Vercel project (usually an `A` record for `homehire.us` and a `CNAME` for `www`), with Cloudflare's proxy set to **DNS only** (grey cloud) so Vercel can issue the HTTPS certificate.
+- Sending email (Resend): add the SPF/DKIM records Resend shows for a sending subdomain such as `mail.homehire.us`; sender `DoneZo <no-reply@homehire.us>`.
+- Receiving email: Cloudflare Email Routing (free) can forward `support@homehire.us` to the owner's inbox; set `NEXT_PUBLIC_SUPPORT_EMAIL=support@homehire.us`.
 
 ## One-time setup (in this order)
 
@@ -45,13 +45,13 @@ Total to start: **about $45–$65/month** plus the domain.
 2. **Database**: from this repository, link and push migrations (or apply them through the Management API, as done for the private test). Note: Supabase cloud projects give broad table permissions by default; migration `20261118000000_explicit_privileges.sql` resets them to the tested set, so always run every migration:
    `npx supabase link --project-ref <ref>` then `npx supabase db push`. This creates every table, rule, function, scheduled job (pg_cron) and storage bucket, plus the ZIP-code and service-category reference data. No test data is included.
 3. **Supabase Auth settings** (dashboard → Authentication):
-   - Site URL = `https://donezo.org`; add `https://donezo.org/auth/confirm` to Redirect URLs.
+   - Site URL = `https://homehire.us`; add `https://homehire.us/auth/confirm` to Redirect URLs.
    - Email templates: copy from `supabase/templates/` (confirmation, magic link/code, recovery, invite).
    - Custom SMTP: Resend's SMTP details, sender e.g. `DoneZo <no-reply@yourdomain>`.
    - Passwords: minimum 8, "letters and digits"; "Secure password change" on. Email OTP expiry 900 s. Email sending interval 60 s.
    - Turn on leaked-password protection if the plan offers it.
 4. **Vercel project**: import the GitHub repository. Set the environment variables below (Production only). Add the domain.
-5. **Stripe (test mode first)**: Dashboard → Developers → Webhooks, add endpoint `https://donezo.org/api/stripe/webhook`:
+5. **Stripe (test mode first)**: Dashboard → Developers → Webhooks, add endpoint `https://homehire.us/api/stripe/webhook`:
    - *Your account* events (subscriptions): `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
    - A second endpoint for *Connected accounts* (providers' card payments): `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`, `checkout.session.expired`, `charge.refunded`, `account.updated`.
    - Copy each signing secret into `STRIPE_WEBHOOK_SECRET` / `STRIPE_CONNECT_WEBHOOK_SECRET`.
@@ -63,7 +63,7 @@ Total to start: **about $45–$65/month** plus the domain.
 
 | Name | Value |
 |---|---|
-| `NEXT_PUBLIC_SITE_URL` | `https://donezo.org` (must be https) |
+| `NEXT_PUBLIC_SITE_URL` | `https://homehire.us` (must be https) |
 | `NEXT_PUBLIC_SUPABASE_URL` | from Supabase |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | from Supabase |
 | `SUPABASE_SECRET_KEY` | from Supabase (secret) |
@@ -72,7 +72,7 @@ Total to start: **about $45–$65/month** plus the domain.
 | `STRIPE_ALLOW_LIVE` | `false` |
 | `NEXT_PUBLIC_VAPID_PUBLIC_KEY` | Push notifications public key (`npx web-push generate-vapid-keys`). Set **before** the build: it is built into the page. |
 | `VAPID_PRIVATE_KEY` | Push notifications private key (secret) |
-| `VAPID_SUBJECT` | `mailto:support@donezo.org` |
+| `VAPID_SUBJECT` | `mailto:support@homehire.us` |
 | `PUSH_WEBHOOK_SECRET` | Random secret the database sends to `/api/push` (secret; same value as the Vault secret below) |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | optional, e.g. `support@<your domain>` |
 
@@ -103,7 +103,7 @@ Every row added to `notifications` is pushed to the person's registered phones/c
 The database calls the website with pg_net; set these once per Supabase project (SQL editor), never in a migration:
 
 ```sql
-select vault.create_secret('https://donezo.org/api/push', 'push_webhook_url');
+select vault.create_secret('https://homehire.us/api/push', 'push_webhook_url');
 select vault.create_secret('<same value as PUSH_WEBHOOK_SECRET>', 'push_webhook_secret');
 ```
 

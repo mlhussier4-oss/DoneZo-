@@ -105,3 +105,6 @@ New service "Misc / other" for odd jobs that don't fit a listed service. It is o
 
 ## 2026-11-13 — Renamed to HomeHire (homehire.us)
 An active handyman app already uses "Donezo", so the brand is now **HomeHire** (domain homehire.us, bought by the owner on Cloudflare). Every customer-facing mention is renamed (site, emails, terms, plan names "HomeHire Basic/Pro", database messages). Logo keeps the navy-and-yellow style: a house with a check mark. Internal identifiers (Stripe lookup keys donezo_*, metadata keys, the local project id) are unchanged so existing records keep working. donezo.org will redirect to homehire.us.
+
+## 2026-11-13 — Switched production to homehire.us
+Live private test now runs at https://homehire.us (Vercel env NEXT_PUBLIC_SITE_URL, Supabase site URL + allowed redirects, emails from no-reply@homehire.us via Resend with a new homehire.us-scoped key the owner saved in Supabase, Vault push URL, Stripe test-mode webhooks and product names). donezo.org and www redirect (308) to homehire.us; keep donezo.org registered for a year. Still a private test: testing banner, no search indexing, Stripe test mode. Going fully live waits for the owner's LLC, D-U-N-S number and live Stripe account.
