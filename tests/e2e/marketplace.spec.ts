@@ -6,10 +6,10 @@ const PNG = Buffer.from(
   "base64",
 );
 
-async function marketplaceProvider(browser: Browser, name: string, zip = "78704") {
+async function marketplaceProvider(browser: Browser, name: string, zip = "78704", insured = false) {
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
-  await signUpProvider(page, { usage: "marketplace", businessName: name, email: uniqueEmail("pro") });
+  await signUpProvider(page, { usage: "marketplace", businessName: name, email: uniqueEmail("pro"), insured });
   await page.goto("/provider/marketplace/profile");
   await page.getByLabel("Home ZIP code").fill(zip);
   await page.getByLabel("Service radius (miles)").fill("20");
@@ -73,7 +73,7 @@ async function sendBid(pro: Page, description: string, price: string, included: 
 test.describe("marketplace: post → bid → accept → message → change → complete → review", () => {
   test("the whole customer-to-provider booking works with every privacy rule intact", async ({ page, browser }) => {
     test.setTimeout(180_000);
-    const alpha = await marketplaceProvider(browser, "Alpha Lawn Co");
+    const alpha = await marketplaceProvider(browser, "Alpha Lawn Co", "78704", true); // ticked "insured" at sign-up
     const bravo = await marketplaceProvider(browser, "Bravo Yard Pros");
 
     // 1. A new customer creates an account (first name, email, password), posts a job with no card, and lands on their dashboard.
@@ -122,6 +122,7 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(page.getByTestId("pick-note")).toContainText("that provider has 5 minutes to confirm your job");
     await expect(page.getByRole("link", { name: /^Alpha Lawn Co/ })).toBeVisible();
     await expect(page.getByRole("link", { name: /^Bravo Yard Pros/ })).toBeVisible();
+    await expect(page.getByText("Insured", { exact: true })).toHaveCount(1); // only Alpha said they're insured
     page.once("dialog", (d) => d.accept());
     await page.getByRole("button", { name: "Choose Alpha Lawn Co" }).click();
     const waiting = page.getByTestId("waiting-panel");

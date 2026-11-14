@@ -114,6 +114,14 @@ export function ProviderSignupForm({ initialUsage, referralCode, referrerName }:
         <Input id="password" name="password" type="password" autoComplete="new-password" minLength={8} required />
       </Field>
 
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 text-sm">
+        <input type="checkbox" name="insured" className="mt-0.5 size-5 shrink-0 accent-[var(--primary)]" />
+        <span>
+          <span className="font-medium">My business is insured</span>
+          <span className="block text-muted-foreground">Tick this if you carry liability insurance for your work. You&apos;ll get an &ldquo;Insured&rdquo; badge on your bids and profile. You can change it later.</span>
+        </span>
+      </label>
+
       <fieldset className="space-y-3 rounded-lg border border-border p-4">
         <legend className="px-1 text-sm font-medium">Provider terms</legend>
         <div className="max-h-48 overflow-y-auto rounded-md bg-muted p-3 text-xs leading-relaxed" tabIndex={0} aria-label="Provider terms">

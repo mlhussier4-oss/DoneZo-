@@ -39,7 +39,7 @@ export function extractConfirmLink(html: string): string {
 
 export async function signUpProvider(
   page: Page,
-  opts: { usage: "basic" | "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean; startAt?: string },
+  opts: { usage: "basic" | "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean; startAt?: string; insured?: boolean },
 ) {
   const password = opts.password ?? "Correct-horse-9";
   await page.goto(opts.startAt ?? "/signup/provider");
@@ -50,6 +50,7 @@ export async function signUpProvider(
   await page.getByLabel("Email").fill(opts.email);
   await page.getByLabel("Password").fill(password);
   await page.getByLabel(/I agree to the Provider terms/).check();
+  if (opts.insured) await page.getByLabel(/My business is insured/).check();
   await page.getByRole("button", { name: "Create provider account" }).click();
   await expect(page.getByText("Check your email")).toBeVisible();
 

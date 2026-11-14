@@ -16,6 +16,7 @@ export type BidCardData = {
     logo_path: string | null;
     years_experience: number | null;
     verified: boolean;
+    insured?: boolean;
     accepted_payment_methods: string[];
     portfolio: string[];
     stats: Stats;
@@ -60,6 +61,7 @@ export type ProviderProfile = {
   accepted_payment_methods: string[];
   logo_path: string | null;
   verified: boolean;
+  insured?: boolean;
   categories: string[];
   portfolio: { path: string; caption: string | null }[];
   reviews: { rating: number; comment: string | null; created_at: string; author: string }[];

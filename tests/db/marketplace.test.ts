@@ -724,3 +724,25 @@ describe("admin dashboard (owner request 2026-11-14)", () => {
     expect((await c.client.rpc("admin_marketplace_live", { p_status: "all" })).error).not.toBeNull();
   });
 });
+
+describe("insured badge (owner request 2026-11-14)", () => {
+  it("a provider who ticks Insured at sign-up shows it on bids and their profile, and can change it", async () => {
+    const u = await createUser({ role: "provider", business_name: `Insured ${Date.now()}`, marketplace_enabled: true, insured: true });
+    const businessId = await businessIdFor(u.id);
+    await u.client.from("businesses").update({ home_zip: "78704", service_radius_miles: 15 }).eq("id", businessId);
+    await u.client.from("provider_categories").insert({ business_id: businessId, category_id: await categoryId("lawn-mowing") });
+    const p = { ...u, businessId };
+    const plain = await provider({ name: "Uninsured" });
+    const c = await customer();
+    const r = await postJob(c);
+    await bid(p, r.id, 7000);
+    await bid(plain, r.id, 7100);
+    const { data } = await c.client.rpc("request_bids", { p_request_id: r.id });
+    const byName = Object.fromEntries((data as { business: { id: string; insured: boolean } }[]).map((b) => [b.business.id, b.business.insured]));
+    expect(byName[businessId]).toBe(true);
+    expect(byName[plain.businessId]).toBe(false);
+    expect(((await anonClient().rpc("get_provider_profile", { p_business_id: businessId })).data as { insured: boolean }).insured).toBe(true);
+    expect((await u.client.from("businesses").update({ insured: false }).eq("id", businessId)).error).toBeNull();
+    expect(((await anonClient().rpc("get_provider_profile", { p_business_id: businessId })).data as { insured: boolean }).insured).toBe(false);
+  });
+});

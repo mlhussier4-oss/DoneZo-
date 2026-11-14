@@ -13,6 +13,7 @@ import { publicMediaUrl } from "@/lib/marketplace/queries";
 import type { ProviderProfile } from "@/lib/marketplace/types";
 import { createPublicClient } from "@/lib/supabase/public";
 import { connection } from "next/server";
+import { InsuredBadge } from "@/components/marketplace/insured-badge";
 
 export const metadata: Metadata = { title: "Provider profile" };
 
@@ -32,6 +33,7 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-3xl font-bold tracking-tight">{p.name}</h1>
             {p.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified by HomeHire</Badge> : null}
+            {p.insured ? <InsuredBadge /> : null}
           </div>
           <Rating rating={p.stats.rating} count={p.stats.review_count} />
           <p className="text-sm text-muted-foreground">
