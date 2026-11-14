@@ -46,11 +46,11 @@ export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = tr
 }
 
 export const adminNav: NavItem[] = [
-  { href: "/admin", label: "Overview", icon: "gauge", exact: true },
+  { href: "/admin", label: "Dashboard", icon: "gauge", exact: true },
   { href: "/admin/users", label: "Users", icon: "users" },
   { href: "/admin/businesses", label: "Businesses", icon: "store" },
   { href: "/admin/categories", label: "Service categories", icon: "tags" },
-  { href: "/admin/marketplace", label: "Marketplace", icon: "briefcase" },
+  { href: "/admin/marketplace", label: "Marketplace live", icon: "briefcase" },
   { href: "/admin/service-areas", label: "Service areas", icon: "map" },
   { href: "/admin/payments", label: "Payments", icon: "card" },
   { href: "/admin/reports", label: "Support inbox", icon: "flag" },

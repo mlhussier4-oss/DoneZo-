@@ -196,7 +196,9 @@ test.describe("administrators", () => {
 
   test("admin signs in, manages a category (shown on the homepage) and sees it in the audit log", async ({ page }) => {
     await signInAsAdmin(page, await createAdminUser());
-    await expect(page.getByRole("heading", { name: "Platform overview" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Business dashboard" })).toBeVisible();
+    await expect(page.getByTestId("admin-kpis")).toContainText("Customers (with logins)");
+    await expect(page.getByTestId("admin-kpis")).toContainText("Subscribed providers");
 
     const name = `Gutter cleaning ${Date.now()}`;
     const slug = `e2e-gutter-cleaning-${Date.now()}`;

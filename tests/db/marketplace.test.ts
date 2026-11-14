@@ -704,3 +704,23 @@ describe("misc / other jobs (owner request 2026-11-13)", () => {
     expect(await sees(pro)).toBe(false);
   });
 });
+
+describe("admin dashboard (owner request 2026-11-14)", () => {
+  it("only the admin sees the business dashboard and every job with every bid", async () => {
+    const p = await provider({ name: "Live Bidder" });
+    const c = await customer();
+    const r = await postJob(c);
+    await bid(p, r.id, 7300);
+    const admin = await createAdmin();
+    const { data: dash, error } = await admin.client.rpc("admin_dashboard");
+    expect(error).toBeNull();
+    expect((dash as { jobs_total: number }).jobs_total).toBeGreaterThan(0);
+    expect((dash as { daily: unknown[] }).daily).toHaveLength(30);
+    const { data: live } = await admin.client.rpc("admin_marketplace_live", { p_status: "open" });
+    const job = (live as { id: string; bids: { price_cents: number; business: string }[] }[]).find((j) => j.id === r.id);
+    expect(job?.bids).toEqual([expect.objectContaining({ price_cents: 7300 })]);
+    // Nobody else can.
+    expect((await p.client.rpc("admin_dashboard")).error).not.toBeNull();
+    expect((await c.client.rpc("admin_marketplace_live", { p_status: "all" })).error).not.toBeNull();
+  });
+});

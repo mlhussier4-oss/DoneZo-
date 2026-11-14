@@ -1,5 +1,5 @@
 import { expect, test, type Browser, type Page } from "@playwright/test";
-import { atPath, createCustomer, serviceClient, signUpCustomer, signUpProvider, uniqueEmail } from "./helpers";
+import { atPath, createAdminUser, createCustomer, serviceClient, signInAsAdmin, signUpCustomer, signUpProvider, uniqueEmail } from "./helpers";
 
 const PNG = Buffer.from(
   "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
@@ -104,6 +104,18 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await sendBid(bravo, description, "70", "Mow and edge", "Friday");
     await bravo.reload();
     await expect(bravo.getByText("$65.00")).toHaveCount(0); // never sees Alpha's price
+
+    // The owner's "Marketplace live" view shows the job with both bids side by side.
+    const adminCtx = await browser.newContext();
+    const admin = await adminCtx.newPage();
+    await signInAsAdmin(admin, await createAdminUser());
+    await admin.goto("/admin/marketplace?status=open");
+    const liveJob = admin.getByTestId("live-jobs").locator("li").filter({ hasText: description });
+    await expect(liveJob).toContainText("Alpha Lawn Co");
+    await expect(liveJob).toContainText("$65.00");
+    await expect(liveJob).toContainText("Bravo Yard Pros");
+    await expect(liveJob).toContainText("$70.00");
+    await adminCtx.close();
 
     // 4. Bids appear live in the drop-down under the job, without reloading. The customer picks one.
     await expect(page.getByText("Bids (2)")).toBeVisible({ timeout: 15_000 });
