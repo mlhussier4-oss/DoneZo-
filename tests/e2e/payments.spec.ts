@@ -281,6 +281,7 @@ test.describe("provider referrals (owner decision 2026-11-14)", () => {
       const email = uniqueEmail(`invited${i}`);
       await p.goto(path);
       await expect(p.getByTestId("referred-by")).toContainText("Invited by Referring Lawn Co");
+      await expect(p.getByTestId("provider-how-it-works")).toContainText("a private chat with the customer opens automatically");
       await signUpProvider(p, { usage: "marketplace", businessName: name, email, startAt: path });
       const id = await businessIdForEmail(email);
       const customer = `cus_ref${i}${Date.now()}`;

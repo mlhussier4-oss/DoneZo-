@@ -24,6 +24,16 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
         <CardDescription>HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</CardDescription>
       </CardHeader>
       <CardContent>
+        {/* How jobs work, so pros know what to expect (owner request 2026-11-14). */}
+        <div className="mb-6 rounded-lg bg-muted/60 p-4 text-sm" data-testid="provider-how-it-works">
+          <p className="mb-2 font-semibold">How jobs work on HomeHire</p>
+          <ol className="list-decimal space-y-1 pl-5 text-muted-foreground">
+            <li>Get an alert when a homeowner near you posts a job with photos.</li>
+            <li>Send a sealed bid with your price. Other pros never see it.</li>
+            <li>If the homeowner picks you, confirm the job and your arrival time within 5 minutes.</li>
+            <li><strong className="text-foreground">Once you confirm, a private chat with the customer opens automatically</strong>, where they send you their address and you sort out the details.</li>
+          </ol>
+        </div>
         <Suspense fallback={<div className="h-96" />}>
           <FormWithPreselection searchParams={searchParams} />
         </Suspense>
