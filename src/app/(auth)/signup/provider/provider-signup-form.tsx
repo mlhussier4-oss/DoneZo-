@@ -29,7 +29,7 @@ const usageOptions = [
   },
 ] as const;
 
-export function ProviderSignupForm({ initialUsage }: { initialUsage: "basic" | "crm" | "marketplace" | null }) {
+export function ProviderSignupForm({ initialUsage, referralCode, referrerName }: { initialUsage: "basic" | "crm" | "marketplace" | null; referralCode?: string; referrerName?: string }) {
   const [state, action] = useFormAction<FormState>(providerSignUp, { status: "idle" });
   const [usage, setUsage] = useState<string | null>(initialUsage);
 
@@ -50,6 +50,12 @@ export function ProviderSignupForm({ initialUsage }: { initialUsage: "basic" | "
 
   return (
     <Form form={action}  className="space-y-5" noValidate>
+      {referralCode ? (
+        <>
+          <input type="hidden" name="referralCode" value={referralCode} />
+          <Alert tone="info" data-testid="referred-by">Invited by <strong>{referrerName}</strong>. Welcome to HomeHire!</Alert>
+        </>
+      ) : null}
       <fieldset className="space-y-3">
         <legend className="mb-2 text-sm font-medium">Choose your plan</legend>
         {usageOptions.map((o) => {

@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import type { Database } from "@/lib/supabase/database.types";
 import { accountStatus } from "./account-status";
 import { assertTestMode } from "./server";
+import { applyPendingReferralRewards } from "./referrals";
 
 type SubStatus = Database["public"]["Enums"]["subscription_status"];
 
@@ -53,4 +54,6 @@ export async function syncSubscription(sub: Stripe.Subscription) {
     const { error: planError } = await db.rpc("set_business_plan_by_lookup_key", { p_business_id: businessId, p_lookup_key: lookupKey });
     if (planError) throw new Error(`Could not save plan: ${planError.message}`);
   }
+  // Free months earned before this business had a Stripe customer are applied now.
+  if (sub.status === "active" || sub.status === "trialing") await applyPendingReferralRewards(businessId);
 }

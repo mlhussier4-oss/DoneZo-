@@ -201,14 +201,14 @@ isOneToOne: true
                   ]
                 },"businesses": {
                   Row: {
-                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
@@ -228,6 +228,12 @@ isOneToOne: false
       columns: ["plan_id"]
 isOneToOne: false
       referencedRelation: "plans"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "businesses_referred_by_fkey"
+      columns: ["referred_by"]
+isOneToOne: false
+      referencedRelation: "businesses"
       referencedColumns: ["id"]
     }
                   ]
@@ -803,6 +809,58 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"referral_rewards": {
+                  Row: {
+                    "amount_cents": number,"applied_at": string | null,"business_id": string,"created_at": string,"error": string | null,"id": string,"plan_name": string,"status": string,"stripe_balance_transaction_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_cents": number,"applied_at"?: string | null,"business_id": string,"created_at"?: string,"error"?: string | null,"id"?: string,"plan_name": string,"status"?: string,"stripe_balance_transaction_id"?: string | null
+                  }
+                  Update: {
+                    "amount_cents"?: number,"applied_at"?: string | null,"business_id"?: string,"created_at"?: string,"error"?: string | null,"id"?: string,"plan_name"?: string,"status"?: string,"stripe_balance_transaction_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "referral_rewards_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
+                },"referrals": {
+                  Row: {
+                    "created_at": string,"qualified_at": string | null,"referred_business_id": string,"referrer_business_id": string,"revoked_at": string | null,"reward_id": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "created_at"?: string,"qualified_at"?: string | null,"referred_business_id": string,"referrer_business_id": string,"revoked_at"?: string | null,"reward_id"?: string | null
+                  }
+                  Update: {
+                    "created_at"?: string,"qualified_at"?: string | null,"referred_business_id"?: string,"referrer_business_id"?: string,"revoked_at"?: string | null,"reward_id"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "referrals_referred_business_id_fkey"
+      columns: ["referred_business_id"]
+isOneToOne: true
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "referrals_referrer_business_id_fkey"
+      columns: ["referrer_business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "referrals_reward_id_fkey"
+      columns: ["reward_id"]
+isOneToOne: false
+      referencedRelation: "referral_rewards"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"repeat_requests": {
                   Row: {
                     "arrival_time": string,"booking_id": string,"business_id": string,"created_at": string,"customer_id": string,"decided_at": string | null,"first_date": string,"frequency": string,"id": string,"price_cents": number,"status": string,"visits": number
@@ -1142,6 +1200,8 @@ isOneToOne: false
 "payment_terms_version": string | null,
 "phone": string | null,
 "plan_id": string,
+"referral_code": string,
+"referred_by": string | null,
 "service_radius_miles": number,
 "timezone": string,
 "updated_at": string,
@@ -1188,6 +1248,8 @@ isOneToOne: false
 "payment_terms_version": string | null,
 "phone": string | null,
 "plan_id": string,
+"referral_code": string,
+"referred_by": string | null,
 "service_radius_miles": number,
 "timezone": string,
 "updated_at": string,
@@ -1619,6 +1681,9 @@ isOneToOne: false
 "lapse_booking":
 { Args: { "p_booking_id": string,"p_reason": string }; Returns: undefined
                            },
+"mark_referral_reward":
+{ Args: { "p_balance_txn": string,"p_error": string,"p_reward_id": string,"p_status": string }; Returns: undefined
+                           },
 "marketplace_feed":
 { Args: Record<PropertyKey, never>; Returns: {
               "category_icon": string,"category_name": string,"created_at": string,"customer": Json,"description": string,"details": Json,"expires_at": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
@@ -1629,6 +1694,14 @@ isOneToOne: false
                            },
 "miles_between_zips":
 { Args: { "p_a": string,"p_b": string }; Returns: number
+                           },
+"my_referrals":
+{ Args: Record<PropertyKey, never>; Returns: {
+              "business_name": string,"counted": boolean,"paying": boolean,"signed_up_at": string
+            }[]
+                           },
+"new_referral_code":
+{ Args: Record<PropertyKey, never>; Returns: string
                            },
 "next_document_number":
 { Args: { "p_business_id": string,"p_kind": string }; Returns: number
@@ -1641,6 +1714,27 @@ isOneToOne: false
                            },
 "plan_has_feature":
 { Args: { "p_business_id": string,"p_feature": string }; Returns: boolean
+                           },
+"record_referral_payment":
+{ Args: { "p_business_id": string }; Returns: {
+              "amount_cents": number,
+"applied_at": string | null,
+"business_id": string,
+"created_at": string,
+"error": string | null,
+"id": string,
+"plan_name": string,
+"status": string,
+"stripe_balance_transaction_id": string | null
+            }
+                          SetofOptions: {
+        from: "*"
+        to: "referral_rewards"
+        isOneToOne: true
+        isSetofReturn: false
+      } },
+"referrer_name":
+{ Args: { "p_code": string }; Returns: string
                            },
 "register_push_subscription":
 { Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
@@ -1680,6 +1774,9 @@ isOneToOne: false
       } },
 "revoke_invitation":
 { Args: { "p_invitation_id": string }; Returns: undefined
+                           },
+"revoke_referral_payment":
+{ Args: { "p_business_id": string }; Returns: undefined
                            },
 "send_invoice":
 { Args: { "p_invoice_id": string }; Returns: {
@@ -1765,6 +1862,8 @@ isOneToOne: false
 "payment_terms_version": string | null,
 "phone": string | null,
 "plan_id": string,
+"referral_code": string,
+"referred_by": string | null,
 "service_radius_miles": number,
 "timezone": string,
 "updated_at": string,

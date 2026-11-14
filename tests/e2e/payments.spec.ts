@@ -259,3 +259,44 @@ test.describe("marketplace completion payment (Blueprint §18)", () => {
     expect(notes?.map((n) => n.kind).sort()).toEqual(["job_completed", "payment_confirmed"]);
   });
 });
+
+test.describe("provider referrals (owner decision 2026-11-14)", () => {
+  test("2 providers who join with your link and pay = 1 free month, credited on your Stripe bill", async ({ page, browser }) => {
+    test.setTimeout(180_000);
+    const aEmail = uniqueEmail("referrer");
+    await signUpProvider(page, { usage: "marketplace", businessName: "Referring Lawn Co", email: aEmail });
+    const aId = await businessIdForEmail(aEmail);
+    await db().from("business_subscriptions").update({ stripe_customer_id: `cus_refA${Date.now()}` }).eq("business_id", aId);
+
+    await expect(page.getByRole("link", { name: "Refer & earn" }).first()).toBeAttached(); // in the menu
+    await page.goto("/provider/referrals");
+    await expect(page.getByText("2 paying referrals = 1 free month")).toBeVisible();
+    const link = await page.getByTestId("referral-link").inputValue();
+    expect(link).toMatch(/\/signup\/provider\?ref=[A-Z2-9]{7}$/);
+    const path = new URL(link).pathname + new URL(link).search;
+
+    for (const [i, name] of ["Invited Cleaners", "Invited Movers"].entries()) {
+      const ctx = await browser.newContext();
+      const p = await ctx.newPage();
+      const email = uniqueEmail(`invited${i}`);
+      await p.goto(path);
+      await expect(p.getByTestId("referred-by")).toContainText("Invited by Referring Lawn Co");
+      await signUpProvider(p, { usage: "marketplace", businessName: name, email, startAt: path });
+      const id = await businessIdForEmail(email);
+      const customer = `cus_ref${i}${Date.now()}`;
+      await db().from("business_subscriptions").update({ stripe_customer_id: customer }).eq("business_id", id);
+      // Stripe confirms their first subscription payment.
+      const res = await sendWebhook(p, { id: `evt_ref_${i}_${Date.now()}`, type: "invoice.paid",
+        data: { object: { id: `in_ref_${i}_${Date.now()}`, object: "invoice", customer, amount_paid: 999, livemode: false, billing_reason: "subscription_create" } } });
+      expect(res.status()).toBe(200);
+      await ctx.close();
+    }
+
+    await page.reload();
+    await expect(page.getByTestId("referral-stats")).toContainText("2paying providers");
+    await expect(page.getByTestId("referral-stats")).toContainText("1free month earned");
+    await expect(page.getByText(/1 month of HomeHire Pro · \$19\.99/)).toBeVisible();
+    await expect(page.getByText("Credited")).toBeVisible(); // credit added to the Stripe customer balance (test mode)
+    await expect(page.getByTestId("referral-next")).toContainText("2 more paying referrals");
+  });
+});

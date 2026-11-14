@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { liveModeAllowed, stripe } from "@/lib/stripe/server";
 import { syncStripeAccount, syncSubscription } from "@/lib/stripe/sync";
+import { handleSubscriptionChargeRefunded, handleSubscriptionInvoicePaid } from "@/lib/stripe/referrals";
 import { createServiceClient } from "@/lib/supabase/service";
 
 /**
@@ -90,8 +91,14 @@ async function handle(event: Stripe.Event) {
       await db.rpc("stripe_mark_payment_request", { p_checkout_session_id: session.id, p_status: "expired", p_message: "The payment link expired." });
       return;
     }
+    case "invoice.paid": {
+      // HomeHire's own subscription invoices (not providers' connected accounts): referral rewards.
+      if (!event.account) await handleSubscriptionInvoicePaid(event.data.object as Stripe.Invoice);
+      return;
+    }
     case "charge.refunded": {
       const charge = event.data.object as Stripe.Charge;
+      if (!event.account) { await handleSubscriptionChargeRefunded(charge); return; }
       const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
       if (pi) {
         const { error } = await db.rpc("stripe_record_refund", { p_payment_intent_id: pi, p_refunded_total_cents: charge.amount_refunded });

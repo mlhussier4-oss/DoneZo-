@@ -108,3 +108,6 @@ An active handyman app already uses "Donezo", so the brand is now **HomeHire** (
 
 ## 2026-11-13 — Switched production to homehire.us
 Live private test now runs at https://homehire.us (Vercel env NEXT_PUBLIC_SITE_URL, Supabase site URL + allowed redirects, emails from no-reply@homehire.us via Resend with a new homehire.us-scoped key the owner saved in Supabase, Vault push URL, Stripe test-mode webhooks and product names). donezo.org and www redirect (308) to homehire.us; keep donezo.org registered for a year. Still a private test: testing banner, no search indexing, Stripe test mode. Going fully live waits for the owner's LLC, D-U-N-S number and live Stripe account.
+
+## 2026-11-14 — Provider referral program
+Each provider business has a referral link (`/signup/provider?ref=CODE`, shown on **Refer & earn**). Every 2 referred providers whose **first subscription payment** Stripe confirms (`invoice.paid` on the platform account) = **1 free month of the referrer's current plan**, added as a credit to their Stripe customer balance (used automatically on the next bill). No limit: 6 paying = 3 free months. A referral whose first payment is refunded before it's used doesn't count. Credits have no cash value; Terms have a short "Provider referral program" section. **Publishing needs `invoice.paid` added to the Stripe platform webhook.**

@@ -63,6 +63,7 @@ const providerSignUpSchema = z.object({
   email,
   password,
   usage: z.enum(["basic", "crm", "marketplace"], { message: "Choose a plan." }),
+  referralCode: z.string().regex(/^[A-Za-z0-9]{4,12}$/).optional(),
   paymentTerms: z.literal("on", { message: "Please read and accept the Provider terms." }),
 });
 
@@ -86,6 +87,8 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
         marketplace_enabled: usage !== "crm",
         // Recorded on the business by the database (who accepted, when, which version).
         payment_terms_version: PAYMENT_TERMS_VERSION,
+        // Who referred them (checked and recorded by the database).
+        ...(parsed.data.referralCode ? { referral_code: parsed.data.referralCode } : {}),
       },
     },
   });
