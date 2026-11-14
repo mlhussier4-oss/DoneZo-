@@ -20,6 +20,7 @@ type Values = {
   description: string;
   categories: string[];
   methods: string[];
+  insured: boolean;
 };
 
 export function MarketplaceProfileForm({ values, allCategories }: { values: Values; allCategories: { id: string; name: string; default_on?: boolean }[] }) {
@@ -72,6 +73,11 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
         </div>
         <p id="card-required" className="text-xs text-muted-foreground">Every HomeHire provider accepts card, so it&apos;s always on. Connect Stripe on your Payments page to receive card payments.</p>
       </fieldset>
+      <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-border p-3 text-sm">
+        <input type="checkbox" name="insured" defaultChecked={values.insured} className="mt-0.5 size-5 shrink-0 accent-[var(--primary)]" />
+        <span><span className="font-medium">My business is insured</span>
+          <span className="block text-muted-foreground">Shows an &ldquo;Insured&rdquo; badge on your bids and profile. Only tick this if you carry liability insurance for your work.</span></span>
+      </label>
       <Field label="About your business" htmlFor="description" hint="Shown on your public profile." error={e.description}>
         <Textarea id="description" name="description" defaultValue={values.description} maxLength={2000} />
       </Field>

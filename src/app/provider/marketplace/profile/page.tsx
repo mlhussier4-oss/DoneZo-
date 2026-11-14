@@ -20,7 +20,7 @@ export default async function MarketplaceProfilePage() {
   if (!business.marketplaceEnabled) redirect("/provider/settings?marketplace=off");
   const supabase = await createClient();
   const [{ data: b }, { data: cats }, { data: photos }, allCategories] = await Promise.all([
-    supabase.from("businesses").select("home_zip, service_radius_miles, years_experience, description, accepted_payment_methods, logo_path, verified_at").eq("id", business.id).single(),
+    supabase.from("businesses").select("home_zip, service_radius_miles, years_experience, description, accepted_payment_methods, logo_path, verified_at, insured").eq("id", business.id).single(),
     supabase.from("provider_categories").select("category_id").eq("business_id", business.id),
     supabase.from("portfolio_photos").select("id, storage_path, caption").eq("business_id", business.id).order("created_at", { ascending: false }),
     getCategoryOptions(),
@@ -46,6 +46,7 @@ export default async function MarketplaceProfilePage() {
                 description: b?.description ?? "",
                 categories: (cats ?? []).map((c) => c.category_id),
                 methods: b?.accepted_payment_methods ?? [],
+                insured: b?.insured ?? false,
               }}
             />
           </CardContent>

@@ -201,14 +201,14 @@ isOneToOne: true
                   ]
                 },"businesses": {
                   Row: {
-                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"insured": boolean,"insured_updated_at": string | null,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
@@ -1195,6 +1195,8 @@ isOneToOne: false
 "email": string | null,
 "home_zip": string | null,
 "id": string,
+"insured": boolean,
+"insured_updated_at": string | null,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,
@@ -1243,6 +1245,8 @@ isOneToOne: false
 "email": string | null,
 "home_zip": string | null,
 "id": string,
+"insured": boolean,
+"insured_updated_at": string | null,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,
@@ -1857,6 +1861,8 @@ isOneToOne: false
 "email": string | null,
 "home_zip": string | null,
 "id": string,
+"insured": boolean,
+"insured_updated_at": string | null,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,

@@ -64,6 +64,7 @@ const providerSignUpSchema = z.object({
   password,
   usage: z.enum(["basic", "crm", "marketplace"], { message: "Choose a plan." }),
   referralCode: z.string().regex(/^[A-Za-z0-9]{4,12}$/).optional(),
+  insured: z.literal("on").optional(),
   paymentTerms: z.literal("on", { message: "Please read and accept the Provider terms." }),
 });
 
@@ -87,6 +88,8 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
         marketplace_enabled: usage !== "crm",
         // Recorded on the business by the database (who accepted, when, which version).
         payment_terms_version: PAYMENT_TERMS_VERSION,
+        // Self-reported insurance (owner request 2026-11-14): shows an "Insured" badge.
+        insured: parsed.data.insured === "on",
         // Who referred them (checked and recorded by the database).
         ...(parsed.data.referralCode ? { referral_code: parsed.data.referralCode } : {}),
       },

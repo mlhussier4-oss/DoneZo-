@@ -52,6 +52,7 @@ export async function saveMarketplaceProfile(_prev: ActionState, fd: FormData): 
       description: v.description || null,
       // Card is mandatory (owner decision 2026-11-12); the others are optional.
       accepted_payment_methods: ["card", ...v.methods.filter((m) => m !== "card")],
+      insured: fd.get("insured") === "on",
     })
     .eq("id", business.id);
   if (error) return { status: "error", message: dbErrorMessage(error, "Could not save your profile.") };
