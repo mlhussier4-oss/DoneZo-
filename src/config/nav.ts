@@ -20,7 +20,8 @@ export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = tr
       { href: "/provider/calendar", label: "Calendar", icon: "calendar" },
       { href: "/provider/payments", label: "Payments", icon: "card" },
       { href: "/provider/notifications", label: "Notifications", icon: "bell", badge: unread },
-      { href: "/provider/plan", label: "Plan & billing", icon: "plan" },
+      { href: "/provider/referrals", label: "Refer & earn", icon: "gift" },
+    { href: "/provider/plan", label: "Plan & billing", icon: "plan" },
       { href: "/provider/settings", label: "Business settings", icon: "settings" },
     ];
   }
@@ -37,6 +38,7 @@ export function providerNav(marketplaceEnabled: boolean, unread = 0, hasCrm = tr
   items.push(
     { href: "/provider/employees", label: "Team", icon: "userCog" },
     { href: "/provider/reports", label: "Reports", icon: "chart" },
+    { href: "/provider/referrals", label: "Refer & earn", icon: "gift" },
     { href: "/provider/plan", label: "Plan & billing", icon: "plan" },
     { href: "/provider/settings", label: "Business settings", icon: "settings" },
   );

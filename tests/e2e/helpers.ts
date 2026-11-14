@@ -39,10 +39,10 @@ export function extractConfirmLink(html: string): string {
 
 export async function signUpProvider(
   page: Page,
-  opts: { usage: "basic" | "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean },
+  opts: { usage: "basic" | "crm" | "marketplace"; businessName: string; email: string; password?: string; subscribe?: boolean; startAt?: string },
 ) {
   const password = opts.password ?? "Correct-horse-9";
-  await page.goto("/signup/provider");
+  await page.goto(opts.startAt ?? "/signup/provider");
   const planLabel = { basic: "HomeHire Basic · $9.99/month", crm: "HomeHire Pro · $19.99/month, business tools only", marketplace: "HomeHire Pro · $19.99/month, with marketplace" }[opts.usage];
   await page.getByText(planLabel).click();
   await page.getByLabel("Business name").fill(opts.businessName);
