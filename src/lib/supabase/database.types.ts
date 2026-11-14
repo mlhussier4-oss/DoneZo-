@@ -237,6 +237,44 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"cancellation_strikes": {
+                  Row: {
+                    "booking_id": string | null,"business_id": string | null,"created_at": string,"customer_id": string | null,"id": string,"party": string,"report_id": string | null,"source": string,"voided_at": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "booking_id"?: string | null,"business_id"?: string | null,"created_at"?: string,"customer_id"?: string | null,"id"?: string,"party": string,"report_id"?: string | null,"source": string,"voided_at"?: string | null
+                  }
+                  Update: {
+                    "booking_id"?: string | null,"business_id"?: string | null,"created_at"?: string,"customer_id"?: string | null,"id"?: string,"party"?: string,"report_id"?: string | null,"source"?: string,"voided_at"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "cancellation_strikes_booking_id_fkey"
+      columns: ["booking_id"]
+isOneToOne: false
+      referencedRelation: "bookings"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellation_strikes_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellation_strikes_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: false
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "cancellation_strikes_report_id_fkey"
+      columns: ["report_id"]
+isOneToOne: true
+      referencedRelation: "support_reports"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"change_orders": {
                   Row: {
                     "booking_id": string,"created_at": string,"decided_at": string | null,"description": string,"id": string,"new_price_cents": number,"proposed_by": string | null,"status": Database["public"]['Enums']["change_order_status"]
@@ -677,14 +715,14 @@ isOneToOne: false
                   ]
                 },"plans": {
                   Row: {
-                    "code": string,"created_at": string,"description": string | null,"id": string,"is_active": boolean,"is_default": boolean,"name": string,"price_cents": number | null,"sort_order": number,"stripe_lookup_key": string | null,"updated_at": string
+                    "code": string,"created_at": string,"description": string | null,"id": string,"is_active": boolean,"is_default": boolean,"name": string,"price_cents": number | null,"sort_order": number,"stripe_lookup_key": string | null,"stripe_yearly_lookup_key": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "code": string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name": string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"updated_at"?: string
+                    "code": string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name": string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"stripe_yearly_lookup_key"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "code"?: string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name"?: string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"updated_at"?: string
+                    "code"?: string,"created_at"?: string,"description"?: string | null,"id"?: string,"is_active"?: boolean,"is_default"?: boolean,"name"?: string,"price_cents"?: number | null,"sort_order"?: number,"stripe_lookup_key"?: string | null,"stripe_yearly_lookup_key"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -725,14 +763,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_path": string | null,"created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"marketplace_blocked_at": string | null,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1185,6 +1223,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"admin_restore_customer_marketplace":
+{ Args: { "p_user_id": string }; Returns: undefined
+                           },
 "admin_set_business_verified":
 { Args: { "p_business_id": string,"p_note": string,"p_verified": boolean }; Returns: {
               "accepted_payment_methods": (string)[],
@@ -1281,6 +1322,7 @@ isOneToOne: false
 "full_name": string | null,
 "id": string,
 "is_suspended": boolean,
+"marketplace_blocked_at": string | null,
 "phone": string | null,
 "role": Database["public"]['Enums']["app_role"],
 "updated_at": string
@@ -1291,6 +1333,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"admin_strike_from_report":
+{ Args: { "p_report_id": string }; Returns: undefined
+                           },
 "admin_upsert_service_area":
 { Args: { "p_center_zip": string,"p_id": string,"p_is_active": boolean,"p_name": string,"p_radius_miles": number }; Returns: {
               "center_zip": string,
@@ -1662,6 +1707,9 @@ isOneToOne: false
               "business_name": string,"email": string,"role": Database["public"]['Enums']["business_member_role"],"valid": boolean
             }[]
                            },
+"invite_past_provider":
+{ Args: { "p_new_request": string,"p_past_request": string }; Returns: boolean
+                           },
 "invoice_for_payment":
 { Args: { "p_token": string }; Returns: {
               "balance_cents": number,"business_id": string,"business_name": string,"invoice_id": string,"number": number,"source": Database["public"]['Enums']["job_source"],"status": Database["public"]['Enums']["invoice_status"],"stripe_account_id": string,"stripe_status": Database["public"]['Enums']["stripe_account_status"]
@@ -1705,6 +1753,9 @@ isOneToOne: false
 "miles_between_zips":
 { Args: { "p_a": string,"p_b": string }; Returns: number
                            },
+"my_cancellation_record":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "my_referrals":
 { Args: Record<PropertyKey, never>; Returns: {
               "business_name": string,"counted": boolean,"paying": boolean,"signed_up_at": string
@@ -1724,6 +1775,9 @@ isOneToOne: false
                            },
 "plan_has_feature":
 { Args: { "p_business_id": string,"p_feature": string }; Returns: boolean
+                           },
+"record_cancellation_strike":
+{ Args: { "p_booking": string,"p_business": string,"p_customer": string,"p_party": string,"p_report"?: string,"p_source": string }; Returns: undefined
                            },
 "record_referral_payment":
 { Args: { "p_business_id": string }; Returns: {
@@ -1894,6 +1948,9 @@ isOneToOne: false
                            },
 "signup_plan_id":
 { Args: { "p_meta": Json }; Returns: string
+                           },
+"strike_count":
+{ Args: { "p_business": string,"p_customer": string }; Returns: number
                            },
 "stripe_mark_payment_request":
 { Args: { "p_checkout_session_id": string,"p_message": string,"p_status": Database["public"]['Enums']["payment_request_status"] }; Returns: undefined

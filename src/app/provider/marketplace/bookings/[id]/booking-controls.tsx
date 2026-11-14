@@ -43,7 +43,7 @@ export function ProviderCancelBookingButton({ bookingId }: { bookingId: string }
   return (
     <>
       <Button variant="ghost" size="sm" disabled={pending} onClick={() => {
-        const reason = prompt("Cancel this booking? The customer will be told. Reason (optional):");
+        const reason = prompt("Cancel this booking? The customer will be told, and it counts on your cancellation record (3 within 6 months removes you from the marketplace). Reason (optional):");
         if (reason !== null) start(async () => setError((await cancelBookingAsProvider(bookingId, reason)).error));
       }}>
         Cancel booking

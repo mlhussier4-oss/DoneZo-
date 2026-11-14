@@ -4,12 +4,18 @@ import { PageHeader } from "@/components/ui/page-header";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PhotoForm, ProfileForm, SaveAccountForm } from "./profile-form";
+import { CancellationMeter } from "@/components/marketplace/cancellation-meter";
 
 export const metadata: Metadata = { title: "Profile" };
 
 export default async function CustomerAccountPage() {
   const user = await requireRole("customer");
-  const { data } = await (await createClient()).from("profiles").select("full_name, avatar_path").eq("id", user.id).single();
+  const supabase = await createClient();
+  const [{ data }, { data: record }] = await Promise.all([
+    supabase.from("profiles").select("full_name, avatar_path").eq("id", user.id).single(),
+    supabase.rpc("my_cancellation_record"),
+  ]);
+  const strikes = (record as { customer?: { count: number; blocked: boolean } } | null)?.customer ?? { count: 0, blocked: false };
   const firstName = data?.full_name ?? "";
   return (
     <>
@@ -30,6 +36,7 @@ export default async function CustomerAccountPage() {
             {user.email ? <ProfileForm firstName={firstName} email={user.email} /> : null}
           </CardContent>
         </Card>
+        <Card><CardContent><CancellationMeter count={strikes.count} blocked={strikes.blocked} who="customer" /></CardContent></Card>
       </div>
     </>
   );

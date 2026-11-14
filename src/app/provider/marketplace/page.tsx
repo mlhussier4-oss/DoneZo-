@@ -18,6 +18,7 @@ import { newJobCount } from "@/lib/marketplace/notifications";
 import { MarkNewJobsSeen } from "./mark-seen";
 import { HideJobButton } from "./hide-button";
 import { cn } from "@/lib/utils";
+import { ProviderProgress } from "@/components/marketplace/provider-progress";
 
 export const metadata: Metadata = { title: "Marketplace" };
 
@@ -76,6 +77,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
         actions={<Link href="/provider/marketplace/profile" className={buttonVariants({ variant: "outline" })}><UserCog /> Marketplace profile</Link>}
       />
 
+      {tab === "jobs" ? <ProviderProgress businessId={business.id} /> : null}
       {profile?.is_suspended ? (
         <Alert tone="error" data-testid="marketplace-removed">
           Your marketplace access has been removed under the <Link href="/terms#provider-terms" className="underline">Provider terms</Link>, so you can&apos;t see or bid on new jobs. Your business tools still work. Questions? <Link href="/help" className="underline">Contact support</Link>.

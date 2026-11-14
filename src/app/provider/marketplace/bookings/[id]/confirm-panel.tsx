@@ -24,8 +24,8 @@ export function ConfirmPanel({ bookingId, confirmBy, serverNow, defaultDate, def
         <div className="flex items-start gap-2">
           <Timer className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
           <div>
-            <p className="text-lg font-semibold">The customer chose you. Confirm now</p>
-            <p className="text-sm text-muted-foreground">Confirm the job at your bid price and pick when you&apos;ll arrive. You&apos;ll then get the customer&apos;s address and a chat with them. If time runs out, they can hire someone else.</p>
+            <p className="text-lg font-semibold">Congrats on winning your bid! Confirm now</p>
+            <p className="text-sm text-muted-foreground">Confirm the job at your bid price and pick when you&apos;ll arrive. A private chat with the customer then opens automatically, where they&apos;ll send you their address. If time runs out, they can hire someone else.</p>
           </div>
         </div>
         <CountdownClock seconds={left} />

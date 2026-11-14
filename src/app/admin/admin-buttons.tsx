@@ -7,7 +7,7 @@ import { FormAlert } from "@/components/ui/form-alert";
 import { Input, Label } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { resolveReport, saveServiceArea, setBusinessVerified, setMarketplaceRemoved, type AdminState } from "./actions";
+import { resolveReport, restoreCustomerMarketplace, saveServiceArea, setBusinessVerified, setMarketplaceRemoved, strikeFromReport, type AdminState } from "./actions";
 
 export function VerifyButton({ businessId, verified }: { businessId: string; verified: boolean }) {
   const [pending, start] = useTransition();
@@ -73,5 +73,28 @@ export function ServiceAreaForm({ area }: { area?: { id: string; name: string; c
       <SubmitButton size="sm" variant={area ? "outline" : "primary"}>{area ? "Save" : "Add area"}</SubmitButton>
       <div className="sm:col-span-5"><FormAlert state={state} /></div>
     </Form>
+  );
+}
+
+export function StrikeFromReportButton({ reportId, counted }: { reportId: string; counted: boolean }) {
+  const [pending, start] = useTransition();
+  const [msg, setMsg] = useState<string>();
+  if (counted) return <span className="text-xs font-medium text-muted-foreground">Counted as a cancellation</span>;
+  return (
+    <span className="flex items-center gap-2">
+      <Button size="sm" variant="outline" disabled={pending} onClick={() => {
+        if (confirm("Count this as a cancellation on their record? 3 within 6 months removes marketplace access.")) start(async () => setMsg((await strikeFromReport(reportId)).message));
+      }}>Count as cancellation</Button>
+      {msg ? <span className="text-xs text-muted-foreground">{msg}</span> : null}
+    </span>
+  );
+}
+
+export function RestoreCustomerButton({ userId }: { userId: string }) {
+  const [pending, start] = useTransition();
+  return (
+    <Button size="sm" variant="outline" disabled={pending} onClick={() => {
+      if (confirm("Restore this customer's marketplace access and clear their cancellation record?")) start(async () => { await restoreCustomerMarketplace(userId); });
+    }}>Restore marketplace</Button>
   );
 }

@@ -4,10 +4,11 @@
  */
 export type PlanCode = "basic" | "pro";
 
-export const planInfo: Record<PlanCode, { name: string; price: string; tagline: string; features: string[] }> = {
+export const planInfo: Record<PlanCode, { name: string; price: string; yearly: string; tagline: string; features: string[] }> = {
   basic: {
     name: "HomeHire Basic",
     price: "$9.99",
+    yearly: "$99.90",
     tagline: "The marketplace: find local jobs, bid, and get paid.",
     features: [
       "Public profile with reviews and portfolio",
@@ -21,6 +22,7 @@ export const planInfo: Record<PlanCode, { name: string; price: string; tagline: 
   pro: {
     name: "HomeHire Pro",
     price: "$19.99",
+    yearly: "$199.90",
     tagline: "The marketplace plus business tools for all your customers.",
     features: [
       "Everything in Basic (or keep the marketplace switched off)",

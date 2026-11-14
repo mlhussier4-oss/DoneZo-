@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getActiveCategories } from "@/lib/data/categories";
 import { localDateKey } from "@/lib/format";
 import { PostJobWizard } from "./post-job-wizard";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Post a job" };
 
@@ -14,10 +15,16 @@ async function Wizard({ searchParams }: { searchParams: PageProps<"/post-job">["
   const here = `/post-job${typeof params.category === "string" ? `?category=${encodeURIComponent(params.category)}` : ""}`;
   if (!user) redirect(`/signup/customer?next=${encodeURIComponent(here)}`);
   if (user.role === "customer" && !user.email) redirect(`/customer/account?save=1&next=${encodeURIComponent(here)}`);
+  // "Book again" (owner request 2026-11-14): start from a finished job's answers; the pro who did it is invited.
+  const againId = typeof params.again === "string" && /^[0-9a-f-]{36}$/.test(params.again) ? params.again : null;
+  const { data: past } = againId
+    ? await (await createClient()).from("service_requests").select("id, description, details, zip, service_categories(slug)").eq("id", againId).eq("customer_id", user.id).maybeSingle()
+    : { data: null };
   return (
     <PostJobWizard
       categories={categories}
-      initialCategory={typeof params.category === "string" ? params.category : undefined}
+      again={past ? { id: past.id, description: past.description, details: (past.details ?? {}) as Record<string, string>, zip: past.zip } : undefined}
+      initialCategory={past?.service_categories?.slug ?? (typeof params.category === "string" ? params.category : undefined)}
       signedInRole={user.role}
       today={localDateKey(new Date(), "America/Chicago")}
     />

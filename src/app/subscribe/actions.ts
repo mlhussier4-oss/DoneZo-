@@ -2,11 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { requireRole, getCurrentBusiness } from "@/lib/auth";
-import { billingPortalUrl, startSubscriptionCheckout, type PlanCode } from "@/lib/stripe/subscription";
+import { billingPortalUrl, startSubscriptionCheckout, type BillingInterval, type PlanCode } from "@/lib/stripe/subscription";
 
 const isPlan = (v: unknown): v is PlanCode => v === "basic" || v === "pro";
 
-export async function subscribe(plan: PlanCode): Promise<{ error?: string }> {
+export async function subscribe(plan: PlanCode, interval: BillingInterval = "month"): Promise<{ error?: string }> {
   await requireRole("provider");
   const business = await getCurrentBusiness();
   if (!business) return { error: "No business found." };
@@ -14,7 +14,7 @@ export async function subscribe(plan: PlanCode): Promise<{ error?: string }> {
   if (!isPlan(plan)) return { error: "Choose a plan." };
   let url: string;
   try {
-    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email }, plan);
+    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email }, plan, interval === "year" ? "year" : "month");
   } catch (err) {
     console.error("subscribe failed", err);
     return { error: "We couldn't reach our payment provider. Please try again in a moment." };

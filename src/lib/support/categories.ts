@@ -7,6 +7,8 @@ export const supportCategories = [
   { value: "privacy", label: "Privacy or my data (copy, correct or delete)" },
   { value: "safety", label: "Safety concern" },
   { value: "other", label: "Something else" },
+  { value: "provider_cancelled", label: "Provider cancelled" },
+  { value: "customer_cancelled", label: "Customer cancelled" },
 ] as const;
 
 export const supportCategoryLabel = (v: string) => supportCategories.find((c) => c.value === v)?.label ?? "Other";

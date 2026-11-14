@@ -7,23 +7,31 @@ import { syncSubscription } from "./sync";
 
 export type PlanCode = "basic" | "pro";
 export const planCodes: PlanCode[] = ["basic", "pro"];
+/** Monthly, or yearly at the price of 10 months (owner decision 2026-11-14: pay for 12, get 2 free). */
+export type BillingInterval = "month" | "year";
+export const YEARLY_MONTHS_CHARGED = 10;
 
-/** The plan's monthly price in Stripe (found by its lookup key), created on first use and replaced if the amount changes. */
-async function planPrice(code: PlanCode): Promise<Stripe.Price> {
+/** The plan's price in Stripe (found by its lookup key), created on first use and replaced if the amount changes. */
+async function planPrice(code: PlanCode, interval: BillingInterval = "month"): Promise<Stripe.Price> {
   const db = createServiceClient();
-  const { data: plan } = await db.from("plans").select("name, price_cents, stripe_lookup_key").eq("code", code).single();
-  if (!plan?.price_cents || !plan.stripe_lookup_key) throw new Error(`Plan ${code} has no price.`);
-  const existing = await stripe().prices.list({ lookup_keys: [plan.stripe_lookup_key], active: true, limit: 1 });
+  const { data: plan } = await db.from("plans").select("name, price_cents, stripe_lookup_key, stripe_yearly_lookup_key").eq("code", code).single();
+  const lookupKey = interval === "year" ? plan?.stripe_yearly_lookup_key : plan?.stripe_lookup_key;
+  if (!plan?.price_cents || !lookupKey) throw new Error(`Plan ${code} has no ${interval}ly price.`);
+  const amount = interval === "year" ? plan.price_cents * YEARLY_MONTHS_CHARGED : plan.price_cents;
+  const existing = await stripe().prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
   const price = existing.data[0];
-  if (price && price.unit_amount === plan.price_cents && price.recurring?.interval === "month") return price;
-  const productId = typeof price?.product === "string" ? price.product : (await stripe().products.create({ name: plan.name, metadata: { donezo_plan: code } })).id;
+  if (price && price.unit_amount === amount && price.recurring?.interval === interval) return price;
+  // Reuse the plan's product (from either price) so monthly and yearly sit together in Stripe.
+  const sibling = price ?? (await stripe().prices.list({ lookup_keys: [plan.stripe_lookup_key!], active: true, limit: 1 })).data[0];
+  const productId = typeof sibling?.product === "string" ? sibling.product : (await stripe().products.create({ name: plan.name, metadata: { donezo_plan: code } })).id;
   return stripe().prices.create({
     product: productId,
-    unit_amount: plan.price_cents,
+    unit_amount: amount,
     currency: "usd",
-    recurring: { interval: "month" },
-    lookup_key: plan.stripe_lookup_key,
+    recurring: { interval },
+    lookup_key: lookupKey,
     transfer_lookup_key: true,
+    nickname: interval === "year" ? `${plan.name} yearly (2 months free)` : `${plan.name} monthly`,
   });
 }
 
@@ -41,8 +49,8 @@ async function customerFor(business: { id: string; name: string; email: string |
 }
 
 /** Start Stripe's hosted checkout for a plan's monthly subscription. Returns the URL to send the provider to. */
-export async function startSubscriptionCheckout(business: { id: string; name: string; email: string | null }, plan: PlanCode): Promise<string> {
-  const [price, customer] = await Promise.all([planPrice(plan), customerFor(business)]);
+export async function startSubscriptionCheckout(business: { id: string; name: string; email: string | null }, plan: PlanCode, interval: BillingInterval = "month"): Promise<string> {
+  const [price, customer] = await Promise.all([planPrice(plan, interval), customerFor(business)]);
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer,
@@ -127,12 +135,11 @@ export async function billingPortalUrl(businessId: string): Promise<string> {
 export async function changePlanUrl(businessId: string, plan: PlanCode): Promise<string> {
   const saved = await savedSubscription(businessId);
   if (!saved?.stripe_customer_id || !saved.stripe_subscription_id) throw new Error("No active subscription.");
-  const [sub, price, configuration] = await Promise.all([
-    stripe().subscriptions.retrieve(saved.stripe_subscription_id),
-    planPrice(plan),
-    portalConfiguration(),
-  ]);
+  const sub = await stripe().subscriptions.retrieve(saved.stripe_subscription_id);
   assertTestMode(sub);
+  // Switching plans keeps the billing interval the provider already has (monthly or yearly).
+  const interval: BillingInterval = sub.items.data[0]?.price?.recurring?.interval === "year" ? "year" : "month";
+  const [price, configuration] = await Promise.all([planPrice(plan, interval), portalConfiguration()]);
   const item = sub.items.data[0];
   if (!item) throw new Error("Subscription has no items.");
   const session = await stripe().billingPortal.sessions.create({

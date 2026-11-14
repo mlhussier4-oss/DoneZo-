@@ -5,6 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { SuspendButton } from "./suspend-button";
+import { RestoreCustomerButton } from "../admin-buttons";
 
 export const metadata: Metadata = { title: "Users" };
 
@@ -13,7 +14,7 @@ export default async function AdminUsersPage() {
   const supabase = await createClient();
   const { data: users } = await supabase
     .from("profiles")
-    .select("id, role, full_name, email, is_suspended, created_at")
+    .select("id, role, full_name, email, is_suspended, marketplace_blocked_at, created_at")
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -39,8 +40,18 @@ export default async function AdminUsersPage() {
                 <td className="px-4 py-3">{u.email}</td>
                 <td className="px-4 py-3 capitalize">{u.role}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{new Date(u.created_at).toLocaleDateString("en-US")}</td>
-                <td className="px-4 py-3">{u.is_suspended ? <Badge tone="danger">Suspended</Badge> : <Badge tone="success">Active</Badge>}</td>
-                <td className="px-4 py-3">{u.id !== me.id ? <SuspendButton userId={u.id} suspended={u.is_suspended} /> : null}</td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-1">
+                    {u.is_suspended ? <Badge tone="danger">Suspended</Badge> : <Badge tone="success">Active</Badge>}
+                    {u.marketplace_blocked_at ? <Badge tone="warning">Marketplace paused (3 cancellations)</Badge> : null}
+                  </div>
+                </td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-2">
+                    {u.id !== me.id ? <SuspendButton userId={u.id} suspended={u.is_suspended} /> : null}
+                    {u.marketplace_blocked_at ? <RestoreCustomerButton userId={u.id} /> : null}
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

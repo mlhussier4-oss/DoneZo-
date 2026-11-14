@@ -25,6 +25,7 @@ const requestSchema = z
     preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable(),
     zip: z.string().regex(/^\d{5}$/, "Enter a 5-digit ZIP code."),
     photoCount: z.number().int().min(1, "Add at least one photo of the job.").max(10),
+    againFrom: z.string().uuid().nullable().optional(),
   })
   .refine((v) => v.timing !== "specific_date" || v.preferredDate, { message: "Choose a date.", path: ["preferredDate"] });
 
@@ -51,6 +52,8 @@ export async function createRequest(input: NewRequest): Promise<{ ok: true; id: 
     zip: v.zip,
   });
   if (error) return { ok: false, message: dbErrorMessage(error, "Could not post your job. Please try again.") };
+  // Book again: invite the pro from the earlier job (the database checks it's this customer's finished job).
+  if (v.againFrom) await supabase.rpc("invite_past_provider", { p_new_request: v.id, p_past_request: v.againFrom });
   return { ok: true, id: v.id, userId: user.id };
 }
 

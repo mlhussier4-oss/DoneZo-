@@ -1,13 +1,11 @@
 "use client";
 
-import { useActionState, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Star } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
 import { formatMoney } from "@/lib/format";
-import { submitReport } from "@/lib/marketplace/actions";
 import { cn } from "@/lib/utils";
 import { acceptBid, cancelBookingAsCustomer, cancelRequest, decideChangeOrder, submitReview } from "../actions";
 
@@ -54,7 +52,7 @@ export function CancelBookingButton({ bookingId }: { bookingId: string }) {
   return (
     <>
       <Button variant="ghost" size="sm" disabled={pending} onClick={() => {
-        const reason = prompt("Cancel this booking? Tell the provider why (optional):");
+        const reason = prompt("Cancel this booking? This counts on your cancellation record (3 within 6 months pauses your marketplace access). Tell the provider why (optional):");
         if (reason !== null) run(() => cancelBookingAsCustomer(bookingId, reason));
       }}>
         Cancel booking
@@ -103,26 +101,4 @@ export function ReviewForm({ bookingId, businessName }: { bookingId: string; bus
   );
 }
 
-export function ReportProblemForm({ bookingId, requestId }: { bookingId?: string; requestId?: string }) {
-  const [state, action, pending] = useActionState(submitReport, { status: "idle" });
-  if (state.status === "success") return <Alert tone="success">{state.message}</Alert>;
-  return (
-    <form action={action} className="space-y-3">
-      <input type="hidden" name="bookingId" value={bookingId ?? ""} />
-      <input type="hidden" name="requestId" value={requestId ?? ""} />
-      <Field label="What's it about?" htmlFor="report-category">
-        <Select id="report-category" name="category" defaultValue="problem_with_job">
-          <option value="problem_with_job">A problem with the job</option>
-          <option value="payment">Payment</option>
-          <option value="safety">Safety concern</option>
-          <option value="other">Something else</option>
-        </Select>
-      </Field>
-      <Field label="Tell us what happened" htmlFor="report-message">
-        <Textarea id="report-message" name="message" maxLength={4000} required />
-      </Field>
-      {state.status === "error" ? <Alert tone="error">{state.message}</Alert> : null}
-      <Button type="submit" variant="outline" size="sm" disabled={pending}>Send to HomeHire support</Button>
-    </form>
-  );
-}
+export { ReportProblemForm } from "@/components/marketplace/report-problem-form";

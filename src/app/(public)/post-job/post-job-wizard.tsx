@@ -23,11 +23,14 @@ const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "
 
 export function PostJobWizard({
   categories,
+  again,
   initialCategory,
   signedInRole,
   today,
 }: {
   categories: Category[];
+  /** Book again: answers from a finished job, and the pro who did it gets invited. */
+  again?: { id: string; description: string; details: Record<string, string>; zip: string };
   initialCategory?: string;
   signedInRole: "customer" | "provider" | "admin";
   today: string;
@@ -37,11 +40,11 @@ export function PostJobWizard({
   const [step, setStep] = useState(preset ? 1 : 0);
   const [category, setCategory] = useState<Category | undefined>(preset);
   const [photos, setPhotos] = useState<Photo[]>([]);
-  const [description, setDescription] = useState("");
-  const [details, setDetails] = useState<Record<string, string>>({});
+  const [description, setDescription] = useState(again?.description ?? "");
+  const [details, setDetails] = useState<Record<string, string>>(again?.details ?? {});
   const [timing, setTiming] = useState<Timing | "">("");
   const [preferredDate, setPreferredDate] = useState("");
-  const [zip, setZip] = useState("");
+  const [zip, setZip] = useState(again?.zip ?? "");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [pending, start] = useTransition();
@@ -87,6 +90,7 @@ export function PostJobWizard({
       preferredDate: timing === "specific_date" ? preferredDate : null,
       zip: zip.trim(),
       photoCount: photos.length,
+      againFrom: again?.id ?? null,
     });
     if (!result.ok) { setStatus(undefined); setError(result.message); return; }
 

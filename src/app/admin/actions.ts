@@ -122,3 +122,23 @@ export async function setCardFee(_prev: AdminState, formData: FormData): Promise
   refresh();
   return { status: "success", message: "Saved. New card payment links use this fee." };
 }
+
+/** Count a "Provider cancelled" / "Customer cancelled" report as a cancellation after checking it (owner decision 2026-11-14). */
+export async function strikeFromReport(reportId: string): Promise<AdminState> {
+  await requireRole("admin");
+  if (!z.string().uuid().safeParse(reportId).success) return { status: "error", message: "Unknown report." };
+  const { error } = await (await createClient()).rpc("admin_strike_from_report", { p_report_id: reportId });
+  if (error) return { status: "error", message: error.message };
+  refresh();
+  return { status: "success", message: "Counted as a cancellation." };
+}
+
+/** Give a customer back their marketplace access (also clears their cancellation record). */
+export async function restoreCustomerMarketplace(userId: string): Promise<AdminState> {
+  await requireRole("admin");
+  if (!z.string().uuid().safeParse(userId).success) return { status: "error", message: "Unknown user." };
+  const { error } = await (await createClient()).rpc("admin_restore_customer_marketplace", { p_user_id: userId });
+  if (error) return { status: "error", message: "Could not restore access." };
+  refresh();
+  return { status: "success" };
+}

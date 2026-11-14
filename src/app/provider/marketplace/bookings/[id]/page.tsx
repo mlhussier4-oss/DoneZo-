@@ -19,6 +19,7 @@ import { CompleteJobPanel } from "@/components/marketplace/complete-job-panel";
 import { ChangeOrderForm, ProviderCancelBookingButton, WithdrawChangeButton } from "./booking-controls";
 import { ConfirmPanel } from "./confirm-panel";
 import { RepeatDecision } from "./repeat-decision";
+import { ReportProblemForm } from "@/components/marketplace/report-problem-form";
 
 export const metadata: Metadata = { title: "Booking" };
 
@@ -176,6 +177,10 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           {b.status === "active" && !["in_progress", "awaiting_payment", "completed"].includes(b.jobs?.status ?? "") ? (
             <ProviderCancelBookingButton bookingId={b.id} />
           ) : null}
+          <Card>
+            <CardHeader><CardTitle className="text-base">Report a problem</CardTitle></CardHeader>
+            <CardContent><ReportProblemForm bookingId={b.id} requestId={b.request_id} side="provider" /></CardContent>
+          </Card>
         </aside>
       </div>
     </>

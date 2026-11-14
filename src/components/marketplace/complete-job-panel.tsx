@@ -44,8 +44,8 @@ export function CompleteJobPanel({ bookingId, amountCents, cardsOn }: { bookingI
     const r = await completeJob(bookingId, method);
     if (r.error) { setError(r.error); return; }
     setDone(method === "card"
-      ? "Done! The customer has the invoice and a secure card payment link in your chat. The job completes when Stripe confirms the payment."
-      : "Done! Marked paid, the job is completed, and the customer has their invoice and an invitation to rate you.");
+      ? "Great job! The customer has the invoice and a secure card payment link in your chat. The job completes when Stripe confirms the payment."
+      : "Great job completing this job! It's marked paid, and the customer has their invoice and an invitation to rate you.");
   });
 
   return (
