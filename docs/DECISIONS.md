@@ -111,3 +111,8 @@ Live private test now runs at https://homehire.us (Vercel env NEXT_PUBLIC_SITE_U
 
 ## 2026-11-14 — Provider referral program
 Each provider business has a referral link (`/signup/provider?ref=CODE`, shown on **Refer & earn**). Every 2 referred providers whose **first subscription payment** Stripe confirms (`invoice.paid` on the platform account) = **1 free month of the referrer's current plan**, added as a credit to their Stripe customer balance (used automatically on the next bill). No limit: 6 paying = 3 free months. A referral whose first payment is refunded before it's used doesn't count. Credits have no cash value; Terms have a short "Provider referral program" section. **Publishing needs `invoice.paid` added to the Stripe platform webhook.**
+
+## 2026-11-14 — Admin business dashboard and Marketplace live
+- **Dashboard** (/admin): customers with logins, subscribed providers (Pro/Basic), monthly subscription total, provider sign-ups, jobs posted today/week/total, open jobs, in progress, jobs done, card payments and HomeHire's 10% fees (30 days), bids, open support reports; daily charts (jobs posted, jobs completed, new customers, new providers) for 30 days; jobs by service; latest activity. Refreshes every 15 seconds.
+- **Marketplace live** (/admin/marketplace): every job nationwide with every bid (provider, price, status), booking state and customer first name; filters by status, service and ZIP; refreshes every 10 seconds. Admin-only, enforced in the database.
+- Businesses list shows each provider's subscription status.

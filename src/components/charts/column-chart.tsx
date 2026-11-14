@@ -5,7 +5,8 @@
  * Every column is a focusable hit target (the whole slot) with a tooltip on hover/focus,
  * and the same numbers are available as a table.
  */
-export type ColumnDatum = { key: string; label: string; value: number; display: string };
+/** `axisLabel` (optional) is the short text under the column; `label` is used in tooltips and the table. */
+export type ColumnDatum = { key: string; label: string; value: number; display: string; axisLabel?: string };
 
 function niceMax(max: number): number {
   if (max <= 0) return 1;
@@ -69,7 +70,7 @@ export function ColumnChart({
       </div>
       <div className="flex pl-12">
         {data.map((d) => (
-          <span key={d.key} className="flex-1 text-center text-xs text-muted-foreground">{d.label}</span>
+          <span key={d.key} className="flex-1 text-center text-xs text-muted-foreground">{d.axisLabel ?? d.label}</span>
         ))}
       </div>
       <details className="text-sm">

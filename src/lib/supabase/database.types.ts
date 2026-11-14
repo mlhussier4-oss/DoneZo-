@@ -1159,6 +1159,12 @@ isOneToOne: false
 "accept_payment_terms":
 { Args: { "p_business_id": string,"p_version": string }; Returns: undefined
                            },
+"admin_dashboard":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"admin_marketplace_live":
+{ Args: { "p_category"?: string,"p_status"?: string,"p_zip"?: string }; Returns: Json
+                           },
 "admin_resolve_report":
 { Args: { "p_note": string,"p_report_id": string }; Returns: {
               "admin_note": string | null,

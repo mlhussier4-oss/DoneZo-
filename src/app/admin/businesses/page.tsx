@@ -13,7 +13,7 @@ export default async function AdminBusinessesPage() {
   const supabase = await createClient();
   const { data: businesses } = await supabase
     .from("businesses")
-    .select("id, name, email, marketplace_enabled, is_suspended, marketplace_removed_reason, created_at, verified_at, plans ( name )")
+    .select("id, name, email, marketplace_enabled, is_suspended, marketplace_removed_reason, created_at, verified_at, plans ( name ), business_subscriptions ( status )")
     .order("created_at", { ascending: false })
     .limit(200);
 
@@ -28,6 +28,7 @@ export default async function AdminBusinessesPage() {
               <th className="px-4 py-3 font-medium">Email</th>
               <th className="px-4 py-3 font-medium">Account type</th>
               <th className="px-4 py-3 font-medium">Plan</th>
+              <th className="px-4 py-3 font-medium">Subscription</th>
               <th className="px-4 py-3 font-medium">Created</th>
               <th className="px-4 py-3 font-medium">Verified</th>
               <th className="px-4 py-3 font-medium">Marketplace access</th>
@@ -42,6 +43,10 @@ export default async function AdminBusinessesPage() {
                   {b.marketplace_enabled ? <Badge tone="primary">CRM + Marketplace</Badge> : <Badge>CRM only</Badge>}
                 </td>
                 <td className="px-4 py-3">{(b.plans as unknown as { name: string } | null)?.name ?? "—"}</td>
+                <td className="px-4 py-3">{(() => {
+                  const st = (b.business_subscriptions as unknown as { status: string } | null)?.status;
+                  return st === "active" || st === "trialing" ? <Badge tone="success">Paying</Badge> : st === "past_due" ? <Badge tone="warning">Past due</Badge> : <Badge>{st ? st.replace("_", " ") : "Not subscribed"}</Badge>;
+                })()}</td>
                 <td className="px-4 py-3 whitespace-nowrap">{new Date(b.created_at).toLocaleDateString("en-US")}</td>
                 <td className="px-4 py-3"><div className="flex items-center gap-2">{b.verified_at ? <Badge tone="success">Verified</Badge> : null}<VerifyButton businessId={b.id} verified={Boolean(b.verified_at)} /></div></td>
                 <td className="px-4 py-3">
