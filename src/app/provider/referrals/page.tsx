@@ -36,7 +36,7 @@ export default async function ReferralsPage() {
             <CardTitle className="flex items-center gap-2"><Gift className="size-5 text-primary" aria-hidden /> 2 paying referrals = 1 free month</CardTitle>
             <CardDescription>
               Share your link. When 2 providers sign up with it and make their first subscription payment, your next month of your plan is free.
-              6 paying referrals = 3 free months. There&apos;s no limit.
+              There&apos;s no limit.
             </CardDescription>
           </CardHeader>
           <CardContent><CopyLink url={url} /></CardContent>
