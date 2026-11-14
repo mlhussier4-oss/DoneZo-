@@ -746,3 +746,92 @@ describe("insured badge (owner request 2026-11-14)", () => {
     expect(((await anonClient().rpc("get_provider_profile", { p_business_id: businessId })).data as { insured: boolean }).insured).toBe(false);
   });
 });
+
+describe("cancellation meter (owner decision 2026-11-14)", () => {
+  async function confirmedBooking(c: TestUser, p: Provider) {
+    const r = await postJob(c);
+    const b = await bid(p, r.id);
+    return hire(c, p, b.id);
+  }
+  const record = async (u: TestUser) => (await u.client.rpc("my_cancellation_record")).data as { customer: { count: number; blocked: boolean }; business: { count: number; removed: boolean } | null };
+
+  it("a customer's 3rd cancellation within 6 months pauses their marketplace access until an admin restores it", async () => {
+    const c = await customer();
+    const p = await provider({ name: "Cancelled On" });
+    for (let i = 1; i <= 3; i++) {
+      const bk = await confirmedBooking(c, p);
+      expect((await c.client.rpc("cancel_booking", { p_booking_id: bk.id, p_reason: "changed my mind" })).error).toBeNull();
+      expect((await record(c)).customer.count).toBe(i);
+    }
+    expect((await record(c)).customer.blocked).toBe(true);
+    const { data: kinds } = await c.client.from("notifications").select("kind").like("kind", "cancellations_%");
+    expect(new Set(kinds!.map((k) => k.kind))).toEqual(new Set(["cancellations_yellow", "cancellations_orange", "cancellations_red"]));
+    // Can't post any more.
+    const { error } = await c.client.from("service_requests").insert({ category_id: await categoryId("lawn-mowing"), description: "x", timing: "asap", zip: "78745" });
+    expect(error?.message).toMatch(/paused/);
+    // Only an admin can restore, and that clears the meter.
+    expect((await c.client.rpc("admin_restore_customer_marketplace", { p_user_id: c.id })).error).not.toBeNull();
+    const admin = await createAdmin();
+    expect((await admin.client.rpc("admin_restore_customer_marketplace", { p_user_id: c.id })).error).toBeNull();
+    expect(await record(c)).toMatchObject({ customer: { count: 0, blocked: false } });
+    await postJob(c);
+  });
+
+  it("a provider's 3rd cancellation removes them from the marketplace; restoring clears the meter", async () => {
+    const p = await provider({ name: "Flaky Pro" });
+    for (let i = 0; i < 3; i++) {
+      const bk = await confirmedBooking(await customer(), p);
+      expect((await p.client.rpc("cancel_booking", { p_booking_id: bk.id, p_reason: "double booked" })).error).toBeNull();
+    }
+    expect((await record(p)).business).toMatchObject({ count: 3, removed: true });
+    expect(await feedIds(p)).toEqual([]);
+    const admin = await createAdmin();
+    await admin.client.rpc("admin_set_marketplace_removed", { p_business_id: p.businessId, p_removed: false, p_reason: "" });
+    expect((await record(p)).business).toMatchObject({ count: 0, removed: false });
+  });
+
+  it("'Provider cancelled' reports count only when an admin confirms them", async () => {
+    const c = await customer();
+    const p = await provider({ name: "Reported" });
+    const bk = await confirmedBooking(c, p);
+    const { data: report, error } = await c.client.from("support_reports")
+      .insert({ booking_id: bk.id, category: "provider_cancelled", message: "They texted that they won't come" }).select("id").single();
+    expect(error).toBeNull();
+    expect((await record(p)).business!.count).toBe(0);
+    expect((await p.client.rpc("admin_strike_from_report", { p_report_id: report!.id })).error).not.toBeNull();
+    const admin = await createAdmin();
+    expect((await admin.client.rpc("admin_strike_from_report", { p_report_id: report!.id })).error).toBeNull();
+    await admin.client.rpc("admin_strike_from_report", { p_report_id: report!.id }); // counted once only
+    expect((await record(p)).business!.count).toBe(1);
+  });
+});
+
+describe("celebrations, book again and annual plans (owner requests 2026-11-14)", () => {
+  it("finishing a job thanks the customer and congratulates the pro; Book again invites the same pro", async () => {
+    const c = await customer();
+    const p = await provider({ name: "Cheerful" });
+    const r = await postJob(c);
+    const b = await bid(p, r.id);
+    const { data: chosen } = await p.client.from("notifications").select("title").eq("kind", "booking_pending");
+    const bk = await hire(c, p, b.id);
+    expect(chosen).toBeDefined();
+    expect((await p.client.from("notifications").select("title").eq("kind", "booking_pending")).data![0].title).toMatch(/^Congrats on winning your bid!/);
+    await adminClient().from("bookings").update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", bk.id);
+    expect((await p.client.from("notifications").select("title").eq("kind", "job_celebration")).data).toEqual([{ title: "Great job completing this job!" }]);
+    expect((await c.client.from("notifications").select("title").eq("kind", "thank_you")).data).toEqual([{ title: "Thank you for being a great customer!" }]);
+
+    const again = await postJob(c);
+    expect((await c.client.rpc("invite_past_provider", { p_new_request: again.id, p_past_request: r.id })).data).toBe(true);
+    expect((await p.client.from("notifications").select("title").eq("kind", "book_again")).data![0].title).toBe("Casey wants to book you again");
+    // Someone else can't use another customer's history.
+    const other = await customer();
+    expect((await other.client.rpc("invite_past_provider", { p_new_request: again.id, p_past_request: r.id })).error).not.toBeNull();
+  });
+
+  it("a yearly price sets the same plan as the monthly one", async () => {
+    const p = await provider({ name: "Yearly" });
+    expect((await adminClient().rpc("set_business_plan_by_lookup_key", { p_business_id: p.businessId, p_lookup_key: "donezo_basic_yearly" })).error).toBeNull();
+    const { data } = await p.client.from("businesses").select("plans(code)").eq("id", p.businessId).single();
+    expect((data!.plans as unknown as { code: string }).code).toBe("basic");
+  });
+});

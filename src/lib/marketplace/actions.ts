@@ -33,7 +33,7 @@ export async function markAllNotificationsRead(): Promise<void> {
 const reportSchema = z.object({
   bookingId: z.union([z.literal(""), z.string().uuid()]).transform((v) => v || null),
   requestId: z.union([z.literal(""), z.string().uuid()]).transform((v) => v || null),
-  category: z.enum(["problem_with_job", "payment", "safety", "account", "other"]),
+  category: z.enum(["problem_with_job", "payment", "safety", "account", "other", "provider_cancelled", "customer_cancelled"]),
   message: z.string().trim().min(1, "Tell us what happened.").max(4000),
 });
 

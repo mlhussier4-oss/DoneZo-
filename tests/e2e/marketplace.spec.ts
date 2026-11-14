@@ -185,17 +185,30 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await alpha.reload();
     await expect(alpha.getByText(/The job is done! Paid \$80\.00 by cash/)).toBeVisible();
     await expect(alpha.getByText("completed", { exact: true }).first()).toBeVisible();
+    // Their progress card: 1 job done toward Bronze, with profile tips and a clean cancellation record.
+    await alpha.goto("/provider/marketplace");
+    const progress = alpha.getByTestId("provider-progress");
+    await expect(progress.getByTestId("rank-meter")).toContainText("1 job done");
+    await expect(progress.getByTestId("rank-meter")).toContainText("4 more jobs to reach Bronze");
+    await expect(progress.getByTestId("profile-strength")).toContainText("Strong profiles win more jobs and happier customers.");
+    await expect(progress.getByTestId("cancellation-meter")).toContainText("No cancellations");
 
     // 9. The homeowner's dashboard asks them to rate the provider; the public profile reflects it.
     await page.goto("/customer");
     const rate = page.getByTestId("rate-provider");
-    await expect(rate.getByText("Job completed! How did Alpha Lawn Co do?")).toBeVisible();
+    await expect(rate.getByText("Thank you for being a great customer!")).toBeVisible();
+    await expect(rate.getByText("Your job is complete. How did Alpha Lawn Co do?")).toBeVisible();
     await rate.getByRole("radio", { name: "5 stars" }).click();
     await rate.getByLabel("Comments (optional)").fill("On time and did a great job.");
     await rate.getByRole("button", { name: "Post review" }).click();
     await expect(page.getByTestId("rate-provider")).toHaveCount(0);
     await page.goto(requestPath);
     await expect(page.getByRole("heading", { name: "Your review" })).toBeVisible();
+    // Book again: the same answers come back, ready to post (the pro who did it gets invited).
+    await expect(page.getByTestId("book-again").getByRole("link", { name: "Book Alpha Lawn Co again" })).toBeVisible();
+    await page.getByTestId("book-again").getByRole("link", { name: "Book Alpha Lawn Co again" }).click();
+    await expect(page).toHaveURL(/\/post-job\?again=/);
+    await page.goto(requestPath);
 
     // 10. Repeat visits (owner decision 2026-11-12): the homeowner asks, the provider accepts, visits are scheduled.
     await page.getByRole("button", { name: "Make it recurring with Alpha Lawn Co" }).click();

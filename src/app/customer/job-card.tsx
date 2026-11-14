@@ -5,6 +5,7 @@ import { BidCard } from "@/components/marketplace/bid-card";
 import { MessageThread } from "@/components/marketplace/message-thread";
 import type { ThreadMessage } from "@/lib/marketplace/queries";
 import { Badge } from "@/components/ui/badge";
+import { buttonVariants } from "@/components/ui/button";
 import { timingLabel } from "@/config/marketplace";
 import { isPast } from "@/lib/crm/time";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/format";
@@ -96,7 +97,8 @@ export function JobCard({ req, bids, booking, thread, userId }: {
 
         {booking?.status === "completed" && !booking.review ? (
           <div className="space-y-3 rounded-lg border-2 border-cta bg-accent-soft p-4" data-testid="rate-provider">
-            <p className="font-semibold">Job completed! How did {booking.business.name} do?</p>
+            <p className="font-semibold">Thank you for being a great customer!</p>
+            <p className="text-sm">Your job is complete. How did {booking.business.name} do?</p>
             <ReviewForm bookingId={booking.id} businessName={booking.business.name} />
           </div>
         ) : null}
@@ -112,6 +114,7 @@ export function JobCard({ req, bids, booking, thread, userId }: {
         ) : null}
 
         {booking && confirmed ? <RepeatSection booking={booking} /> : null}
+        {booking?.status === "completed" ? <BookAgain requestId={req.id} businessName={booking.business.name} /> : null}
 
         {booking && confirmed ? (
           <section aria-label={`Chat with ${booking.business.name}`} className="rounded-lg border border-border">
@@ -177,6 +180,16 @@ export function RepeatSection({ booking }: { booking: CustomerBooking }) {
     <div className="space-y-2">
       {rr?.status === "declined" ? <p className="text-sm text-muted-foreground">{booking.business.name} couldn&apos;t take your last repeat request. You can try different dates.</p> : null}
       <RepeatForm bookingId={booking.id} providerName={booking.business.name} priceCents={booking.agreed_price_cents} minDate={tomorrowKey(TZ)} />
+    </div>
+  );
+}
+
+/** "Book again" (owner request 2026-11-14): re-post this job with the same answers; the same pro is invited. */
+export function BookAgain({ requestId, businessName }: { requestId: string; businessName: string }) {
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm" data-testid="book-again">
+      <p>Need it done again?</p>
+      <Link href={`/post-job?again=${requestId}`} className={buttonVariants({ size: "sm", variant: "outline" })}>Book {businessName} again</Link>
     </div>
   );
 }

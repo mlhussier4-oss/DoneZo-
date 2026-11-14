@@ -9,7 +9,7 @@ import { requireRole } from "@/lib/auth";
 import { formatDateTime } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { supportCategoryLabel } from "@/lib/support/categories";
-import { ResolveButton } from "../admin-buttons";
+import { ResolveButton, StrikeFromReportButton } from "../admin-buttons";
 
 export const metadata: Metadata = { title: "Support reports" };
 
@@ -26,6 +26,8 @@ export default async function ReportsPage() {
   const reports = [...(open ?? []), ...(answered ?? [])];
   const ids = [...new Set((reports ?? []).map((r) => r.reporter_id))];
   const { data: people } = ids.length ? await supabase.from("profiles").select("id, email, role").in("id", ids) : { data: [] };
+  const { data: strikeRows } = await supabase.from("cancellation_strikes").select("report_id").not("report_id", "is", null);
+  const strikeReports = new Set((strikeRows ?? []).map((s) => s.report_id));
   const who = new Map((people ?? []).map((p) => [p.id, `${p.email} (${p.role})`]));
   return (
     <>
@@ -43,6 +45,9 @@ export default async function ReportsPage() {
               <p className="text-sm whitespace-pre-wrap">{r.message}</p>
               {r.request_id ? <p className="text-xs text-muted-foreground">Request {r.request_id}{r.booking_id ? ` · booking ${r.booking_id}` : ""}</p> : null}
               {r.admin_note ? <p className="text-sm text-muted-foreground">Reply: {r.admin_note}</p> : null}
+              {r.booking_id && (r.category === "provider_cancelled" || r.category === "customer_cancelled") ? (
+                <StrikeFromReportButton reportId={r.id} counted={strikeReports.has(r.id)} />
+              ) : null}
               {r.status === "open" ? <ResolveButton reportId={r.id} /> : null}
             </div>
           ))}

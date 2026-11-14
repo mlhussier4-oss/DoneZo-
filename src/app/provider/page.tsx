@@ -13,6 +13,7 @@ import { getDashboard } from "@/lib/crm/dashboard";
 import { addDays } from "@/lib/dates";
 import { formatMoney, formatTime, zonedToUtcIso } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { ProviderProgress } from "@/components/marketplace/provider-progress";
 
 export const metadata: Metadata = { title: "Overview" };
 
@@ -42,6 +43,7 @@ export default async function ProviderOverviewPage() {
         description={`${business.name} · ${business.plan.name}${business.marketplaceEnabled ? " with the marketplace" : ""}`}
         actions={<Link href="/provider/jobs/new" className={buttonVariants()}><Plus /> New job</Link>}
       />
+      {business.marketplaceEnabled ? <ProviderProgress businessId={business.id} /> : null}
 
       {isEmpty ? (
         <Card className="mb-6 border-primary/30 bg-primary-soft">

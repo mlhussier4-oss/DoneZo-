@@ -16,6 +16,7 @@ export function PlanCard({ plan, highlight, badge, children }: { plan: PlanCode;
         </div>
         <CardDescription>{p.tagline}</CardDescription>
         <p className="pt-2"><span className="text-3xl font-bold">{p.price}</span><span className="text-muted-foreground"> / month</span></p>
+        <p className="text-sm text-muted-foreground">or {p.yearly} / year: pay for 12 months, get 2 free</p>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-5">
         <ul className="space-y-2 text-sm">

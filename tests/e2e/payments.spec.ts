@@ -38,7 +38,9 @@ test.describe("subscription required for providers", () => {
     await page.goto("/provider/customers");
     await expect(page).toHaveURL(atPath("/subscribe")); // every provider page is locked
 
-    await page.getByRole("button", { name: "Subscribe: HomeHire Pro, $19.99/month" }).click();
+    // Owner decision 2026-11-14: a yearly option, 12 months for the price of 10.
+    await expect(page.getByTestId("plan-pro").getByRole("button", { name: "Yearly: $199.90/year (2 months free)" })).toBeVisible();
+    await page.getByTestId("plan-pro").getByRole("button", { name: "Subscribe monthly: $19.99/month" }).click();
     await expect(page.getByText("Stripe hosted page")).toBeVisible();
 
     // The Stripe customer was created and saved; no access until Stripe confirms the subscription.

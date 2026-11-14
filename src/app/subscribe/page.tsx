@@ -56,7 +56,11 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
         {(["basic", "pro"] as const).map((code) => (
           <PlanCard key={code} plan={code} highlight={chosen === code} badge={chosen === code ? "Your choice" : undefined}>
             {business.memberRole === "owner" ? (
-              <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={`${ended ? "Resubscribe" : "Subscribe"}: ${planInfo[code].name}, ${planInfo[code].price}/month`} />
+              <div className="grid gap-2">
+                <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={`${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
+                {/* Owner decision 2026-11-14: pay for 12 months, get 2 free. */}
+                <SubscribeButton plan={code} interval="year" variant="accent" label={`Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
+              </div>
             ) : null}
           </PlanCard>
         ))}

@@ -14,6 +14,7 @@ import { getThread } from "@/lib/marketplace/queries";
 import type { BidCardData, CustomerBooking } from "@/lib/marketplace/types";
 import { createClient } from "@/lib/supabase/server";
 import { JobCard, type LiveRequest } from "./job-card";
+import { CancellationMeter } from "@/components/marketplace/cancellation-meter";
 
 export const metadata: Metadata = { title: "My jobs" };
 
@@ -21,13 +22,15 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
   const user = await requireRole("customer");
   const { posted } = await searchParams;
   const supabase = await createClient();
-  const [{ data: reqs }, { data: invoices }] = await Promise.all([
+  const [{ data: reqs }, { data: invoices }, { data: record }] = await Promise.all([
     supabase.from("service_requests")
       .select("id, status, description, timing, created_at, expires_at, zip, service_categories(name, icon)")
       .eq("customer_id", user.id).in("status", ["open", "pending", "booked"])
       .order("created_at", { ascending: false }).limit(10),
     supabase.rpc("customer_invoices"),
+    supabase.rpc("my_cancellation_record"),
   ]);
+  const strikes = (record as { customer?: { count: number; blocked: boolean } } | null)?.customer ?? { count: 0, blocked: false };
 
   // Each current job with its live bids, its booking (if any) and the chat.
   const jobs = await Promise.all(((reqs ?? []) as LiveRequest[]).map(async (req) => {
@@ -59,6 +62,9 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
         <Card className="mb-6 border-success/30 bg-success-soft">
           <CardContent className="text-sm"><span className="font-semibold">Your job is posted.</span> Providers near you have been notified. Keep this page open; bids appear below as they arrive.</CardContent>
         </Card>
+      ) : null}
+      {strikes.count > 0 || strikes.blocked ? (
+        <Card className="mb-4"><CardContent><CancellationMeter count={strikes.count} blocked={strikes.blocked} who="customer" /></CardContent></Card>
       ) : null}
       <PushToggle text="We'll let you know the moment a new bid arrives and when your pro sends you a message." />
       {!user.email ? (

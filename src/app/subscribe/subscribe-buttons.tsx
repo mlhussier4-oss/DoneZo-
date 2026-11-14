@@ -6,12 +6,12 @@ import { Button } from "@/components/ui/button";
 import type { PlanCode } from "@/config/plans";
 import { manageBilling, subscribe } from "./actions";
 
-export function SubscribeButton({ plan, label, variant = "primary" }: { plan: PlanCode; label: string; variant?: "primary" | "outline" }) {
+export function SubscribeButton({ plan, label, variant = "primary", interval = "month" }: { plan: PlanCode; label: string; variant?: "primary" | "outline" | "accent"; interval?: "month" | "year" }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string>();
   return (
     <div className="space-y-2">
-      <Button size="lg" variant={variant} className="w-full" disabled={pending} onClick={() => start(async () => setError((await subscribe(plan))?.error))}>
+      <Button size="lg" variant={variant} className="w-full" disabled={pending} onClick={() => start(async () => setError((await subscribe(plan, interval))?.error))}>
         {pending ? "Opening secure checkout…" : label}
       </Button>
       {error ? <Alert tone="error">{error}</Alert> : null}
