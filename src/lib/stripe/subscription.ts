@@ -53,8 +53,9 @@ async function customerFor(business: { id: string; name: string; email: string |
 export async function startSubscriptionCheckout(business: { id: string; name: string; email: string | null }, plan: PlanCode, interval: BillingInterval = "month"): Promise<string> {
   const [price, customer] = await Promise.all([planPrice(plan, interval), customerFor(business)]);
   // First month free, once per business (owner decision 2026-11-15): anyone who has subscribed before pays straight away.
-  const { data: before } = await createServiceClient().from("business_subscriptions").select("stripe_subscription_id").eq("business_id", business.id).maybeSingle();
-  const freeMonth = plan === FREE_MONTH_PLAN && !before?.stripe_subscription_id; // Basic only
+  const { data: before } = await createServiceClient().from("business_subscriptions").select("stripe_subscription_id, trial_card_check").eq("business_id", business.id).maybeSingle();
+  // Basic only; someone whose card failed the check can try again with another card.
+  const freeMonth = plan === FREE_MONTH_PLAN && (!before?.stripe_subscription_id || before.trial_card_check === "failed");
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer,

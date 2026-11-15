@@ -33,10 +33,12 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
 
   const [{ data: access }, { data: sub }] = await Promise.all([
     supabase.rpc("business_has_access", { p_business_id: business.id }),
-    supabase.from("business_subscriptions").select("status, current_period_end").eq("business_id", business.id).maybeSingle(),
+    supabase.from("business_subscriptions").select("status, current_period_end, trial_card_check, trial_card_message").eq("business_id", business.id).maybeSingle(),
   ]);
   if (access) redirect("/provider");
-  const ended = sub?.status && ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
+  // A failed free-month card check isn't an "ended" subscription: they can retry the free month with another card.
+  const cardFailed = sub?.trial_card_check === "failed";
+  const ended = !cardFailed && sub?.status && ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
 
   const chosen = business.plan.code;
   return (
@@ -49,6 +51,7 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
             : "Choose your plan. Cancel or switch plans any time."}
         </p>
       </div>
+      {cardFailed ? <Alert tone="error" data-testid="card-check-failed">{sub?.trial_card_message ?? "Your card couldn't be verified. Please try another card."} Your free month hasn&apos;t started yet.</Alert> : null}
       {params.canceled ? <Alert tone="info">Checkout was canceled. You haven&apos;t been charged.</Alert> : null}
       {typeof params.session_id === "string" ? <Alert tone="info">We&apos;re confirming your payment with Stripe. Refresh in a moment if this page doesn&apos;t update.</Alert> : null}
       {business.memberRole !== "owner" ? <Alert tone="warning">Only the business owner can subscribe.</Alert> : null}
@@ -66,7 +69,7 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
           </PlanCard>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. {freeMonthNote} {cardFeeNote}</p>
+      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. {freeMonthNote} To confirm your card is real, we place a temporary hold for the first payment when your free month starts and release it right away; you&apos;re not charged until the free month ends. {cardFeeNote}</p>
       {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
     </div>
   );

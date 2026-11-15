@@ -5,6 +5,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { accountStatus } from "./account-status";
 import { assertTestMode } from "./server";
 import { applyPendingReferralRewards } from "./referrals";
+import { verifyTrialCard } from "./trial-check";
 
 type SubStatus = Database["public"]["Enums"]["subscription_status"];
 
@@ -39,11 +40,14 @@ export async function syncSubscription(sub: Stripe.Subscription) {
   if (!businessId) throw new Error(`No HomeHire business for Stripe customer ${customerId}`);
   const periodEnd = (sub.items?.data?.[0] as { current_period_end?: number } | undefined)?.current_period_end
     ?? (sub as unknown as { current_period_end?: number }).current_period_end;
+  // A free month whose card check failed stays cancelled, even if an older "trialing" update arrives late.
+  const { data: prior } = await db.from("business_subscriptions").select("stripe_subscription_id, trial_card_check").eq("business_id", businessId).maybeSingle();
+  const cardCheckFailed = prior?.stripe_subscription_id === sub.id && prior?.trial_card_check === "failed";
   const { error } = await db.from("business_subscriptions").upsert({
     business_id: businessId,
     stripe_customer_id: customerId,
     stripe_subscription_id: sub.id,
-    status: sub.status as SubStatus,
+    status: (cardCheckFailed ? "canceled" : sub.status) as SubStatus,
     current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
     cancel_at_period_end: Boolean(sub.cancel_at_period_end),
   });
@@ -54,6 +58,8 @@ export async function syncSubscription(sub: Stripe.Subscription) {
     const { error: planError } = await db.rpc("set_business_plan_by_lookup_key", { p_business_id: businessId, p_lookup_key: lookupKey });
     if (planError) throw new Error(`Could not save plan: ${planError.message}`);
   }
+  // A new Basic free month: check the card is real and has funds (temporary hold, released at once).
+  if (!cardCheckFailed && sub.status === "trialing") await verifyTrialCard(sub, businessId);
   // Free months earned before this business had a Stripe customer are applied now.
   if (sub.status === "active" || sub.status === "trialing") await applyPendingReferralRewards(businessId);
 }
