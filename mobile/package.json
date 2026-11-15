@@ -1,0 +1,21 @@
+{
+  "name": "homehire-app",
+  "private": true,
+  "description": "HomeHire iPhone and Android app: a native shell around homehire.us (same accounts, data and design) with push notifications, camera and an app icon.",
+  "scripts": {
+    "sync": "cap sync",
+    "assets": "capacitor-assets generate --iconBackgroundColor '#14213d' --splashBackgroundColor '#14213d' --splashBackgroundColorDark '#14213d'"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.6.0",
+    "@capacitor/core": "8.6.0",
+    "@capacitor/ios": "8.6.0",
+    "@capacitor/push-notifications": "8.1.3",
+    "@capacitor/splash-screen": "8.0.2",
+    "@capacitor/status-bar": "8.0.4"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "4.0.0",
+    "@capacitor/cli": "8.6.0"
+  }
+}

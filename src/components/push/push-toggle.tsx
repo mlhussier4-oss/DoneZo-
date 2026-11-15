@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { BellRing, BellOff, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { deletePushSubscription, savePushSubscription } from "@/lib/push/actions";
+import { deletePushSubscription, saveNativePushToken, savePushSubscription } from "@/lib/push/actions";
 
 type State = "loading" | "unsupported" | "ios-install" | "blocked" | "off" | "on";
 
@@ -23,6 +23,24 @@ async function permissionState(): Promise<NotificationPermission> {
   } catch {
     return Notification.permission;
   }
+}
+
+/** Inside the HomeHire phone app, the phone's own notifications are used instead of browser push. */
+type NativePush = {
+  checkPermissions(): Promise<{ receive: string }>;
+  requestPermissions(): Promise<{ receive: string }>;
+  register(): Promise<void>;
+  addListener(event: "registration", cb: (t: { value: string }) => void): Promise<unknown>;
+};
+function nativeApp(): { push: NativePush; platform: "ios" | "android" } | null {
+  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean; getPlatform?: () => string; Plugins?: { PushNotifications?: NativePush } } }).Capacitor;
+  const push = cap?.Plugins?.PushNotifications;
+  const platform = cap?.getPlatform?.();
+  return cap?.isNativePlatform?.() && push && (platform === "ios" || platform === "android") ? { push, platform } : null;
+}
+async function registerNative(app: { push: NativePush; platform: "ios" | "android" }) {
+  await app.push.addListener("registration", (t) => { void saveNativePushToken(t.value, app.platform); });
+  await app.push.register();
 }
 
 async function currentSubscription() {
@@ -47,6 +65,13 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
     (async () => {
       let next: State;
       try { setDismissed(variant === "banner" && localStorage.getItem(DISMISS_KEY) === "1"); } catch { setDismissed(false); }
+      const app = nativeApp();
+      if (app) {
+        const { receive } = await app.push.checkPermissions().catch(() => ({ receive: "prompt" }));
+        if (receive === "granted") await registerNative(app).catch(() => undefined); // keep this phone's token fresh
+        if (!cancelled) setState(receive === "granted" ? "on" : receive === "denied" ? "blocked" : "off");
+        return;
+      }
       const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
       const standalone = window.matchMedia("(display-mode: standalone)").matches || (navigator as unknown as { standalone?: boolean }).standalone === true;
       if (!publicKey) next = "unsupported";
@@ -66,6 +91,18 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
 
   async function turnOn() {
     setBusy(true); setError(undefined);
+    const app = nativeApp();
+    if (app) {
+      try {
+        const { receive } = await app.push.requestPermissions();
+        if (receive !== "granted") { setState(receive === "denied" ? "blocked" : "off"); return; }
+        await registerNative(app);
+        setState("on");
+      } catch {
+        setError("Couldn't turn on notifications. Check HomeHire in your phone's Settings.");
+      } finally { setBusy(false); }
+      return;
+    }
     try {
       const permission = (await permissionState()) === "granted" ? "granted" : await Notification.requestPermission();
       if (permission !== "granted") { setState(permission === "denied" ? "blocked" : "off"); return; }
@@ -119,7 +156,9 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
       {state === "on" ? (
         <div className="flex flex-wrap items-center gap-3">
           <span className="flex items-center gap-2 font-medium"><BellRing className="size-4 text-success" aria-hidden /> Notifications are on for this device</span>
-          <Button size="sm" variant="outline" disabled={busy} onClick={turnOff}><BellOff /> Turn off</Button>
+          {nativeApp()
+            ? <span className="text-xs text-muted-foreground">To turn them off, use HomeHire in your phone&apos;s Settings.</span>
+            : <Button size="sm" variant="outline" disabled={busy} onClick={turnOff}><BellOff /> Turn off</Button>}
         </div>
       ) : state === "blocked" ? (
         <p className="text-muted-foreground">Notifications are blocked for HomeHire in this browser. Allow them in your browser&apos;s site settings, then reload.</p>

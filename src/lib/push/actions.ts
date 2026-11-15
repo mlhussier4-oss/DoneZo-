@@ -25,3 +25,9 @@ export async function deletePushSubscription(endpoint: string): Promise<void> {
   if (typeof endpoint !== "string" || endpoint.length > 1000) return;
   await (await createClient()).from("push_subscriptions").delete().eq("endpoint", endpoint);
 }
+
+/** The HomeHire phone app registers its device token (sending to it starts once the Apple/Firebase keys are set up). */
+export async function saveNativePushToken(token: string, platform: "ios" | "android"): Promise<void> {
+  if (typeof token !== "string" || token.length < 20 || token.length > 400 || (platform !== "ios" && platform !== "android")) return;
+  await (await createClient()).rpc("register_native_push", { p_token: token, p_platform: platform });
+}

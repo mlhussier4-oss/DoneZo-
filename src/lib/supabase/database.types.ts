@@ -803,14 +803,14 @@ isOneToOne: false
                   ]
                 },"push_subscriptions": {
                   Row: {
-                    "auth": string,"created_at": string,"endpoint": string,"id": string,"p256dh": string,"user_agent": string | null,"user_id": string
+                    "auth": string | null,"created_at": string,"endpoint": string | null,"id": string,"native_token": string | null,"p256dh": string | null,"platform": string,"user_agent": string | null,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "auth": string,"created_at"?: string,"endpoint": string,"id"?: string,"p256dh": string,"user_agent"?: string | null,"user_id"?: string
+                    "auth"?: string | null,"created_at"?: string,"endpoint"?: string | null,"id"?: string,"native_token"?: string | null,"p256dh"?: string | null,"platform"?: string,"user_agent"?: string | null,"user_id"?: string
                   }
                   Update: {
-                    "auth"?: string,"created_at"?: string,"endpoint"?: string,"id"?: string,"p256dh"?: string,"user_agent"?: string | null,"user_id"?: string
+                    "auth"?: string | null,"created_at"?: string,"endpoint"?: string | null,"id"?: string,"native_token"?: string | null,"p256dh"?: string | null,"platform"?: string,"user_agent"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -1808,6 +1808,9 @@ isOneToOne: false
       } },
 "referrer_name":
 { Args: { "p_code": string }; Returns: string
+                           },
+"register_native_push":
+{ Args: { "p_platform": string,"p_token": string }; Returns: undefined
                            },
 "register_push_subscription":
 { Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
