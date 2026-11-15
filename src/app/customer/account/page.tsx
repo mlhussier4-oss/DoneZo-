@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { PhotoForm, ProfileForm, SaveAccountForm } from "./profile-form";
 import { CancellationMeter } from "@/components/marketplace/cancellation-meter";
+import { DeleteAccount } from "@/components/account/delete-account";
 
 export const metadata: Metadata = { title: "Profile" };
 
@@ -37,6 +38,7 @@ export default async function CustomerAccountPage() {
           </CardContent>
         </Card>
         <Card><CardContent><CancellationMeter count={strikes.count} blocked={strikes.blocked} who="customer" /></CardContent></Card>
+        <div><DeleteAccount who="customer" /></div>
       </div>
     </>
   );

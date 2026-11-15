@@ -835,3 +835,35 @@ describe("celebrations, book again and annual plans (owner requests 2026-11-14)"
     expect((data!.plans as unknown as { code: string }).code).toBe("basic");
   });
 });
+
+describe("delete my account (owner request 2026-11-15)", () => {
+  it("a customer's personal details are removed but the provider keeps the job record; nothing in progress may be left", async () => {
+    const c = await customer();
+    const p = await provider({ name: "Keeps Records" });
+    const r = await postJob(c);
+    const b = await bid(p, r.id);
+    const bk = await hire(c, p, b.id);
+    // A job in progress blocks deletion.
+    expect((await c.client.rpc("delete_my_account")).error?.message).toMatch(/in progress/);
+    await adminClient().from("bookings").update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", bk.id);
+    const open = await postJob(c);
+    expect((await c.client.rpc("delete_my_account")).error).toBeNull();
+    const { data: prof } = await adminClient().from("profiles").select("full_name, phone, avatar_path, deleted_at").eq("id", c.id).single();
+    expect(prof).toMatchObject({ full_name: "Deleted user", phone: null, avatar_path: null });
+    expect(prof!.deleted_at).not.toBeNull();
+    expect((await adminClient().from("service_requests").select("status").eq("id", open.id).single()).data!.status).toBe("canceled");
+    // The provider's booking record is still there.
+    expect((await p.client.from("bookings").select("id").eq("id", bk.id)).data).toHaveLength(1);
+  });
+
+  it("a business owner with team members must remove them first; otherwise the business leaves the marketplace", async () => {
+    const p = await provider({ name: "Closing Down" });
+    const r = await postJob(await customer());
+    const b = await bid(p, r.id);
+    expect((await p.client.rpc("delete_my_account")).error).toBeNull();
+    const { data: biz } = await adminClient().from("businesses").select("is_suspended, marketplace_enabled, name, deleted_at").eq("id", p.businessId).single();
+    expect(biz).toMatchObject({ is_suspended: true, marketplace_enabled: false, name: "Deleted business" });
+    expect((await adminClient().from("bids").select("status").eq("id", b.id).single()).data!.status).toBe("withdrawn");
+    expect((await p.client.rpc("delete_my_account")).error).not.toBeNull(); // only once
+  });
+});
