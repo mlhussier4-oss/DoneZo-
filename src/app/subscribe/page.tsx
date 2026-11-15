@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Alert } from "@/components/ui/alert";
 import { PlanCard } from "@/components/plans/plan-card";
-import { cardFeeNote, planInfo } from "@/config/plans";
+import { freeMonthNote, cardFeeNote, planInfo } from "@/config/plans";
 import { getCurrentBusiness, requireRole } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
 import { confirmSubscriptionSession } from "@/lib/stripe/subscription";
@@ -57,15 +57,16 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
           <PlanCard key={code} plan={code} highlight={chosen === code} badge={chosen === code ? "Your choice" : undefined}>
             {business.memberRole === "owner" ? (
               <div className="grid gap-2">
-                <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={`${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
+                {/* Owner decision 2026-11-15: first month free on Basic only (new businesses). */}
+                <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].price}/month` : `${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
                 {/* Owner decision 2026-11-14: pay for 12 months, get 2 free. */}
-                <SubscribeButton plan={code} interval="year" variant="accent" label={`Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
+                <SubscribeButton plan={code} interval="year" variant="accent" label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].yearly}/year (2 months free)` : `Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
               </div>
             ) : null}
           </PlanCard>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. No free trial. {cardFeeNote}</p>
+      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. {freeMonthNote} {cardFeeNote}</p>
       {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
     </div>
   );

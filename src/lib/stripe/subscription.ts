@@ -4,6 +4,7 @@ import { siteUrl } from "@/lib/env";
 import { createServiceClient } from "@/lib/supabase/service";
 import { assertTestMode, stripe } from "./server";
 import { syncSubscription } from "./sync";
+import { FREE_MONTH_PLAN, FREE_TRIAL_DAYS } from "@/config/plans";
 
 export type PlanCode = "basic" | "pro";
 export const planCodes: PlanCode[] = ["basic", "pro"];
@@ -51,12 +52,19 @@ async function customerFor(business: { id: string; name: string; email: string |
 /** Start Stripe's hosted checkout for a plan's monthly subscription. Returns the URL to send the provider to. */
 export async function startSubscriptionCheckout(business: { id: string; name: string; email: string | null }, plan: PlanCode, interval: BillingInterval = "month"): Promise<string> {
   const [price, customer] = await Promise.all([planPrice(plan, interval), customerFor(business)]);
+  // First month free, once per business (owner decision 2026-11-15): anyone who has subscribed before pays straight away.
+  const { data: before } = await createServiceClient().from("business_subscriptions").select("stripe_subscription_id").eq("business_id", business.id).maybeSingle();
+  const freeMonth = plan === FREE_MONTH_PLAN && !before?.stripe_subscription_id; // Basic only
   const session = await stripe().checkout.sessions.create({
     mode: "subscription",
     customer,
     line_items: [{ price: price.id, quantity: 1 }],
     client_reference_id: business.id,
-    subscription_data: { metadata: { business_id: business.id, plan } },
+    payment_method_collection: "always", // card collected now, first charge after the free month
+    subscription_data: {
+      metadata: { business_id: business.id, plan },
+      ...(freeMonth ? { trial_period_days: FREE_TRIAL_DAYS, trial_settings: { end_behavior: { missing_payment_method: "cancel" as const } } } : {}),
+    },
     success_url: `${siteUrl("/subscribe").toString()}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: siteUrl("/subscribe?canceled=1").toString(),
   });

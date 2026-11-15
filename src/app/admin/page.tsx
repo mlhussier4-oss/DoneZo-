@@ -15,7 +15,7 @@ export const metadata: Metadata = { title: "Business dashboard" };
 type Day = { day: string; jobs: number; customers: number; providers: number; completed: number };
 type Dash = {
   customers: number; customers_7d: number; providers: number; providers_7d: number;
-  subscribed: number; subscribed_basic: number; subscribed_pro: number; mrr_cents: number;
+  subscribed: number; subscribed_basic: number; subscribed_pro: number; mrr_cents: number; in_free_month: number;
   jobs_today: number; jobs_7d: number; jobs_total: number; jobs_open: number; bids_today: number; bids_7d: number;
   waiting_confirm: number; in_progress: number; completed_total: number; completed_7d: number;
   card_volume_30d_cents: number; card_fees_30d_cents: number; open_reports: number;
@@ -44,7 +44,7 @@ export default async function AdminDashboardPage() {
       <section aria-label="Customers and providers" className="grid grid-cols-2 gap-4 lg:grid-cols-4" data-testid="admin-kpis">
         <StatTile label="Customers (with logins)" value={String(d.customers)} context={`+${d.customers_7d} this week`} href="/admin/users" />
         <StatTile label="Subscribed providers" value={String(d.subscribed)} context={`${d.subscribed_pro} Pro · ${d.subscribed_basic} Basic`} href="/admin/businesses" />
-        <StatTile label="Monthly subscriptions" value={formatMoney(d.mrr_cents)} context="from current subscribers" />
+        <StatTile label="Monthly subscriptions" value={formatMoney(d.mrr_cents)} context={`from paying providers · ${d.in_free_month} in their free month`} />
         <StatTile label="Provider sign-ups" value={String(d.providers)} context={`+${d.providers_7d} this week`} href="/admin/businesses" />
       </section>
 
