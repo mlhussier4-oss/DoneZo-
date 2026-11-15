@@ -169,6 +169,27 @@ test.describe("customer accounts", () => {
     expect((await authCookies()).every((c) => c.expires === -1)).toBe(true);
   });
 
+  test("a customer can delete their account from Profile and can't sign in with it afterwards", async ({ page }) => {
+    const email = uniqueEmail("leaver");
+    const { password } = await createCustomer(email, "Dana");
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByRole("heading", { name: "Hi, Dana" })).toBeVisible();
+    await page.goto("/customer/account");
+    await page.getByRole("button", { name: "Delete my account" }).click();
+    const box = page.getByTestId("delete-account");
+    await box.getByLabel("Type DELETE to confirm").fill("delete");
+    await box.getByRole("button", { name: "Delete my account" }).click();
+    await expect(page.getByRole("heading", { name: "Your account has been deleted" })).toBeVisible({ timeout: 15_000 });
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(email);
+    await page.getByLabel("Password").fill(password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page.getByText("That email and password don't match. Please try again.")).toBeVisible(); // the old login no longer works
+  });
+
   test("a wrong code is rejected", async ({ page }) => {
     const email = uniqueEmail("badcode");
     await createCustomer(email);

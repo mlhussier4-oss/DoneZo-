@@ -10,6 +10,7 @@ import { requireProvider } from "@/lib/auth";
 import { isoDaysAgo } from "@/lib/crm/time";
 import { formatDateTime, localDateKey } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { DeleteAccount } from "@/components/account/delete-account";
 
 export const metadata: Metadata = { title: "My jobs" };
 
@@ -64,6 +65,7 @@ export default async function MyJobsPage() {
       {upcoming.length ? list(upcoming.slice(0, 30)) : <p className="text-sm text-muted-foreground">Nothing scheduled yet.</p>}
       {recent.length ? (<><h2 className="mt-6 mb-2 font-semibold">Recent</h2>{list(recent.slice(0, 20))}</>) : null}
       {!jobs?.length ? <div className="mt-6"><EmptyState icon={Briefcase} title="No jobs assigned yet">Your manager will assign jobs to you here.</EmptyState></div> : null}
+      <div className="mt-10 border-t border-border pt-4"><DeleteAccount who="provider" /></div>
     </>
   );
 }

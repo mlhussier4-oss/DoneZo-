@@ -8,6 +8,7 @@ import { requireManager } from "@/lib/auth";
 import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
 import { formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { DeleteAccount } from "@/components/account/delete-account";
 
 export const metadata: Metadata = { title: "Business settings" };
 
@@ -77,6 +78,7 @@ export default async function ProviderSettingsPage() {
           </CardHeader>
           <CardContent><Link href="/provider/plan" className="text-sm font-medium text-primary hover:underline">Plan &amp; billing →</Link></CardContent>
         </Card>
+        <div><DeleteAccount who="provider" /></div>
       </div>
     </>
   );

@@ -66,3 +66,15 @@ describe("a new notification asks the website to send the push", () => {
     }
   });
 });
+
+describe("app (native) devices", () => {
+  it("a signed-in person registers their phone's token; tokens are validated and private", async () => {
+    const a = await createUser({ role: "customer", full_name: "App User" });
+    const token = `apns-${randomUUID()}-${randomUUID()}`;
+    expect((await a.client.rpc("register_native_push", { p_token: token, p_platform: "ios" })).error).toBeNull();
+    expect((await a.client.from("push_subscriptions").select("platform, native_token")).data).toEqual([{ platform: "ios", native_token: token }]);
+    expect((await a.client.rpc("register_native_push", { p_token: "short", p_platform: "ios" })).error).not.toBeNull();
+    expect((await a.client.rpc("register_native_push", { p_token: token, p_platform: "windows" })).error).not.toBeNull();
+    expect((await anonClient().rpc("register_native_push", { p_token: token, p_platform: "ios" })).error).not.toBeNull();
+  });
+});

@@ -201,14 +201,14 @@ isOneToOne: true
                   ]
                 },"businesses": {
                   Row: {
-                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"insured": boolean,"insured_updated_at": string | null,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"deleted_at": string | null,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"insured": boolean,"insured_updated_at": string | null,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
@@ -763,14 +763,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_path": string | null,"created_at": string,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"marketplace_blocked_at": string | null,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"deleted_at": string | null,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"marketplace_blocked_at": string | null,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_path"?: string | null,"created_at"?: string,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -803,14 +803,14 @@ isOneToOne: false
                   ]
                 },"push_subscriptions": {
                   Row: {
-                    "auth": string,"created_at": string,"endpoint": string,"id": string,"p256dh": string,"user_agent": string | null,"user_id": string
+                    "auth": string | null,"created_at": string,"endpoint": string | null,"id": string,"native_token": string | null,"p256dh": string | null,"platform": string,"user_agent": string | null,"user_id": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "auth": string,"created_at"?: string,"endpoint": string,"id"?: string,"p256dh": string,"user_agent"?: string | null,"user_id"?: string
+                    "auth"?: string | null,"created_at"?: string,"endpoint"?: string | null,"id"?: string,"native_token"?: string | null,"p256dh"?: string | null,"platform"?: string,"user_agent"?: string | null,"user_id"?: string
                   }
                   Update: {
-                    "auth"?: string,"created_at"?: string,"endpoint"?: string,"id"?: string,"p256dh"?: string,"user_agent"?: string | null,"user_id"?: string
+                    "auth"?: string | null,"created_at"?: string,"endpoint"?: string | null,"id"?: string,"native_token"?: string | null,"p256dh"?: string | null,"platform"?: string,"user_agent"?: string | null,"user_id"?: string
                   }
                   Relationships: [
                     
@@ -1232,6 +1232,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string | null,
 "default_tax_rate_bps": number,
+"deleted_at": string | null,
 "description": string | null,
 "email": string | null,
 "home_zip": string | null,
@@ -1282,6 +1283,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string | null,
 "default_tax_rate_bps": number,
+"deleted_at": string | null,
 "description": string | null,
 "email": string | null,
 "home_zip": string | null,
@@ -1318,6 +1320,7 @@ isOneToOne: false
 { Args: { "p_reason": string,"p_suspended": boolean,"p_user_id": string }; Returns: {
               "avatar_path": string | null,
 "created_at": string,
+"deleted_at": string | null,
 "email": string | null,
 "full_name": string | null,
 "id": string,
@@ -1648,6 +1651,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"delete_my_account":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
 "drop_pending_booking":
 { Args: { "p_booking_id": string }; Returns: undefined
                            },
@@ -1803,6 +1809,9 @@ isOneToOne: false
 "referrer_name":
 { Args: { "p_code": string }; Returns: string
                            },
+"register_native_push":
+{ Args: { "p_platform": string,"p_token": string }; Returns: undefined
+                           },
 "register_push_subscription":
 { Args: { "p_auth": string,"p_endpoint": string,"p_p256dh": string,"p_user_agent": string }; Returns: undefined
                            },
@@ -1914,6 +1923,7 @@ isOneToOne: false
 "created_at": string,
 "created_by": string | null,
 "default_tax_rate_bps": number,
+"deleted_at": string | null,
 "description": string | null,
 "email": string | null,
 "home_zip": string | null,

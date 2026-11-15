@@ -17,7 +17,8 @@ export async function sendNotificationPush(notificationId: string): Promise<{ se
   const { data: n } = await db.from("notifications").select("id, user_id, kind, title, body, link, read_at, created_at").eq("id", notificationId).maybeSingle();
   // Old or already-read notifications aren't pushed (e.g. a retried request long after the fact).
   if (!n || n.read_at || Date.now() - new Date(n.created_at).getTime() > 15 * 60_000) return { sent: 0, removed: 0 };
-  const { data: subs } = await db.from("push_subscriptions").select("id, endpoint, p256dh, auth").eq("user_id", n.user_id);
+  const { data: subs } = await db.from("push_subscriptions").select("id, endpoint, p256dh, auth").eq("user_id", n.user_id).eq("platform", "web");
+  // App (native) devices are registered too; sending to them starts once the Apple/Firebase keys are set up.
   if (!subs?.length) return { sent: 0, removed: 0 };
 
   webpush.setVapidDetails(process.env.VAPID_SUBJECT ?? "mailto:support@homehire.us", process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!, process.env.VAPID_PRIVATE_KEY!);
@@ -26,6 +27,7 @@ export async function sendNotificationPush(notificationId: string): Promise<{ se
   const gone: string[] = [];
   await Promise.all(subs.map(async (s) => {
     try {
+      if (!s.endpoint || !s.p256dh || !s.auth) return;
       await webpush.sendNotification({ endpoint: s.endpoint, keys: { p256dh: s.p256dh, auth: s.auth } }, JSON.stringify(payload), {
         TTL: payload.urgent ? 300 : 3600,
         urgency: payload.urgent ? "high" : "normal",
