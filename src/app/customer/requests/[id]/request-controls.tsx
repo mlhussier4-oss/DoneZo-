@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Star } from "lucide-react";
+import { Camera, Star } from "lucide-react";
+import { createBrowserSupabase } from "@/lib/supabase/client";
+import { shrinkPhoto } from "@/lib/review-photos";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Textarea } from "@/components/ui/input";
@@ -75,10 +77,31 @@ export function ChangeOrderDecision({ changeOrderId }: { changeOrderId: string }
   );
 }
 
-export function ReviewForm({ bookingId, businessName }: { bookingId: string; businessName: string }) {
+export function ReviewForm({ bookingId, businessName, userId }: { bookingId: string; businessName: string; userId: string }) {
   const { pending, error, run } = useRun();
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
+  const [photos, setPhotos] = useState<{ file: File; url: string }[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string>();
+  async function post() {
+    setPhotoError(undefined);
+    const paths: string[] = [];
+    if (photos.length) {
+      setUploading(true);
+      const supabase = createBrowserSupabase();
+      for (const p of photos) {
+        try {
+          const path = `${userId}/${crypto.randomUUID()}.jpg`;
+          const { error: upErr } = await supabase.storage.from("review-photos").upload(path, await shrinkPhoto(p.file), { contentType: "image/jpeg" });
+          if (!upErr) paths.push(path);
+        } catch { /* skip a photo that can't be read */ }
+      }
+      setUploading(false);
+      if (!paths.length) { setPhotoError("Your photos didn't upload. Try again, or post the review without them."); return; }
+    }
+    run(() => submitReview(bookingId, rating, comment, paths));
+  }
   return (
     <div className="space-y-3">
       <fieldset>
@@ -95,7 +118,24 @@ export function ReviewForm({ bookingId, businessName }: { bookingId: string; bus
       <Field label="Comments (optional)" htmlFor="review-comment">
         <Textarea id="review-comment" value={comment} onChange={(e) => setComment(e.target.value)} maxLength={2000} />
       </Field>
-      <Button disabled={pending || rating === 0} onClick={() => run(() => submitReview(bookingId, rating, comment))}>Post review</Button>
+      <div className="space-y-2">
+        <p className="text-sm font-medium">Photos of the finished job <span className="font-normal text-muted-foreground">(optional, up to 3)</span></p>
+        <div className="flex flex-wrap gap-2">
+          {photos.map((p, i) => (
+            // eslint-disable-next-line @next/next/no-img-element -- local preview
+            <img key={p.url} src={p.url} alt={`Review photo ${i + 1}`} className="size-20 rounded-lg object-cover" />
+          ))}
+          {photos.length < 3 ? (
+            <label className="flex size-20 cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-input text-xs text-muted-foreground hover:bg-muted">
+              <Camera className="size-5" aria-hidden />Add photo
+              <input type="file" accept="image/*" className="sr-only" data-testid="review-photos"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f && f.type.startsWith("image/")) setPhotos((x) => [...x, { file: f, url: URL.createObjectURL(f) }].slice(0, 3)); e.target.value = ""; }} />
+            </label>
+          ) : null}
+        </div>
+      </div>
+      {photoError ? <Alert tone="error">{photoError}</Alert> : null}
+      <Button disabled={pending || uploading || rating === 0} onClick={post}>{uploading ? "Uploading photos…" : "Post review"}</Button>
       {error ? <Alert tone="error">{error}</Alert> : null}
     </div>
   );

@@ -17,12 +17,17 @@ async function Wizard({ searchParams }: { searchParams: PageProps<"/post-job">["
   if (user.role === "customer" && !user.email) redirect(`/customer/account?save=1&next=${encodeURIComponent(here)}`);
   // "Book again" (owner request 2026-11-14): start from a finished job's answers; the pro who did it is invited.
   const againId = typeof params.again === "string" && /^[0-9a-f-]{36}$/.test(params.again) ? params.again : null;
-  const { data: past } = againId
-    ? await (await createClient()).from("service_requests").select("id, description, details, zip, service_categories(slug)").eq("id", againId).eq("customer_id", user.id).maybeSingle()
-    : { data: null };
+  const supabase = await createClient();
+  const [{ data: past }, { data: home }] = await Promise.all([
+    againId
+      ? supabase.from("service_requests").select("id, description, details, zip, service_categories(slug)").eq("id", againId).eq("customer_id", user.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    user.role === "customer" ? supabase.from("customer_homes").select("zip, details").eq("customer_id", user.id).maybeSingle() : Promise.resolve({ data: null }),
+  ]);
   return (
     <PostJobWizard
       categories={categories}
+      home={home ? { zip: home.zip, details: (home.details ?? {}) as Record<string, string> } : undefined}
       again={past ? { id: past.id, description: past.description, details: (past.details ?? {}) as Record<string, string>, zip: past.zip } : undefined}
       initialCategory={past?.service_categories?.slug ?? (typeof params.category === "string" ? params.category : undefined)}
       signedInRole={user.role}

@@ -63,3 +63,10 @@ export async function saveGuestAccount(_prev: ProfileState, formData: FormData):
   refresh();
   return { status: "success", message: `Almost done: we sent a link to ${parsed.data.email}. Tap it to confirm, and you can log in on any device.` };
 }
+
+/** Save my home: forget the saved ZIP and home answers. */
+export async function clearMyHome(): Promise<void> {
+  const user = await requireRole("customer");
+  await (await createClient()).from("customer_homes").delete().eq("customer_id", user.id);
+  refresh();
+}

@@ -6,16 +6,20 @@ import { createClient } from "@/lib/supabase/server";
 import { PhotoForm, ProfileForm, SaveAccountForm } from "./profile-form";
 import { CancellationMeter } from "@/components/marketplace/cancellation-meter";
 import { DeleteAccount } from "@/components/account/delete-account";
+import { ClearHomeButton } from "./my-home";
+import { detailLines } from "@/config/marketplace";
 
 export const metadata: Metadata = { title: "Profile" };
 
 export default async function CustomerAccountPage() {
   const user = await requireRole("customer");
   const supabase = await createClient();
-  const [{ data }, { data: record }] = await Promise.all([
+  const [{ data }, { data: record }, { data: home }] = await Promise.all([
     supabase.from("profiles").select("full_name, avatar_path").eq("id", user.id).single(),
     supabase.rpc("my_cancellation_record"),
+    supabase.from("customer_homes").select("zip, details").eq("customer_id", user.id).maybeSingle(),
   ]);
+  const homeLines = home ? [home.zip ? `ZIP ${home.zip}` : null, ...detailLines(home.details as Record<string, string>)].filter(Boolean) as string[] : [];
   const strikes = (record as { customer?: { count: number; blocked: boolean } } | null)?.customer ?? { count: 0, blocked: false };
   const firstName = data?.full_name ?? "";
   return (
@@ -35,6 +39,15 @@ export default async function CustomerAccountPage() {
           <CardContent className="space-y-6">
             <PhotoForm userId={user.id} path={data?.avatar_path ?? null} firstName={firstName} />
             {user.email ? <ProfileForm firstName={firstName} email={user.email} /> : null}
+          </CardContent>
+        </Card>
+        <Card data-testid="my-home">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div><CardTitle>My home</CardTitle><CardDescription>Saved from your last job, so your next post takes seconds. Only you see this.</CardDescription></div>
+            {homeLines.length ? <ClearHomeButton /> : null}
+          </CardHeader>
+          <CardContent>
+            {homeLines.length ? <p className="text-sm">{homeLines.join(" · ")}</p> : <p className="text-sm text-muted-foreground">Nothing saved yet. Your ZIP code and home details are saved when you post a job.</p>}
           </CardContent>
         </Card>
         <Card><CardContent><CancellationMeter count={strikes.count} blocked={strikes.blocked} who="customer" /></CardContent></Card>

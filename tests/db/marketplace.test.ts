@@ -184,7 +184,7 @@ describe("sealed bids", () => {
 
     const { data: bids } = await c.client.rpc("request_bids", { p_request_id: r.id });
     expect(bids.map((x: { price_cents: number }) => x.price_cents)).toEqual([5500, 6000]);
-    expect(bids[0].business.stats).toEqual({ rating: null, review_count: 0, completed_jobs: 0 });
+    expect(bids[0].business.stats).toEqual({ rating: null, review_count: 0, completed_jobs: 0, responds_fast: false });
 
     // Another customer can't read them.
     const other = await customer();
@@ -385,7 +385,7 @@ describe("reviews", () => {
     expect((await c.client.from("reviews").insert({ booking_id: booking.id, rating: 1 })).error).not.toBeNull(); // only once
 
     const { data: profile } = await anonClient().rpc("get_provider_profile", { p_business_id: p.businessId });
-    expect(profile.stats).toEqual({ rating: 5, review_count: 1, completed_jobs: 1 });
+    expect(profile.stats).toEqual({ rating: 5, review_count: 1, completed_jobs: 1, responds_fast: false });
     expect(profile.reviews[0]).toMatchObject({ rating: 5, comment: "Great job", author: "Casey" });
   });
 });
@@ -865,5 +865,38 @@ describe("delete my account (owner request 2026-11-15)", () => {
     expect(biz).toMatchObject({ is_suspended: true, marketplace_enabled: false, name: "Deleted business" });
     expect((await adminClient().from("bids").select("status").eq("id", b.id).single()).data!.status).toBe("withdrawn");
     expect((await p.client.rpc("delete_my_account")).error).not.toBeNull(); // only once
+  });
+});
+
+describe("save my home, review photos, responds fast (owner requests 2026-11-15)", () => {
+  it("a customer's saved home is private to them", async () => {
+    const a = await customer();
+    const b = await customer();
+    expect((await a.client.from("customer_homes").upsert({ customer_id: a.id, zip: "78745", details: { yard_size: "Small: under 3,000 sq ft" } })).error).toBeNull();
+    expect((await b.client.from("customer_homes").select("zip").eq("customer_id", a.id)).data).toEqual([]);
+    expect((await b.client.from("customer_homes").upsert({ customer_id: a.id, zip: "78704", details: {} })).error).not.toBeNull();
+  });
+
+  it("review photos must be the reviewer's own uploads and show on the pro's profile; fast confirmers get the badge", async () => {
+    const c = await customer();
+    const p = await provider({ name: "Speedy" });
+    const bookings = [];
+    for (let i = 0; i < 3; i++) {
+      const r = await postJob(c);
+      const b = await bid(p, r.id);
+      bookings.push(await hire(c, p, b.id)); // confirmed straight away
+    }
+    const stats = ((await anonClient().rpc("get_provider_profile", { p_business_id: p.businessId })).data as { stats: { responds_fast: boolean } }).stats;
+    expect(stats.responds_fast).toBe(true);
+
+    await adminClient().from("bookings").update({ status: "completed", completed_at: new Date().toISOString() }).eq("id", bookings[0].id);
+    const other = await customer();
+    const bad = await c.client.from("reviews").insert({ booking_id: bookings[0].id, business_id: p.businessId, rating: 5, photo_paths: [`${other.id}/${randomUUID()}.jpg`] });
+    expect(bad.error).not.toBeNull();
+    const photo = `${c.id}/${randomUUID()}.jpg`;
+    expect((await c.client.storage.from("review-photos").upload(photo, new Blob([new Uint8Array([255, 216, 255])], { type: "image/jpeg" }), { contentType: "image/jpeg" })).error).toBeNull();
+    expect((await c.client.from("reviews").insert({ booking_id: bookings[0].id, business_id: p.businessId, rating: 5, comment: "Great", photo_paths: [photo] })).error).toBeNull();
+    const reviews = ((await anonClient().rpc("get_provider_profile", { p_business_id: p.businessId })).data as { reviews: { photos: string[] }[] }).reviews;
+    expect(reviews[0].photos).toEqual([photo]);
   });
 });

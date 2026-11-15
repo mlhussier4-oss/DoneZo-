@@ -92,3 +92,13 @@ export const paymentMethodOptions = [
   { value: "check", label: "Check" },
 ] as const;
 export const paymentMethodName = (m: string) => paymentMethodOptions.find((o) => o.value === m)?.label.replace(" (through HomeHire)", "") ?? m;
+
+/** Save my home (owner request 2026-11-15): answers about the home itself that carry over to the next post. */
+export const HOME_DETAIL_KEYS = ["home_type", "size", "bedrooms", "bathrooms", "yard_size", "dimensions"] as const;
+
+/** Saved home answers that apply to this service's questions. */
+export function homePrefill(slug: string | undefined, saved: Record<string, string> | undefined): Record<string, string> {
+  if (!slug || !saved) return {};
+  const keys = new Set((categoryQuestions[slug] ?? []).map((q) => q.key));
+  return Object.fromEntries(Object.entries(saved).filter(([k]) => keys.has(k) && (HOME_DETAIL_KEYS as readonly string[]).includes(k)));
+}

@@ -45,8 +45,10 @@ export async function decideChangeOrder(changeOrderId: string, approve: boolean)
   return {};
 }
 
-export async function submitReview(bookingId: string, rating: number, comment: string): Promise<Result> {
-  await requireRole("customer");
+export async function submitReview(bookingId: string, rating: number, comment: string, photoPaths: string[] = []): Promise<Result> {
+  const user = await requireRole("customer");
+  // Up to 3 photos of the finished job, already uploaded to the customer's own folder (owner request 2026-11-15).
+  const photos = (Array.isArray(photoPaths) ? photoPaths : []).filter((p) => new RegExp(`^${user.id}/[0-9a-f-]{36}\\.jpg$`).test(p)).slice(0, 3);
   if (!uuid.safeParse(bookingId).success || !Number.isInteger(rating) || rating < 1 || rating > 5) return { error: "Choose 1 to 5 stars." };
   const supabase = await createClient();
   const { data: booking } = await supabase.from("bookings").select("business_id").eq("id", bookingId).single();
@@ -54,7 +56,7 @@ export async function submitReview(bookingId: string, rating: number, comment: s
   // business_id is re-derived from the booking by the database; it can't be pointed elsewhere.
   const { error } = await supabase
     .from("reviews")
-    .insert({ booking_id: bookingId, business_id: booking.business_id, rating, comment: comment.trim().slice(0, 2000) || null });
+    .insert({ booking_id: bookingId, business_id: booking.business_id, rating, comment: comment.trim().slice(0, 2000) || null, photo_paths: photos });
   if (error) return { error: dbErrorMessage(error, "Could not save your review.") };
   refresh();
   return {};

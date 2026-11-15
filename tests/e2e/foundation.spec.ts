@@ -13,6 +13,17 @@ test.describe("public site", () => {
     await expect(page.getByRole("link", { name: /Turf installation/ })).toHaveCount(0);
   });
 
+  test("FAQ and cancellation policy pages are linked from every page's footer", async ({ page }) => {
+    await page.goto("/");
+    await page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "FAQ" }).click();
+    await expect(page.getByRole("heading", { name: "Questions & answers" })).toBeVisible();
+    await expect(page.getByTestId("faq-homeowners")).toContainText("Who can see my information?");
+    await expect(page.getByTestId("faq-pros")).toContainText("How does the free month work?");
+    await page.getByRole("navigation", { name: "Footer" }).getByRole("link", { name: "Cancellations" }).click();
+    await expect(page.getByRole("heading", { name: "Cancellation & no-show policy" })).toBeVisible();
+    await expect(page.getByTestId("policy-levels")).toContainText("3 cancellations: Red.");
+  });
+
   test("protected areas send signed-out visitors to log in", async ({ page }) => {
     for (const path of ["/provider", "/customer", "/admin", "/provider/settings"]) {
       await page.goto(path);

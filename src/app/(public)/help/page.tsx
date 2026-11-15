@@ -10,30 +10,14 @@ import { formatDateTime } from "@/lib/format";
 import { supportCategoryLabel } from "@/lib/support/categories";
 import { createClient } from "@/lib/supabase/server";
 import { ContactForm } from "./contact-form";
+import { homeownerFaqs, providerFaqs, type Faq } from "@/content/faq";
 
 export const metadata: Metadata = { title: "Help & support" };
 
-const faqs: { group: string; items: { q: string; a: React.ReactNode }[] }[] = [
-  {
-    group: "Customers",
-    items: [
-      { q: "Does it cost anything to post a job?", a: "No. Posting a job and accepting a bid are free, and you never enter a card to do either. You pay the provider you choose after the work, by card through HomeHire or another way you agree on." },
-      { q: "Who can see my address?", a: "Providers see your ZIP code, description and photos while bidding. Only the provider whose bid you accept sees your name and full address, and only then can you message each other." },
-      { q: "Can providers see each other's bids?", a: "No. Bids are sealed: each provider only sees their own." },
-      { q: "Something went wrong with my job.", a: "Message your provider from the booking first. If that doesn't fix it, use “Report a problem” on the booking or the form below." },
-    ],
-  },
-  {
-    group: "Providers",
-    items: [
-      { q: "What does HomeHire cost?", a: "HomeHire Basic is $9.99 a month for the marketplace. HomeHire Pro is $19.99 a month for the marketplace plus business tools for all your customers, including your whole team. When a customer pays you by card through HomeHire, HomeHire keeps 10% and Stripe charges its processing fee. No HomeHire fee on cash, Venmo, Cash App or check." },
-      { q: "Do I have to use the marketplace?", a: "No. On HomeHire Pro you can use HomeHire just to run your business, and switch the marketplace on or off in Business settings at any time without losing anything." },
-      { q: "Can I switch plans?", a: <>Yes, from <Link href="/provider/plan">Plan &amp; billing</Link>. Upgrading to Pro starts right away and you pay only the difference for the rest of the month. Switching to Basic takes effect at your next billing date; your records are kept.</> },
-      { q: "When does card money reach my bank?", a: "Stripe pays out to your bank on its own schedule, usually a few business days. Your Payments page shows each payout's status." },
-      { q: "How do I add employees?", a: <>On HomeHire Pro, open <Link href="/provider/employees">Team</Link> and invite them by email. Employees only see the jobs you assign them.</> },
-      { q: "How do I cancel my subscription?", a: <>Go to <Link href="/provider/plan">Plan &amp; billing</Link> and choose “Manage billing”. Your records stay in HomeHire.</> },
-    ],
-  },
+// The same, current answers as the FAQ page (owner request 2026-11-15).
+const faqs: { group: string; items: Faq[] }[] = [
+  { group: "Homeowners", items: homeownerFaqs },
+  { group: "Service pros", items: providerFaqs },
 ];
 
 async function SupportPanel() {

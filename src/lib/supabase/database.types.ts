@@ -361,6 +361,26 @@ isOneToOne: false
       referencedColumns: ["id"]
     }
                   ]
+                },"customer_homes": {
+                  Row: {
+                    "customer_id": string,"details": NonNullable<Json>,"updated_at": string,"zip": string | null
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "customer_id"?: string,"details"?: NonNullable<Json>,"updated_at"?: string,"zip"?: string | null
+                  }
+                  Update: {
+                    "customer_id"?: string,"details"?: NonNullable<Json>,"updated_at"?: string,"zip"?: string | null
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "customer_homes_customer_id_fkey"
+      columns: ["customer_id"]
+isOneToOne: true
+      referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"estimate_line_items": {
                   Row: {
                     "amount_cents": number | null,"business_id": string,"description": string,"estimate_id": string,"id": string,"position": number,"quantity": number,"taxable": boolean,"unit_price_cents": number
@@ -959,14 +979,14 @@ isOneToOne: false
                   ]
                 },"reviews": {
                   Row: {
-                    "booking_id": string,"business_id": string,"comment": string | null,"created_at": string,"customer_id": string,"id": string,"rating": number
+                    "booking_id": string,"business_id": string,"comment": string | null,"created_at": string,"customer_id": string,"id": string,"photo_paths": (string)[],"rating": number
                   }
                   ComputedFields: never
                   Insert: {
-                    "booking_id": string,"business_id": string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"rating": number
+                    "booking_id": string,"business_id": string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"photo_paths"?: (string)[],"rating": number
                   }
                   Update: {
-                    "booking_id"?: string,"business_id"?: string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"rating"?: number
+                    "booking_id"?: string,"business_id"?: string,"comment"?: string | null,"created_at"?: string,"customer_id"?: string,"id"?: string,"photo_paths"?: (string)[],"rating"?: number
                   }
                   Relationships: [
                     {

@@ -14,6 +14,8 @@ import type { ProviderProfile } from "@/lib/marketplace/types";
 import { createPublicClient } from "@/lib/supabase/public";
 import { connection } from "next/server";
 import { InsuredBadge } from "@/components/marketplace/insured-badge";
+import { RespondsFastBadge } from "@/components/marketplace/fast-badge";
+import { reviewPhotoUrl } from "@/lib/review-photos";
 
 export const metadata: Metadata = { title: "Provider profile" };
 
@@ -34,6 +36,7 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
             <h1 className="text-3xl font-bold tracking-tight">{p.name}</h1>
             {p.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified by HomeHire</Badge> : null}
             {p.insured ? <InsuredBadge /> : null}
+            {p.stats?.responds_fast ? <RespondsFastBadge /> : null}
           </div>
           <Rating rating={p.stats.rating} count={p.stats.review_count} />
           <p className="text-sm text-muted-foreground">
@@ -75,6 +78,14 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
                         <span className="text-xs text-muted-foreground">{r.author} · {formatDate(r.created_at, "America/Chicago")}</span>
                       </div>
                       {r.comment ? <p className="text-sm">{r.comment}</p> : null}
+                      {r.photos?.length ? (
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {r.photos.map((ph, j) => (
+                            // eslint-disable-next-line @next/next/no-img-element -- public review photo
+                            <img key={ph} src={reviewPhotoUrl(ph)} alt={`Photo ${j + 1} from ${r.author}'s review`} className="size-24 rounded-lg object-cover" loading="lazy" />
+                          ))}
+                        </div>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
