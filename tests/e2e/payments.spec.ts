@@ -39,6 +39,10 @@ test.describe("subscription required for providers", () => {
     await expect(page).toHaveURL(atPath("/subscribe")); // every provider page is locked
 
     // Owner decision 2026-11-14: a yearly option, 12 months for the price of 10.
+    // First month free on Basic only (owner decision 2026-11-15), stated clearly with the price that follows.
+    await expect(page.getByTestId("plan-basic").getByText("First month free")).toBeVisible();
+    await expect(page.getByTestId("plan-basic").getByRole("button", { name: "Start free month, then $9.99/month" })).toBeVisible();
+    await expect(page.getByTestId("plan-pro").getByText("First month free")).toHaveCount(0);
     await expect(page.getByTestId("plan-pro").getByRole("button", { name: "Yearly: $199.90/year (2 months free)" })).toBeVisible();
     await page.getByTestId("plan-pro").getByRole("button", { name: "Subscribe monthly: $19.99/month" }).click();
     await expect(page.getByText("Stripe hosted page")).toBeVisible();
@@ -288,9 +292,17 @@ test.describe("provider referrals (owner decision 2026-11-14)", () => {
       const id = await businessIdForEmail(email);
       const customer = `cus_ref${i}${Date.now()}`;
       await db().from("business_subscriptions").update({ stripe_customer_id: customer }).eq("business_id", id);
-      // Stripe confirms their first subscription payment.
+      // The free month starts with a $0 invoice: that doesn't count as a payment yet (owner decision 2026-11-15).
+      const trial = await sendWebhook(p, { id: `evt_trial_${i}_${Date.now()}`, type: "invoice.paid",
+        data: { object: { id: `in_trial_${i}_${Date.now()}`, object: "invoice", customer, amount_paid: 0, livemode: false, billing_reason: "subscription_create" } } });
+      expect(trial.status()).toBe(200);
+      if (i === 0) {
+        await page.reload();
+        await expect(page.getByTestId("referral-stats")).toContainText("0paying providers");
+      }
+      // After the free month, Stripe confirms their first real payment.
       const res = await sendWebhook(p, { id: `evt_ref_${i}_${Date.now()}`, type: "invoice.paid",
-        data: { object: { id: `in_ref_${i}_${Date.now()}`, object: "invoice", customer, amount_paid: 999, livemode: false, billing_reason: "subscription_create" } } });
+        data: { object: { id: `in_ref_${i}_${Date.now()}`, object: "invoice", customer, amount_paid: 999, livemode: false, billing_reason: "subscription_cycle" } } });
       expect(res.status()).toBe(200);
       await ctx.close();
     }

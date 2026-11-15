@@ -93,7 +93,7 @@ export function ProviderSignupForm({ initialUsage, referralCode, referrerName }:
           );
         })}
         {state.fieldErrors?.usage ? <p className="text-sm text-destructive">{state.fieldErrors.usage}</p> : null}
-        <p className="text-xs text-muted-foreground">You can switch plans later. No trial; you&apos;ll subscribe after confirming your email.</p>
+        <p className="text-xs text-muted-foreground"><strong>HomeHire Basic: first month free</strong>, then $9.99/month. You&apos;ll subscribe after confirming your email. Cancel any time. You can switch plans later.</p>
       </fieldset>
 
       <Field label="Business name" htmlFor="businessName" error={state.fieldErrors?.businessName}>

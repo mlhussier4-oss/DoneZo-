@@ -50,7 +50,7 @@ export default function ForProvidersPage() {
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
-        Cancel or switch plans any time; no free trial. {cardFeeNote}
+        <strong className="text-foreground">HomeHire Basic: first month free</strong>, then $9.99/month. Cancel or switch plans any time. {cardFeeNote}
       </p>
     </div>
   );

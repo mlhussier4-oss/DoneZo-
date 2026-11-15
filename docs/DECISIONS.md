@@ -129,3 +129,6 @@ Providers can tick "My business is insured" at sign-up or later on their Marketp
 - **Book again:** re-posts a finished job with the same answers (new photos still required); the pro who did it gets a "wants to book you again" alert if the job is in their area.
 - **Annual plans:** pay for 12 months, get 2 free: Basic $99.90/year, Pro $199.90/year (Stripe lookup keys donezo_*_yearly). Switching plans keeps the current interval.
 - **Pending (after LLC + app):** after sign-up, show customers and providers a link to download the app from the App Store (sign-up and payment on the website first, so Apple takes no cut of subscriptions).
+
+## 2026-11-15 — First month free on HomeHire Basic
+New businesses choosing **Basic** get a 30-day free month (Stripe trial; card collected at checkout; once per business). **Pro is charged from the start.** The offer is stated clearly at sign-up, on the plan cards and subscribe buttons ("Start free month, then $9.99/month"), in the Terms and on the pitch sheet. **HomeHire sends no reminder before the first charge** (owner decision); keep Stripe's optional "trial ending" reminder emails switched off in the Stripe dashboard. Referrals count only on the first real (non-zero) payment, i.e. after the free month. The admin dashboard's monthly income counts paying providers only and shows how many are in their free month.
