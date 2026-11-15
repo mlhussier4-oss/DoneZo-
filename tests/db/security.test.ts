@@ -70,7 +70,7 @@ describe("database security audit", () => {
 
   it("only business logos/portfolio and customer profile photos are public; every bucket has size and type limits", async () => {
     const { rows: buckets } = await db.query(`select id, public, file_size_limit, allowed_mime_types from storage.buckets order by id`);
-    expect(buckets.filter((b) => b.public).map((b) => b.id)).toEqual(["avatars", "business-media"]);
+    expect(buckets.filter((b) => b.public).map((b) => b.id)).toEqual(["avatars", "business-media", "review-photos"]);
     for (const b of buckets) {
       expect(Number(b.file_size_limit)).toBeGreaterThan(0);
       expect(b.allowed_mime_types.every((m: string) => m.startsWith("image/"))).toBe(true);

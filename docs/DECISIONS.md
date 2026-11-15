@@ -140,3 +140,12 @@ When a Basic free month starts, HomeHire places a temporary hold for the first p
 - **Delete my account** (Apple requirement): customers (Profile), provider owners (Business settings) and team members (My jobs). Removes name, email, photo, devices and the login (email freed for re-sign-up); cancels open posts or the Stripe subscription; keeps job/invoice/payment records the other side needs, without the person's details. Blocked while a job is in progress, or (owners) while team members remain.
 - **Phone app project** in `mobile/` (Capacitor 8, id `us.homehire.app`): opens homehire.us so it always matches the site and goes live with it; icon and launch screen in brand colors; camera/photo permission texts. Inside the app, "Turn on notifications" uses the phone's own notifications and saves the device token; **sending** to phones is enabled once the Apple push key and a free Firebase project exist (after the Apple Developer account).
 - **App Store kit** in `docs/app-store/`: listing text, keywords, review notes, privacy answers (draft) and five 1290×2796 screenshots of real pages.
+
+## 2026-11-15 — FAQ, cancellation policy, Save my home, review photos, Responds fast
+- **FAQ** (/faq) for homeowners and pros; the Help page now uses the same, current answers (its old "address shared on accept" answer was out of date).
+- **Cancellation & no-show policy** (/cancellation-policy): no penalty before a pro confirms; after confirmation each cancellation counts (yellow/orange/red; 3 in 6 months removes marketplace access until support restores it); reports count only when support confirms them; no cancellation fees. Linked from the footer and the Terms.
+- **Save my home:** the customer's ZIP and home answers (home type, size, bedrooms, bathrooms, yard size, dimensions) are saved when they post and prefill the next post; shown on Profile → My home with Clear. Private to the customer.
+- **Review photos:** up to 3 photos of the finished job (resized in the browser, public like the review), shown on the pro's public profile.
+- **Responds fast badge:** pros with at least 3 confirmed marketplace jobs in the last 6 months whose median time to confirm is 2 minutes or less; shown on bids and profiles.
+- Insurance upload for Verified was not built (owner decision: no manual approvals).
+All of these appear in the phone app too, since the app shows the website.

@@ -99,7 +99,7 @@ export function JobCard({ req, bids, booking, thread, userId }: {
           <div className="space-y-3 rounded-lg border-2 border-cta bg-accent-soft p-4" data-testid="rate-provider">
             <p className="font-semibold">Thank you for being a great customer!</p>
             <p className="text-sm">Your job is complete. How did {booking.business.name} do?</p>
-            <ReviewForm bookingId={booking.id} businessName={booking.business.name} />
+            <ReviewForm bookingId={booking.id} businessName={booking.business.name} userId={userId} />
           </div>
         ) : null}
 

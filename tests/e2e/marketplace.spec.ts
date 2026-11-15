@@ -200,10 +200,17 @@ test.describe("marketplace: post → bid → accept → message → change → c
     await expect(rate.getByText("Your job is complete. How did Alpha Lawn Co do?")).toBeVisible();
     await rate.getByRole("radio", { name: "5 stars" }).click();
     await rate.getByLabel("Comments (optional)").fill("On time and did a great job.");
+    await rate.getByTestId("review-photos").setInputFiles({ name: "done.png", mimeType: "image/png", buffer: PNG });
+    await expect(rate.getByRole("img", { name: "Review photo 1" })).toBeVisible();
     await rate.getByRole("button", { name: "Post review" }).click();
     await expect(page.getByTestId("rate-provider")).toHaveCount(0);
     await page.goto(requestPath);
     await expect(page.getByRole("heading", { name: "Your review" })).toBeVisible();
+    // Save my home: the ZIP and yard size from this job are remembered for next time.
+    await page.goto("/customer/account");
+    await expect(page.getByTestId("my-home")).toContainText("ZIP 78745");
+    await expect(page.getByTestId("my-home")).toContainText("Yard: Medium");
+    await page.goto(requestPath);
     // Book again: the same answers come back, ready to post (the pro who did it gets invited).
     await expect(page.getByTestId("book-again").getByRole("link", { name: "Book Alpha Lawn Co again" })).toBeVisible();
     await page.getByTestId("book-again").getByRole("link", { name: "Book Alpha Lawn Co again" }).click();

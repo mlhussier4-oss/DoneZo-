@@ -5,6 +5,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { dbErrorMessage } from "@/lib/forms";
 import { createClient } from "@/lib/supabase/server";
 import { createPublicClient } from "@/lib/supabase/public";
+import { HOME_DETAIL_KEYS } from "@/config/marketplace";
 
 export async function checkZip(zip: string): Promise<{ ok: boolean; message?: string }> {
   if (!/^\d{5}$/.test(zip)) return { ok: false, message: "Enter a 5-digit ZIP code." };
@@ -54,6 +55,13 @@ export async function createRequest(input: NewRequest): Promise<{ ok: true; id: 
   if (error) return { ok: false, message: dbErrorMessage(error, "Could not post your job. Please try again.") };
   // Book again: invite the pro from the earlier job (the database checks it's this customer's finished job).
   if (v.againFrom) await supabase.rpc("invite_past_provider", { p_new_request: v.id, p_past_request: v.againFrom });
+  // Save my home: remember the ZIP and home answers for next time (owner request 2026-11-15).
+  const { data: saved } = await supabase.from("customer_homes").select("details").eq("customer_id", user.id).maybeSingle();
+  const homeAnswers = Object.fromEntries(Object.entries(v.details).filter(([k]) => (HOME_DETAIL_KEYS as readonly string[]).includes(k)));
+  await supabase.from("customer_homes").upsert({
+    customer_id: user.id, zip: v.zip, updated_at: new Date().toISOString(),
+    details: { ...((saved?.details ?? {}) as Record<string, string>), ...homeAnswers },
+  });
   return { ok: true, id: v.id, userId: user.id };
 }
 

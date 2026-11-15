@@ -1,4 +1,4 @@
-export type Stats = { rating: number | null; review_count: number; completed_jobs: number };
+export type Stats = { rating: number | null; review_count: number; completed_jobs: number; responds_fast?: boolean };
 
 export type BidCardData = {
   id: string;
@@ -64,6 +64,6 @@ export type ProviderProfile = {
   insured?: boolean;
   categories: string[];
   portfolio: { path: string; caption: string | null }[];
-  reviews: { rating: number; comment: string | null; created_at: string; author: string }[];
+  reviews: { rating: number; comment: string | null; created_at: string; author: string; photos?: string[] }[];
   stats: Stats;
 };

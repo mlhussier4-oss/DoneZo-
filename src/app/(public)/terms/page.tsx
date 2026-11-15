@@ -52,6 +52,9 @@ export default function TermsPage() {
         <li>HomeHire may change or end the program; credits already earned stay on your account. [To be reviewed by an attorney.]</li>
       </ul>
 
+      <h2 id="cancellations">Cancellations and no-shows</h2>
+      <p>Cancelling a job after the provider has confirmed it counts on the canceller&apos;s record; 3 within 6 months removes marketplace access until support restores it. The full rules are in our <Link href="/cancellation-policy">cancellation &amp; no-show policy</Link>, which is part of these terms.</p>
+
       <h2>Things not allowed</h2>
       <ul>
         <li>Fake jobs, bids, reviews or accounts.</li>

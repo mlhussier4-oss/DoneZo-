@@ -163,7 +163,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
                         <Rating rating={booking.review.rating} count={1} />
                         {booking.review.comment ? <p>{booking.review.comment}</p> : null}
                       </div>
-                    ) : <ReviewForm bookingId={booking.id} businessName={booking.business.name} />}
+                    ) : <ReviewForm bookingId={booking.id} businessName={booking.business.name} userId={user.id} />}
                   </CardContent>
                 </Card>
               ) : null}

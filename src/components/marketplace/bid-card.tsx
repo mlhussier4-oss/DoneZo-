@@ -4,6 +4,7 @@ import { ProviderAvatar } from "@/components/marketplace/provider-avatar";
 import { Rating } from "@/components/marketplace/stars";
 import { Badge } from "@/components/ui/badge";
 import { InsuredBadge } from "./insured-badge";
+import { RespondsFastBadge } from "./fast-badge";
 import { paymentMethodName } from "@/config/marketplace";
 import { formatMoney } from "@/lib/format";
 import { publicMediaUrl } from "@/lib/marketplace/queries";
@@ -20,6 +21,7 @@ export function BidCard({ bid: b, children }: { bid: BidCardData; children?: Rea
             <Link href={`/pros/${b.business.id}`} className="font-semibold hover:text-primary hover:underline">{b.business.name}</Link>
             {b.business.verified ? <Badge tone="success"><BadgeCheck className="size-3.5" aria-hidden />Verified</Badge> : null}
             {b.business.insured ? <InsuredBadge /> : null}
+            {b.business.stats?.responds_fast ? <RespondsFastBadge /> : null}
           </div>
           <Rating rating={b.business.stats.rating} count={b.business.stats.review_count} />
           <p className="text-sm text-muted-foreground">

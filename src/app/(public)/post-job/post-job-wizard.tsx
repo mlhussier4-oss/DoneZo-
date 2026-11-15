@@ -7,7 +7,7 @@ import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { areaFromDimensions, categoryQuestions, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
+import { areaFromDimensions, categoryQuestions, homePrefill, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { cancelRequest } from "../../customer/requests/actions";
@@ -24,6 +24,7 @@ const EXT: Record<string, string> = { "image/jpeg": "jpg", "image/png": "png", "
 export function PostJobWizard({
   categories,
   again,
+  home,
   initialCategory,
   signedInRole,
   today,
@@ -31,6 +32,8 @@ export function PostJobWizard({
   categories: Category[];
   /** Book again: answers from a finished job, and the pro who did it gets invited. */
   again?: { id: string; description: string; details: Record<string, string>; zip: string };
+  /** Save my home: the customer's saved ZIP and home answers. */
+  home?: { zip: string | null; details: Record<string, string> };
   initialCategory?: string;
   signedInRole: "customer" | "provider" | "admin";
   today: string;
@@ -41,10 +44,10 @@ export function PostJobWizard({
   const [category, setCategory] = useState<Category | undefined>(preset);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [description, setDescription] = useState(again?.description ?? "");
-  const [details, setDetails] = useState<Record<string, string>>(again?.details ?? {});
+  const [details, setDetails] = useState<Record<string, string>>(again?.details ?? homePrefill(preset?.slug, home?.details));
   const [timing, setTiming] = useState<Timing | "">("");
   const [preferredDate, setPreferredDate] = useState("");
-  const [zip, setZip] = useState(again?.zip ?? "");
+  const [zip, setZip] = useState(again?.zip ?? home?.zip ?? "");
   const [error, setError] = useState<string>();
   const [status, setStatus] = useState<string>();
   const [pending, start] = useTransition();
@@ -161,7 +164,7 @@ export function PostJobWizard({
               <li key={c.id}>
                 <button
                   type="button"
-                  onClick={() => { setCategory(c); setDetails({}); go(1); }}
+                  onClick={() => { setCategory(c); setDetails(homePrefill(c.slug, home?.details)); go(1); }}
                   className={cn(
                     "flex h-full w-full cursor-pointer flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition-colors hover:border-primary hover:bg-primary-soft",
                     category?.id === c.id ? "border-primary ring-1 ring-primary" : "border-border",

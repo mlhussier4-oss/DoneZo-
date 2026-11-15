@@ -10,7 +10,9 @@ export function SiteFooter() {
           <Link href="/for-providers" className="hover:text-white">For providers</Link>
           <Link href="/signup/provider" className="hover:text-white">Provider sign up</Link>
           <Link href="/login" className="hover:text-white">Log in</Link>
+          <Link href="/faq" className="hover:text-white">FAQ</Link>
           <Link href="/help" className="hover:text-white">Help</Link>
+          <Link href="/cancellation-policy" className="hover:text-white">Cancellations</Link>
           <Link href="/terms" className="hover:text-white">Terms</Link>
           <Link href="/privacy" className="hover:text-white">Privacy</Link>
         </nav>
