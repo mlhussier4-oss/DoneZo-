@@ -181,14 +181,14 @@ isOneToOne: false
                   ]
                 },"business_subscriptions": {
                   Row: {
-                    "business_id": string,"cancel_at_period_end": boolean,"created_at": string,"current_period_end": string | null,"status": Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id": string | null,"stripe_subscription_id": string | null,"updated_at": string
+                    "business_id": string,"cancel_at_period_end": boolean,"created_at": string,"current_period_end": string | null,"status": Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id": string | null,"stripe_subscription_id": string | null,"trial_card_check": string | null,"trial_card_checked_at": string | null,"trial_card_message": string | null,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "business_id": string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"updated_at"?: string
+                    "business_id": string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"trial_card_check"?: string | null,"trial_card_checked_at"?: string | null,"trial_card_message"?: string | null,"updated_at"?: string
                   }
                   Update: {
-                    "business_id"?: string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"updated_at"?: string
+                    "business_id"?: string,"cancel_at_period_end"?: boolean,"created_at"?: string,"current_period_end"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"stripe_customer_id"?: string | null,"stripe_subscription_id"?: string | null,"trial_card_check"?: string | null,"trial_card_checked_at"?: string | null,"trial_card_message"?: string | null,"updated_at"?: string
                   }
                   Relationships: [
                     {
@@ -1595,6 +1595,9 @@ isOneToOne: false
                            },
 "current_user_can_see_request":
 { Args: { "p_request_id": string }; Returns: boolean
+                           },
+"customer_blocked":
+{ Args: { "p_customer": string }; Returns: boolean
                            },
 "customer_booking":
 { Args: { "p_request_id": string }; Returns: Json

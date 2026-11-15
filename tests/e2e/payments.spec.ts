@@ -315,3 +315,31 @@ test.describe("provider referrals (owner decision 2026-11-14)", () => {
     await expect(page.getByTestId("referral-next")).toContainText("2 more paying referrals");
   });
 });
+
+test.describe("free-month card check (owner decision 2026-11-15)", () => {
+  test("a card whose hold is declined doesn't get the free month; the provider is asked for another card", async ({ page }) => {
+    await stubStripePages(page);
+    const email = uniqueEmail("cardcheck");
+    await signUpProvider(page, { usage: "basic", businessName: "Fake Card Co", email, subscribe: false });
+    await page.getByTestId("plan-basic").getByRole("button", { name: "Start free month, then $9.99/month" }).click();
+    await expect(page.getByText("Stripe hosted page")).toBeVisible();
+    const businessId = await businessIdForEmail(email);
+    const { data: sub } = await db().from("business_subscriptions").select("stripe_customer_id").eq("business_id", businessId).single();
+
+    // Stripe reports the free month started with the card the provider entered. Our hold on that card is declined
+    // (the local Stripe simulator never approves holds), so the free month is cancelled straight away.
+    const res = await sendWebhook(page, { id: `evt_trial_${Date.now()}`, type: "customer.subscription.created",
+      data: { object: { id: `sub_trial_${Date.now()}`, object: "subscription", customer: sub!.stripe_customer_id, status: "trialing", cancel_at_period_end: false,
+        livemode: false, default_payment_method: "pm_card_visa", metadata: { business_id: businessId },
+        items: { object: "list", data: [{ id: "si_trial", current_period_end: Math.floor(Date.now() / 1000) + 30 * 86400,
+          price: { id: "price_basic", object: "price", lookup_key: "donezo_basic_monthly", unit_amount: 999 } }] } } } });
+    expect(res.status()).toBe(200);
+    const { data: after } = await db().from("business_subscriptions").select("status, trial_card_check").eq("business_id", businessId).single();
+    expect(after).toEqual({ status: "canceled", trial_card_check: "failed" });
+
+    await page.goto("/provider");
+    await expect(page).toHaveURL(atPath("/subscribe")); // no access
+    await expect(page.getByTestId("card-check-failed")).toContainText("Your card couldn't be verified. Please try another card.");
+    await expect(page.getByTestId("plan-basic").getByRole("button", { name: "Start free month, then $9.99/month" })).toBeVisible(); // can retry
+  });
+});
