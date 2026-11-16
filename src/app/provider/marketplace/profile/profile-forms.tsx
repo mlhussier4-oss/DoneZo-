@@ -8,7 +8,7 @@ import { Form, useFormAction } from "@/components/ui/form";
 import { FormAlert } from "@/components/ui/form-alert";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { SubmitButton } from "@/components/ui/submit-button";
-import { paymentMethodOptions } from "@/config/marketplace";
+import { categoryExamples, paymentMethodOptions } from "@/config/marketplace";
 import { idle } from "@/lib/forms";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { deletePortfolioPhoto, registerBusinessMedia, saveMarketplaceProfile } from "../actions";
@@ -23,7 +23,7 @@ type Values = {
   insured: boolean;
 };
 
-export function MarketplaceProfileForm({ values, allCategories }: { values: Values; allCategories: { id: string; name: string; default_on?: boolean }[] }) {
+export function MarketplaceProfileForm({ values, allCategories }: { values: Values; allCategories: { id: string; slug: string; name: string; default_on?: boolean }[] }) {
   const [state, form] = useFormAction(saveMarketplaceProfile, idle);
   const e = state.fieldErrors ?? {};
   return (
@@ -46,7 +46,10 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
           {allCategories.map((c) => (
             <label key={c.id} className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-card px-3 hover:bg-muted">
               <input type="checkbox" name="categories" value={c.id} defaultChecked={values.categories.includes(c.id)} className="size-5 accent-[var(--primary)]" />
-              <span className="flex-1">{c.name}</span>
+              <span className="flex-1 py-2">
+                {c.name}
+                {categoryExamples[c.slug] ? <span className="block text-xs leading-snug text-muted-foreground/80">{categoryExamples[c.slug]}</span> : null}
+              </span>
               {c.default_on ? <span className="text-xs text-muted-foreground">On by default</span> : null}
             </label>
           ))}

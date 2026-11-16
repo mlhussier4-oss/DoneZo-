@@ -26,10 +26,10 @@ export async function getCustomerOptions(businessId: string): Promise<CustomerOp
   }));
 }
 
-export type CategoryOption = { id: string; name: string };
+export type CategoryOption = { id: string; name: string; slug: string; default_on: boolean };
 
 export async function getCategoryOptions(): Promise<CategoryOption[]> {
   const supabase = await createClient();
-  const { data } = await supabase.from("service_categories").select("id, name").eq("is_active", true).order("sort_order");
+  const { data } = await supabase.from("service_categories").select("id, name, slug, default_on").eq("is_active", true).order("sort_order");
   return data ?? [];
 }

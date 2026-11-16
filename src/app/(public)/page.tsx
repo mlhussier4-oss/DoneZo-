@@ -4,6 +4,7 @@ import { CategoryIcon } from "@/components/brand/category-icon";
 import { buttonVariants } from "@/components/ui/button";
 import { brand } from "@/config/brand";
 import { getActiveCategories } from "@/lib/data/categories";
+import { categoryExamples } from "@/config/marketplace";
 
 export default async function HomePage() {
   const categories = await getActiveCategories();
@@ -131,6 +132,7 @@ export default async function HomePage() {
                 </span>
                 <span className="font-semibold">{c.name}</span>
                 {c.description ? <span className="text-sm text-muted-foreground">{c.description}</span> : null}
+                {categoryExamples[c.slug] ? <span className="text-xs leading-snug text-muted-foreground/80">{categoryExamples[c.slug]}</span> : null}
               </Link>
             </li>
           ))}
