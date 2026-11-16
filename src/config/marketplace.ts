@@ -57,6 +57,11 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
 };
 
 /** "Bathrooms: 2" style labels for a job's answers (older jobs may use keys no longer asked; those show the answer alone). */
+/** Small grey example text shown under a service tile (owner request: show what "Misc / other" covers). */
+export const categoryExamples: Record<string, string> = {
+  misc: "Snow removal, window cleaning, gutter cleaning, furniture assembly, TV mounting, holiday lights and more",
+};
+
 export function detailLines(details: Record<string, string> | null | undefined): string[] {
   const shortOf = new Map(Object.values(categoryQuestions).flat().map((q) => [q.key, q.short]));
   return Object.entries(details ?? {}).map(([k, v]) => {

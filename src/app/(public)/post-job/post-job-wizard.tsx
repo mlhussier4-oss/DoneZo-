@@ -7,7 +7,7 @@ import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/input";
-import { areaFromDimensions, categoryQuestions, homePrefill, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
+import { areaFromDimensions, categoryExamples, categoryQuestions, homePrefill, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { cancelRequest } from "../../customer/requests/actions";
@@ -174,6 +174,7 @@ export function PostJobWizard({
                     <CategoryIcon name={c.icon} className="size-6" />
                   </span>
                   <span className="font-semibold">{c.name}</span>
+                  {categoryExamples[c.slug] ? <span className="text-xs leading-snug text-muted-foreground/80">{categoryExamples[c.slug]}</span> : null}
                 </button>
               </li>
             ))}
