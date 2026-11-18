@@ -42,7 +42,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 - **Create the three free accounts** (Vercel, Supabase, Resend) so DoneZo can go online for a private test at donezo.org. Paid plans (about $45/month) only before charging real providers.
 - **Support email:** suggested support@donezo.org, forwarded free by Cloudflare Email Routing.
-- **Business legal name and address** for the Terms and Privacy pages, and an attorney to review them.
+- **Attorney review** of the Terms and Privacy pages (legal name now filled in: HomeHire LLC, a Texas LLC — owner confirmed 2026-11-18; no street address shown on the site).
 - **Later, separately:** approval to switch Stripe from test mode to live payments.
 
 ## Defaults in use until the owner says otherwise
@@ -149,3 +149,8 @@ When a Basic free month starts, HomeHire places a temporary hold for the first p
 - **Responds fast badge:** pros with at least 3 confirmed marketplace jobs in the last 6 months whose median time to confirm is 2 minutes or less; shown on bids and profiles.
 - Insurance upload for Verified was not built (owner decision: no manual approvals).
 All of these appear in the phone app too, since the app shows the website.
+
+## 2026-11-18 — LLC formed
+- The LLC is **HomeHire LLC** (Texas), so no DBA is needed. EIN received. D-U-N-S number requested and business bank account pending.
+- The Terms, Privacy page and footer now name HomeHire LLC. Vercel is named as the hosting provider.
+- Next, when the owner is ready: activate live Stripe once the bank account is approved, then the Apple Developer and Google Play organization accounts once the D-U-N-S number arrives.

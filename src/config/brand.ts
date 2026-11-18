@@ -4,6 +4,7 @@
  */
 export const brand = {
   name: "HomeHire",
+  legalName: "HomeHire LLC",
   tagline: "Post a job. Receive bids. Choose your provider.",
   description:
     "HomeHire connects homeowners with local service providers, and gives providers the tools to run their whole business.",

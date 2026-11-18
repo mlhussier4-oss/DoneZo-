@@ -84,7 +84,7 @@ the Stripe test simulator is configured, or a live Stripe key is present without
 
 - [ ] Owner approves hosting accounts and monthly cost.
 - [ ] Attorney reviews `/terms` and `/privacy`; bracketed blanks filled in; "Draft" banner removed (`src/components/legal/legal-page.tsx`).
-- [ ] Business legal name, address and support email decided.
+- [x] Business legal name: HomeHire LLC (Texas). Support email support@homehire.us. Street address intentionally not shown on the site.
 - [ ] Domain bought and connected; email sending domain verified in Resend (SPF/DKIM).
 - [ ] Logo replaced (current one is a placeholder).
 - [ ] Full smoke test above passes in test mode on the live address.
