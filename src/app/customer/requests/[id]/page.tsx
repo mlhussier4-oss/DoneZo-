@@ -6,6 +6,7 @@ import { MessageThread } from "@/components/marketplace/message-thread";
 import { ProviderAvatar } from "@/components/marketplace/provider-avatar";
 import { Rating } from "@/components/marketplace/stars";
 import { Alert } from "@/components/ui/alert";
+import { StepHint } from "@/components/ui/step-hint";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { detailLines, timingLabel } from "@/config/marketplace";
@@ -132,6 +133,7 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
                   {pendingChange ? (
                     <div className="space-y-2 rounded-lg border border-warning/30 bg-warning-soft p-3">
                       <p className="font-semibold text-warning">Your provider proposed a change</p>
+                      <StepHint>Approve to accept the new price, or decline to keep the original price. Nothing changes until you decide.</StepHint>
                       <p>New price: <strong>{formatMoney(pendingChange.new_price_cents)}</strong> (was {formatMoney(booking.agreed_price_cents)})</p>
                       <p className="whitespace-pre-wrap">{pendingChange.description}</p>
                       <ChangeOrderDecision changeOrderId={pendingChange.id} />
@@ -140,6 +142,9 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
 
                   {booking.invoices.length ? (
                     <div className="space-y-2">
+                      {booking.invoices.some((i) => i.status !== "paid" && i.status !== "void" && i.total_cents > i.amount_paid_cents)
+                        ? <StepHint>Tap the invoice to pay by card, or pay your pro the way you agreed. It shows Paid once it&apos;s settled.</StepHint>
+                        : null}
                       {booking.invoices.map((i) => (
                         <Link key={i.number} href={`/i/${i.token}`} className="flex items-center justify-between rounded-lg border border-border p-3 hover:bg-muted">
                           <span className="flex items-center gap-2"><FileText className="size-4" aria-hidden />Invoice #{i.number}</span>
@@ -156,7 +161,10 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
 
               {booking.status === "completed" ? (
                 <Card>
-                  <CardHeader><CardTitle>{booking.review ? "Your review" : "Leave a review"}</CardTitle></CardHeader>
+                  <CardHeader>
+                  <CardTitle>{booking.review ? "Your review" : "Leave a review"}</CardTitle>
+                  {booking.review ? null : <StepHint>Tap the stars and submit. It only takes a few seconds and helps other homeowners.</StepHint>}
+                </CardHeader>
                   <CardContent>
                     {booking.review ? (
                       <div className="space-y-1 text-sm">
@@ -169,7 +177,10 @@ export default async function CustomerRequestPage({ params, searchParams }: Page
               ) : null}
 
               <Card id="messages">
-                <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
+                <CardHeader>
+                  <CardTitle>Messages</CardTitle>
+                  {booking.status === "active" ? <StepHint>Send your address and any details here. Your pro gets a notification.</StepHint> : null}
+                </CardHeader>
                 <CardContent>
                   <MessageThread bookingId={booking.id} currentUserId={user.id} otherPartyName={booking.business.name} messages={thread} timeZone={TZ} />
                 </CardContent>

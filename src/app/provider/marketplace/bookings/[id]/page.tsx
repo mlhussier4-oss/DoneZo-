@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { Avatar } from "@/components/ui/avatar";
 import { notFound } from "next/navigation";
@@ -89,6 +90,7 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
           <CardHeader><CardTitle>The customer wants repeat visits</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p><strong>{freqLabel(repeatReq.frequency)}</strong> · <strong>{repeatReq.visits} visits</strong> starting <strong>{formatDate(repeatReq.first_date)}</strong> around <strong>{repeatReq.arrival_time.slice(0, 5)}</strong> · {formatMoney(repeatReq.price_cents)} per visit, paid after each one.</p>
+            <StepHint>Accept to add every visit to your calendar at this price, or decline if it doesn&apos;t work for you.</StepHint>
             <RepeatDecision requestId={repeatReq.id} />
           </CardContent>
         </Card>
@@ -111,7 +113,10 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
         </Card>
       ) : null}
       {b.status === "completed" ? (
-        <Alert tone="success" className="mb-6" data-testid="job-completed">Job completed. The customer has their invoice in the chat and was asked to rate you.</Alert>
+        <Alert tone="success" className="mb-6" data-testid="job-completed">
+          Job completed. The customer has their invoice in the chat and was asked to rate you.
+          <StepHint className="mt-1">All done, nothing else to do. Paid jobs show under Payments.</StepHint>
+        </Alert>
       ) : null}
       {lost ? (
         <Alert tone="info" className="mb-6">
@@ -128,7 +133,10 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
             </Card>
           ) : null}
           {!lost && !waiting ? <Card>
-            <CardHeader><CardTitle>Messages</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle>Messages</CardTitle>
+              {b.status === "active" ? <StepHint>Your customer sends their address here. Use the chat to agree on details and let them know when you&apos;re on the way.</StepHint> : null}
+            </CardHeader>
             <CardContent>
               <MessageThread bookingId={chatId} currentUserId={user.id} otherPartyName={card?.first_name ?? c?.full_name?.split(" ")[0] ?? "your customer"} messages={thread} timeZone={tz} />
             </CardContent>
@@ -143,7 +151,10 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
         </div>
         <aside className="space-y-6">
           {b.jobs?.status === "awaiting_payment" ? (
-            <Alert tone="info">Waiting for the customer&apos;s card payment. You&apos;ll be notified when Stripe confirms it, and the job completes by itself.</Alert>
+            <Alert tone="info">
+              Waiting for the customer&apos;s card payment. You&apos;ll be notified when Stripe confirms it, and the job completes by itself.
+              <StepHint className="mt-1">Nothing else to do. If they pay you another way instead, record it on the invoice.</StepHint>
+            </Alert>
           ) : null}
           <Card>
             <CardHeader><CardTitle className="text-base">Customer</CardTitle></CardHeader>
@@ -168,7 +179,12 @@ export default async function ProviderBookingPage({ params }: PageProps<"/provid
                   <p>{pending.description}</p>
                   <WithdrawChangeButton changeOrderId={pending.id} />
                 </div>
-              ) : b.status === "active" ? <ChangeOrderForm bookingId={b.id} /> : <p className="text-muted-foreground">Only active bookings can be changed.</p>}
+              ) : b.status === "active" ? (
+                <>
+                  <StepHint>Customer asked for more work? Send the new total here. The price only changes if they approve.</StepHint>
+                  <ChangeOrderForm bookingId={b.id} />
+                </>
+              ) : <p className="text-muted-foreground">Only active bookings can be changed.</p>}
               {changes?.filter((x) => x.status !== "pending").map((x) => (
                 <p key={x.id} className="text-muted-foreground">{formatMoney(x.new_price_cents)}: <span className="capitalize">{x.status}</span></p>
               ))}

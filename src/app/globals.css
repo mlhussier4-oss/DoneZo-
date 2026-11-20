@@ -41,6 +41,8 @@ html[data-locked] body > :not(#app-lock) { visibility: hidden; }
   --warning: #b45309;
   --warning-soft: #fdf6e7;
   --destructive: #c62828;
+  /* Step hints: the small red "what to do next" lines on every step (owner request 2026-11-20). */
+  --hint: #c62828;
   --destructive-hover: #a51d1d;
   --destructive-soft: #fcefef;
 
@@ -73,6 +75,7 @@ html[data-locked] body > :not(#app-lock) { visibility: hidden; }
   --color-warning: var(--warning);
   --color-warning-soft: var(--warning-soft);
   --color-destructive: var(--destructive);
+  --color-hint: var(--hint);
   --color-destructive-hover: var(--destructive-hover);
   --color-destructive-soft: var(--destructive-soft);
   --color-ring: var(--ring);

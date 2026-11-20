@@ -6,6 +6,7 @@ import { ArrowLeft, Camera, Check, X } from "lucide-react";
 import { CategoryIcon } from "@/components/brand/category-icon";
 import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { StepHint } from "@/components/ui/step-hint";
 import { Field, Input, Textarea } from "@/components/ui/input";
 import { areaFromDimensions, categoryExamples, categoryQuestions, homePrefill, timingLabel, timingOptions, type Timing } from "@/config/marketplace";
 import { createBrowserSupabase } from "@/lib/supabase/client";
@@ -159,6 +160,7 @@ export function PostJobWizard({
       {step === 0 ? (
         <section aria-labelledby="step-title" className="space-y-4">
           <h1 id="step-title" className="text-2xl font-bold tracking-tight sm:text-3xl">What do you need done?</h1>
+          <StepHint>Tap the service you need. Next you&apos;ll add photos and a few quick details; it takes about a minute.</StepHint>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {categories.map((c) => (
               <li key={c.id}>
@@ -185,6 +187,7 @@ export function PostJobWizard({
       {step === 1 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Add photos</h1>
+          <StepHint>Tap the box to take or choose photos, then tap Continue. Clear photos get you exact prices.</StepHint>
           <p className="text-muted-foreground">Add at least one photo of the job (2 or 3 is best) so providers can give you an accurate price. Up to {MAX_PHOTOS}.</p>
           <label className="flex cursor-pointer flex-col items-center gap-2 rounded-lg border-2 border-dashed border-input bg-card px-4 py-10 text-center hover:border-primary hover:bg-primary-soft">
             <Camera className="size-8 text-primary" aria-hidden />
@@ -212,6 +215,7 @@ export function PostJobWizard({
       {step === 2 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Describe the job</h1>
+          <StepHint>Write a sentence or two and answer the questions, then tap Continue.</StepHint>
           <Field label="What needs to be done?" htmlFor="description" hint="A sentence or two is plenty.">
             <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} maxLength={2000} autoFocus
               placeholder={category?.slug === "misc" ? "E.g. assemble a bookshelf, hang curtains, or clean out the gutters" : category?.slug === "moving" ? "E.g. 2-bedroom apartment: couch, bed, dresser and about 20 boxes" : category?.slug === "junk-removal" ? "E.g. old couch and a mattress in the garage" : "E.g. front and back yard, about a quarter acre"} />
@@ -252,6 +256,7 @@ export function PostJobWizard({
       {step === 3 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">When do you need it?</h1>
+          <StepHint>Pick when you&apos;d like it done, then tap Continue.</StepHint>
           <div className="grid gap-2" role="radiogroup" aria-label="Timing">
             {timingOptions.map((t) => (
               <button key={t.value} type="button" role="radio" aria-checked={timing === t.value} onClick={() => setTiming(t.value)}
@@ -273,6 +278,7 @@ export function PostJobWizard({
       {step === 4 ? (
         <section className="space-y-4">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Where is the job?</h1>
+          <StepHint>Enter the ZIP code of the job, then tap Continue. Pros never see your address unless you send it.</StepHint>
           <Field label="ZIP code" htmlFor="zip">
             <Input id="zip" value={zip} onChange={(e) => setZip(e.target.value.replace(/\D/g, "").slice(0, 5))} inputMode="numeric" autoComplete="postal-code" className="max-w-40" />
           </Field>
@@ -286,6 +292,7 @@ export function PostJobWizard({
       {step === 5 ? (
         <section className="space-y-5">
           <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Review and post</h1>
+          <StepHint>Check everything and tap Post job. Nearby pros are notified right away, and their bids show up on your dashboard.</StepHint>
           <dl className="divide-y divide-border rounded-lg border border-border bg-card text-sm">
             {[
               ["Service", category?.name, 0],

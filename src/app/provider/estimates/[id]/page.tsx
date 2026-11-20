@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DocumentView } from "@/components/crm/document-view";
@@ -66,7 +67,14 @@ export default async function EstimatePage({ params }: PageProps<"/provider/esti
           </CardContent>
         </Card>
         <Card>
-          <CardHeader><CardTitle className="text-base">Next steps</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle className="text-base">Next steps</CardTitle>
+            <StepHint>{est.status === "draft"
+              ? "Check the lines, then tap Mark as sent and share the link with your customer."
+              : est.status === "accepted" ? "The customer accepted. Turn it into a job to schedule the work."
+              : est.status === "sent" ? "Share the link. When the customer says yes, tap Customer accepted, then turn it into a job."
+              : "This estimate is closed."}</StepHint>
+          </CardHeader>
           <CardContent className="space-y-4">
             {est.status !== "draft" ? <ShareLink url={siteUrl(`/e/${est.public_token}`).toString()} label="Customer link" /> : (
               <p className="text-sm text-muted-foreground">Mark it as sent to get a private link for your customer.</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { StepHint } from "@/components/ui/step-hint";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CustomerBenefits } from "@/components/marketing/customer-benefits";
 import { safeNextPath } from "@/lib/auth";
@@ -27,6 +28,7 @@ export default function CustomerSignupPage({ searchParams }: PageProps<"/signup/
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Create your account</CardTitle>
         <CardDescription>Free, and you stay signed in on this device. Then post your job in about a minute.</CardDescription>
+        <StepHint>Enter your first name, email and a password, then tap the link we email you to confirm.</StepHint>
       </CardHeader>
       <CardContent className="space-y-6">
         <CustomerBenefits className="grid gap-2" />

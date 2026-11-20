@@ -5,6 +5,7 @@ import { BidCard } from "@/components/marketplace/bid-card";
 import { MessageThread } from "@/components/marketplace/message-thread";
 import type { ThreadMessage } from "@/lib/marketplace/queries";
 import { Badge } from "@/components/ui/badge";
+import { StepHint } from "@/components/ui/step-hint";
 import { buttonVariants } from "@/components/ui/button";
 import { timingLabel } from "@/config/marketplace";
 import { isPast } from "@/lib/crm/time";
@@ -68,6 +69,9 @@ export function JobCard({ req, bids, booking, thread, userId }: {
               <ChevronDown className="size-5 transition-transform group-open:rotate-180" aria-hidden />
             </summary>
             <div className="mt-3 space-y-3">
+              <StepHint>{available.length
+                ? "Compare the prices, reviews and timing, then tap Choose on the bid you want. You pay only after the work is done."
+                : "Nothing to do right now. Bids pop up here by themselves as pros send them."}</StepHint>
               {/* How picking works (owner request 2026-11-13), shown above the bids. */}
               <div className="flex items-start gap-3 rounded-lg border border-cta/60 bg-accent-soft p-3 text-sm" data-testid="pick-note">
                 <Timer className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden />
@@ -92,13 +96,17 @@ export function JobCard({ req, bids, booking, thread, userId }: {
         ) : null}
 
         {waiting && booking?.confirm_by ? (
-          <WaitingPanel bookingId={booking.id} providerName={booking.business.name} confirmBy={booking.confirm_by} serverNow={booking.server_now} />
+          <>
+            <StepHint>Hang tight. Your pro is confirming; their arrival time and a chat will show up here.</StepHint>
+            <WaitingPanel bookingId={booking.id} providerName={booking.business.name} confirmBy={booking.confirm_by} serverNow={booking.server_now} />
+          </>
         ) : null}
 
         {booking?.status === "completed" && !booking.review ? (
           <div className="space-y-3 rounded-lg border-2 border-cta bg-accent-soft p-4" data-testid="rate-provider">
             <p className="font-semibold">Thank you for being a great customer!</p>
             <p className="text-sm">Your job is complete. How did {booking.business.name} do?</p>
+            <StepHint>Tap the stars, add a comment or photos if you like, then submit. Your review helps other homeowners.</StepHint>
             <ReviewForm bookingId={booking.id} businessName={booking.business.name} userId={userId} />
           </div>
         ) : null}
@@ -113,13 +121,16 @@ export function JobCard({ req, bids, booking, thread, userId }: {
           </div>
         ) : null}
 
+        {confirmed && booking.status !== "completed" ? <PayOrWait booking={booking} /> : null}
+
         {booking && confirmed ? <RepeatSection booking={booking} /> : null}
         {booking?.status === "completed" ? <BookAgain requestId={req.id} businessName={booking.business.name} /> : null}
 
         {booking && confirmed ? (
           <section aria-label={`Chat with ${booking.business.name}`} className="rounded-lg border border-border">
             <p className="flex items-center gap-2 border-b border-border px-4 py-2 text-sm font-semibold"><MessageSquare className="size-4 text-primary" aria-hidden />Chat with {booking.business.name}</p>
-            <div className="p-3">
+            <div className="space-y-2 p-3">
+              {booking.status !== "completed" ? <StepHint>Send your address here and agree on any details. Only share your phone or email if you want to.</StepHint> : null}
               <MessageThread bookingId={booking.id} currentUserId={userId} otherPartyName={booking.business.name} messages={thread} timeZone={TZ} />
             </div>
           </section>
@@ -184,11 +195,33 @@ export function RepeatSection({ booking }: { booking: CustomerBooking }) {
   );
 }
 
+/** What the customer does once the pro is booked: wait for the work, then pay the invoice (owner request 2026-11-20). */
+function PayOrWait({ booking }: { booking: CustomerBooking }) {
+  const due = booking.invoices.filter((i) => i.status !== "paid" && i.status !== "void" && i.total_cents - i.amount_paid_cents > 0);
+  if (!due.length) {
+    return <StepHint>Your pro will do the job at the agreed price. When they finish, you&apos;ll get the invoice right here.</StepHint>;
+  }
+  return (
+    <div className="space-y-2 rounded-lg border-2 border-cta bg-accent-soft p-4" data-testid="pay-invoice">
+      <p className="font-semibold">{booking.business.name} finished the job</p>
+      <StepHint>Tap Pay to pay securely by card, or pay them the way you agreed. The job closes once it&apos;s paid.</StepHint>
+      {due.map((i) => (
+        <Link key={i.number} href={`/i/${i.token}`} className={buttonVariants({ variant: "accent", className: "w-full" })}>
+          Pay {formatMoney(i.total_cents - i.amount_paid_cents)} · Invoice #{i.number}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 /** "Book again" (owner request 2026-11-14): re-post this job with the same answers; the same pro is invited. */
 export function BookAgain({ requestId, businessName }: { requestId: string; businessName: string }) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border p-3 text-sm" data-testid="book-again">
-      <p>Need it done again?</p>
+      <div>
+        <p>Need it done again?</p>
+        <StepHint>Tap to post the same job in seconds; {businessName} is invited to bid on it.</StepHint>
+      </div>
       <Link href={`/post-job?again=${requestId}`} className={buttonVariants({ size: "sm", variant: "outline" })}>Book {businessName} again</Link>
     </div>
   );

@@ -9,6 +9,7 @@ import { formatMoney } from "@/lib/format";
 import { connection } from "next/server";
 import { Alert } from "@/components/ui/alert";
 import { PayByCardButton } from "@/components/payments/pay-by-card-button";
+import { StepHint } from "@/components/ui/step-hint";
 import { createServiceClient } from "@/lib/supabase/service";
 
 export const metadata: Metadata = { title: "Invoice", robots: { index: false, follow: false } };
@@ -34,6 +35,9 @@ async function InvoiceContent({ params, searchParams }: { params: PageProps<"/i/
       {payment === "submitted" && doc.status !== "paid" ? (
         <Alert tone="info" className="mb-4">Thanks! We&apos;re confirming your payment with Stripe. This page will show &ldquo;Paid&rdquo; once it&apos;s confirmed, usually within a minute.</Alert>
       ) : null}
+      {canPayByCard && payment !== "submitted" ? <StepHint className="mb-2">Tap the button to pay securely by card. You&apos;ll come back here and see &ldquo;Paid&rdquo; once it goes through.</StepHint> : null}
+      {!canPayByCard && balance > 0 && ["sent", "partially_paid"].includes(doc.status) ? <StepHint className="mb-4">Pay {doc.business.name} the way you agreed (cash, Venmo, Cash App or check). They&apos;ll mark it paid.</StepHint> : null}
+      {doc.status === "paid" ? <StepHint className="mb-4">All paid, nothing else to do. Thank you!</StepHint> : null}
       {canPayByCard ? <div className="mb-4"><PayByCardButton token={token} amountLabel={formatMoney(balance)} /></div> : null}
       <Card>
         <CardContent>

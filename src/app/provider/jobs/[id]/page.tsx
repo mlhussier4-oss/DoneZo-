@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { CalendarClock, MapPin, Repeat, Tag, User } from "lucide-react";
@@ -81,7 +82,12 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
                   <StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} hideComplete />
                   <div className="rounded-lg border-2 border-cta p-4" data-testid="finish-job"><CompleteJobPanel bookingId={booking!.id} amountCents={job.price_cents} cardsOn={cardsOn} /></div>
                 </div>
-              ) : <StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} />}</CardContent>
+              ) : (
+                <div className="space-y-2">
+                  <StepHint>{jobStepHint(job.status as JobStatus, openInvoices, isManager)}</StepHint>
+                  <StatusControls jobId={job.id} status={job.status as JobStatus} limited={!isManager} />
+                </div>
+              )}</CardContent>
           </Card>
 
           <Card>
@@ -163,6 +169,7 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
               {openInvoices.length === 0 ? (
                 <>
                   <p className="text-muted-foreground">Create an invoice for this job&apos;s price. You can edit the lines before sending.</p>
+                  <StepHint>Tap Create invoice, check the lines, then tap Mark as sent to get the customer&apos;s pay link.</StepHint>
                   <CreateInvoiceButton jobId={job.id} />
                 </>
               ) : null}
@@ -187,4 +194,26 @@ export default async function JobPage({ params }: PageProps<"/provider/jobs/[id]
       </div>
     </>
   );
+}
+
+/** The small red "what to do next" line for a business-tools job (owner request 2026-11-20). */
+function jobStepHint(status: JobStatus, invoices: { status: string }[], isManager: boolean): string {
+  if (!isManager) {
+    // Team members: just the work; the owner handles invoices and payments.
+    if (status === "completed") return "Job done. Nice work! The office takes care of the invoice.";
+    if (status === "awaiting_payment") return "Waiting to be paid. If the customer pays you, tap Mark complete and tell the office.";
+    return status === "in_progress" ? "When the work is done, tap Mark complete." : "Tap Start job when you begin the work.";
+  }
+  const unpaid = invoices.some((i) => i.status === "draft" || i.status === "sent" || i.status === "partially_paid");
+  switch (status) {
+    case "new": return "Set the date and time with Edit job, or tap Start job when you begin the work.";
+    case "scheduled": return "Tap Start job when you arrive. If you finish the same day, you can tap Mark complete.";
+    case "in_progress": return "When the work is done, tap Mark complete, then send the invoice below so you get paid.";
+    case "awaiting_payment": return "Waiting to be paid. When you get the money, record it on the invoice and the job is finished.";
+    case "completed": return invoices.length === 0
+      ? "Job done. Create and send the invoice below so you get paid."
+      : unpaid ? "Job done. Open the invoice to send it or record the payment." : "All done and paid. Nothing else to do.";
+    case "canceled": return "This job was canceled. Tap Mark scheduled if it's back on.";
+    default: return "";
+  }
 }
