@@ -6,6 +6,7 @@ import { expect, test, type Browser, type Page } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { createAdminUser, createCustomer, latestEmail, extractCode, serviceClient, uniqueEmail } from "./helpers";
 import { PAYMENT_TERMS_VERSION } from "../../src/config/legal";
+import { adminNav } from "../../src/config/nav";
 
 type Person = { email: string; password: string; id: string };
 
@@ -111,6 +112,31 @@ test.describe("who can open what", () => {
     await landing(adm, "/provider", "/admin");
     await landing(adm, "/customer", "/admin");
   });
+});
+
+test("only admins can open any admin page (owner request 2026-11-20)", async ({ browser }) => {
+  test.setTimeout(180_000);
+  const adminPages = adminNav.map((i) => i.href);
+  const pro = await makeProvider("Snoop Co");
+  const customerEmail = uniqueEmail("snoop-cust");
+  const customer = await createCustomer(customerEmail);
+  const page = async () => (await browser.newContext()).newPage();
+
+  const anon = await page();
+  for (const p of adminPages) await landing(anon, p, "/login");
+
+  const proPage = await page();
+  await signInWithPassword(proPage, pro);
+  for (const p of adminPages) await landing(proPage, p, "/provider");
+
+  const custPage = await page();
+  await custPage.goto("/login");
+  await custPage.getByRole("tab", { name: "Customer" }).click();
+  await custPage.getByLabel("Email").fill(customer.email);
+  await custPage.getByLabel("Password").fill(customer.password);
+  await custPage.getByRole("button", { name: "Sign in" }).click();
+  await custPage.waitForURL((u) => !u.pathname.startsWith("/login"));
+  for (const p of adminPages) await landing(custPage, p, "/customer");
 });
 
 test("support: a customer asks, an admin replies, the customer sees the reply and a notification", async ({ page, browser }) => {

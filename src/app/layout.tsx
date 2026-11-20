@@ -2,6 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/inter";
 import "./globals.css";
 import { brand } from "@/config/brand";
+import { appMarkerScript } from "@/lib/app/platform";
+import { OfflineBanner } from "@/components/app/offline-banner";
+import { AppLock } from "@/components/app/app-lock";
 
 /** Private test (owner decision 2026-11-11): banner on every page and no search-engine listing. */
 const privateTest = process.env.NEXT_PUBLIC_PRIVATE_TEST === "true";
@@ -22,8 +25,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className="h-full antialiased">
+    <html lang="en" className="h-full antialiased" suppressHydrationWarning>
+      <head>
+        {/* Inside the HomeHire phone app: marks the page before it paints so app-only touches show without a flash. */}
+        <script dangerouslySetInnerHTML={{ __html: appMarkerScript }} />
+      </head>
       <body className="flex min-h-full flex-col">
+        <AppLock />
+        <OfflineBanner />
         {privateTest ? (
           <div role="note" className="bg-warning px-4 py-1.5 text-center text-xs font-medium text-white">
             HomeHire is in private testing. Payments are test-only: no real money is charged.

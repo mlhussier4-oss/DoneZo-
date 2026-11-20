@@ -14,17 +14,17 @@ import { ProviderPaymentTerms } from "@/components/legal/provider-payment-terms"
 const usageOptions = [
   {
     value: "basic",
-    title: "HomeHire Basic · $9.99/month",
+    title: "HomeHire Basic", price: " · $9.99/month", suffix: "",
     text: "The marketplace: a public profile, local job requests to bid on, and getting paid for the jobs you win.",
   },
   {
     value: "marketplace",
-    title: "HomeHire Pro · $19.99/month, with marketplace",
+    title: "HomeHire Pro", price: " · $19.99/month", suffix: ", with marketplace",
     text: "Everything in Basic, plus business tools for all your customers: calendar, recurring visits, invoices, reports and your team.",
   },
   {
     value: "crm",
-    title: "HomeHire Pro · $19.99/month, business tools only",
+    title: "HomeHire Pro", price: " · $19.99/month", suffix: ", business tools only",
     text: "The same business tools for the customers you already have, with the marketplace switched off. Turn it on any time.",
   },
 ] as const;
@@ -86,14 +86,14 @@ export function ProviderSignupForm({ initialUsage, referralCode, referrerName }:
                 {selected ? <Check className="size-3" /> : null}
               </span>
               <span>
-                <span className="block font-semibold">{o.title}</span>
+                <span className="block font-semibold">{o.title}<span className="ios-app:hidden">{o.price}</span>{o.suffix}</span>
                 <span className="block text-sm text-muted-foreground">{o.text}</span>
               </span>
             </label>
           );
         })}
         {state.fieldErrors?.usage ? <p className="text-sm text-destructive">{state.fieldErrors.usage}</p> : null}
-        <p className="text-xs text-muted-foreground"><strong>HomeHire Basic: first month free</strong>, then $9.99/month. You&apos;ll subscribe after confirming your email. Cancel any time. You can switch plans later.</p>
+        <p className="text-xs text-muted-foreground ios-app:hidden"><strong>HomeHire Basic: first month free</strong>, then $9.99/month. You&apos;ll subscribe after confirming your email. Cancel any time. You can switch plans later.</p>
       </fieldset>
 
       <Field label="Business name" htmlFor="businessName" error={state.fieldErrors?.businessName}>

@@ -42,7 +42,7 @@ Decisions the owner has approved, and questions still open. Newest at the top of
 
 - **Create the three free accounts** (Vercel, Supabase, Resend) so DoneZo can go online for a private test at donezo.org. Paid plans (about $45/month) only before charging real providers.
 - **Support email:** suggested support@donezo.org, forwarded free by Cloudflare Email Routing.
-- **Business legal name and address** for the Terms and Privacy pages, and an attorney to review them.
+- **Attorney review** of the Terms and Privacy pages (legal name now filled in: HomeHire LLC, a Texas LLC — owner confirmed 2026-11-18; no street address shown on the site).
 - **Later, separately:** approval to switch Stripe from test mode to live payments.
 
 ## Defaults in use until the owner says otherwise
@@ -149,3 +149,15 @@ When a Basic free month starts, HomeHire places a temporary hold for the first p
 - **Responds fast badge:** pros with at least 3 confirmed marketplace jobs in the last 6 months whose median time to confirm is 2 minutes or less; shown on bids and profiles.
 - Insurance upload for Verified was not built (owner decision: no manual approvals).
 All of these appear in the phone app too, since the app shows the website.
+
+## 2026-11-18 — LLC formed
+- The LLC is **HomeHire LLC** (Texas), so no DBA is needed. EIN received. D-U-N-S number requested and business bank account pending.
+- The Terms, Privacy page and footer now name HomeHire LLC. Vercel is named as the hosting provider.
+- Next, when the owner is ready: activate live Stripe once the bank account is approved, then the Apple Developer and Google Play organization accounts once the D-U-N-S number arrives.
+
+## 2026-11-20 — Getting the app ready for Apple review (owner chose items 1, 2 and 3)
+- **App feel:** the phone app gets a bottom tab bar, an offline screen, an optional Face ID / Touch ID / fingerprint lock (off by default, set per phone) and the phone's share sheet for referral links. These show only inside the app, which identifies itself with "HomeHireApp/ios" or "HomeHireApp/android" in its user agent.
+- **Apple's 30% rule:** inside the iPhone app, providers aren't offered subscription purchases, plan prices or billing buttons. The server refuses them too. Providers see "Plans and billing are managed on the HomeHire website." Card payments to pros for real-world jobs are unchanged. The Android app behaves like the website.
+- **App reviewer accounts:** appreview.customer@homehire.us and appreview.pro@homehire.us, created by `npm run review:accounts`. They're marked as review accounts and isolated: real customers and pros never see their jobs or business, and the admin dashboard and Marketplace live leave them out. The pro gets free access with no Stripe charge. Passwords are printed once and go in App Store Connect; they're never committed.
+- **Admin dashboard is owner-only** (owner request): every admin page and admin data function requires the admin role, and automated tests try each one as a customer, a provider and a signed-out visitor. As of 2026-11-20, the owner's account is the only admin on the live site. In the app, the admin area has its own tab bar (Dashboard, Users, Live, Support), visible only after signing in as the admin.
+- **Bug fixed:** phone-app push registration used `Capacitor.Plugins`, which doesn't exist when the app loads the live site. It now uses the native bridge directly (`src/lib/app/native.ts`).

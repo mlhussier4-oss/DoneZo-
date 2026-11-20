@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: "Terms of service" };
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of service" updated="[date of attorney approval]">
-      <p>These terms are an agreement between you and [business legal name] (&ldquo;HomeHire&rdquo;, &ldquo;we&rdquo;). By creating an account or using HomeHire you agree to them. Please also read our <Link href="/privacy">Privacy policy</Link>.</p>
+      <p>These terms are an agreement between you and HomeHire LLC, a Texas limited liability company (&ldquo;HomeHire&rdquo;, &ldquo;we&rdquo;). By creating an account or using HomeHire you agree to them. Please also read our <Link href="/privacy">Privacy policy</Link>.</p>
 
       <h2>What HomeHire is</h2>
       <p>HomeHire has two parts: a <strong>marketplace</strong> where customers post home-service jobs and receive sealed bids from local providers, and <strong>business-management software</strong> that providers use to run their business, with or without the marketplace.</p>

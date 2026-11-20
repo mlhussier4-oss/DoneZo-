@@ -33,9 +33,19 @@ Services include lawn mowing, house cleaning, junk removal, pressure washing, pe
 home services,handyman,lawn,cleaning,movers,quotes,bids,local pros,contractor,junk removal,detailing
 
 ## App Review notes
-- Sign-in demo accounts (customer and provider) will be provided in App Store Connect before submission.
-- Provider subscriptions are bought on the website (homehire.us); the app does not sell digital content.
-  [Owner/lawyer to confirm the current App Store rules on linking to web purchases before submission.]
+- **Sign-in for reviewers**: run `npm run review:accounts` against the live database shortly before submitting. It
+  creates or resets two labeled test logins and prints new passwords, which go in App Store Connect → App Review
+  Information (never in the repo):
+  - Homeowner: `appreview.customer@homehire.us`: one booked job with a chat, one job with a bid to pick.
+  - Pro: `appreview.pro@homehire.us`: HomeHire Pro with complimentary access (nothing charged); one open job to bid on.
+  These accounts live in their own "review world": real customers and pros never see them, and the admin
+  dashboard leaves them out.
+- Suggested note to the reviewer: "Sign in as the homeowner to see bids side by side and the chat that opens after
+  a pro is hired. Sign in as the pro to see the job board and send a bid. Pros manage their HomeHire subscription on
+  our website; the iPhone app doesn't sell or advertise subscriptions."
+- In the iPhone app, providers aren't offered subscription purchases, prices or billing buttons (Apple's in-app
+  purchase rule). Customers paying a pro by card for a real-world job (lawn mowing, cleaning and so on) uses
+  Stripe, which Apple allows for physical services.
 - Account deletion: Profile → Delete my account (customers); Business settings → Delete my account (providers).
 
 ## App Privacy ("nutrition label") answers — draft

@@ -4,6 +4,8 @@
 <dict>
 	<key>NSCameraUsageDescription</key>
 	<string>HomeHire uses your camera so you can add photos of the job you need done, or of your finished work.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>HomeHire uses Face ID to unlock the app when you turn on the app lock, so no one else can see your jobs and messages.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>HomeHire lets you choose photos of the job or your work to add to a post, your profile or a chat.</string>
 	<key>CFBundleDisplayName</key>

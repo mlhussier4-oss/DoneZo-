@@ -1,5 +1,11 @@
 @import "tailwindcss";
 
+/* Phone app variants (src/lib/app/platform.ts): app:flex shows only inside the HomeHire app, ios-app: only in the iPhone app. */
+@custom-variant app (&:where([data-app], [data-app] *));
+@custom-variant ios-app (&:where([data-app="ios"], [data-app="ios"] *));
+/* App lock: hide the page until the person unlocks with Face ID / fingerprint. */
+html[data-locked] body > :not(#app-lock) { visibility: hidden; }
+
 /*
  * HomeHire design tokens. Components use these names (bg-primary, text-muted-foreground…),
  * never raw hex values, so the brand can be changed in one place.

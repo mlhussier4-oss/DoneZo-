@@ -21,7 +21,7 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
     <Card>
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Set up your business</CardTitle>
-        <CardDescription>HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</CardDescription>
+        <CardDescription><span className="ios-app:hidden">HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</span><span className="hidden ios-app:inline">Create your business account. You&apos;ll choose your plan on the HomeHire website (homehire.us) after confirming your email.</span></CardDescription>
       </CardHeader>
       <CardContent>
         {/* How jobs work, so pros know what to expect (owner request 2026-11-14). */}

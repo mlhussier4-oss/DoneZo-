@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Privacy policy" };
 export default function PrivacyPage() {
   return (
     <LegalPage title="Privacy policy" updated="[date of attorney approval]">
-      <p>HomeHire is operated by [business legal name], [business address] (&ldquo;HomeHire&rdquo;, &ldquo;we&rdquo;). This policy explains what we collect when you use HomeHire, why, who can see it, and the choices you have.</p>
+      <p>HomeHire is operated by HomeHire LLC, a Texas limited liability company (&ldquo;HomeHire&rdquo;, &ldquo;we&rdquo;). This policy explains what we collect when you use HomeHire, why, who can see it, and the choices you have.</p>
 
       <h2>What we collect</h2>
       <ul>
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
       </ul>
 
       <h2>Companies that help us run HomeHire</h2>
-      <p>We share information only as needed to run the service: Stripe (payments), Supabase (database, file storage and sign-in emails), and [hosting provider] (website hosting). They process data on our instructions. We don&apos;t sell your personal information and don&apos;t share it for advertising.</p>
+      <p>We share information only as needed to run the service: Stripe (payments), Supabase (database, file storage and sign-in emails), and Vercel (website hosting). They process data on our instructions. We don&apos;t sell your personal information and don&apos;t share it for advertising.</p>
       <p>We may disclose information if the law requires it, or to protect the safety of people using HomeHire.</p>
 
       <h2>How long we keep it</h2>
