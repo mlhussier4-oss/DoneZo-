@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ExternalLink } from "lucide-react";
@@ -35,7 +36,10 @@ export default async function MarketplaceProfilePage() {
       />
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
         <Card>
-          <CardHeader><CardTitle>Service area and services</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>Service area and services</CardTitle>
+            <StepHint>Set your ZIP, how far you&apos;ll travel and the services you want, then save. You&apos;ll only get jobs that match.</StepHint>
+          </CardHeader>
           <CardContent>
             <MarketplaceProfileForm
               allCategories={allCategories}

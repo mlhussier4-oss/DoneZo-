@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Alert } from "@/components/ui/alert";
@@ -58,6 +59,9 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
       {params.canceled ? <Alert tone="info">Checkout was canceled. You haven&apos;t been charged.</Alert> : null}
       {typeof params.session_id === "string" ? <Alert tone="info">We&apos;re confirming your payment with Stripe. Refresh in a moment if this page doesn&apos;t update.</Alert> : null}
       {business.memberRole !== "owner" ? <Alert tone="warning">Only the business owner can subscribe.</Alert> : null}
+      {!iosApp && business.memberRole === "owner" ? (
+        <StepHint>Tap a plan button to pay securely on Stripe. You come right back here and can start finding jobs.</StepHint>
+      ) : null}
       {iosApp ? <Alert tone="info" data-testid="ios-plan-note">{IOS_PLAN_MESSAGE} Once you&apos;ve chosen a plan, come back to the app and everything is ready.</Alert> : null}
       <div className="grid gap-4 md:grid-cols-2">
         {(["basic", "pro"] as const).map((code) => (

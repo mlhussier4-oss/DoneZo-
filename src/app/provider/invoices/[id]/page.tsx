@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { DocumentView } from "@/components/crm/document-view";
@@ -91,7 +92,14 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
 
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle className="text-base">{inv.status === "draft" ? "Ready to send?" : "Send to customer"}</CardTitle></CardHeader>
+            <CardHeader>
+              <CardTitle className="text-base">{inv.status === "draft" ? "Ready to send?" : "Send to customer"}</CardTitle>
+              <StepHint>{inv.status === "draft"
+                ? "Check the lines, then tap Mark as sent. You'll get a private link with a Pay by card button for your customer."
+                : inv.status === "paid" ? "Paid in full. Nothing else to do."
+                : inv.status === "void" ? "This invoice is void and no longer owed."
+                : "Copy the link and send it to your customer. When they pay by card, it's marked paid here automatically."}</StepHint>
+            </CardHeader>
             <CardContent className="space-y-4">
               {inv.status === "draft" ? (
                 <p className="text-sm text-muted-foreground">
@@ -142,7 +150,8 @@ export default async function InvoicePage({ params }: PageProps<"/provider/invoi
               ) : <p className="text-sm text-muted-foreground">No payments yet.</p>}
               {(inv.status === "sent" || inv.status === "partially_paid") && balance > 0 ? (
                 <div className="border-t border-border pt-4">
-                  <p className="mb-3 text-sm font-medium">Record a payment · {formatMoney(balance)} due</p>
+                  <p className="mb-1 text-sm font-medium">Record a payment · {formatMoney(balance)} due</p>
+                  <StepHint className="mb-3">Paid with cash, Venmo, Cash App or check? Enter it here once you have the money. That marks the invoice paid.</StepHint>
                   <RecordPaymentForm invoiceId={inv.id} balanceCents={balance} today={localDateKey(new Date(), business.timezone)} />
                 </div>
               ) : null}

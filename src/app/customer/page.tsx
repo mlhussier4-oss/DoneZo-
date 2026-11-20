@@ -5,6 +5,7 @@ import { LiveRefresh } from "@/components/marketplace/live-refresh";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { StepHint } from "@/components/ui/step-hint";
 import { PageHeader } from "@/components/ui/page-header";
 import { PushToggle } from "@/components/push/push-toggle";
 import { requireRole } from "@/lib/auth";
@@ -73,7 +74,10 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
       {due.length ? (
         <Card className="mb-6 border-warning/30 bg-warning-soft">
           <CardContent className="flex flex-wrap items-center justify-between gap-3">
-            <p className="font-medium">You have {due.length} unpaid {due.length === 1 ? "invoice" : "invoices"}: {formatMoney(due.reduce((s, i) => s + i.total_cents - i.amount_paid_cents, 0))}</p>
+            <div>
+              <p className="font-medium">You have {due.length} unpaid {due.length === 1 ? "invoice" : "invoices"}: {formatMoney(due.reduce((s, i) => s + i.total_cents - i.amount_paid_cents, 0))}</p>
+              <StepHint>Tap View to pay by card, or pay your pro the way you agreed (cash, Venmo, Cash App or check).</StepHint>
+            </div>
             <Link href="/customer/payments" className={buttonVariants({ size: "sm", variant: "outline" })}>View</Link>
           </CardContent>
         </Card>
@@ -85,6 +89,7 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
       ) : (
         <EmptyState icon={ClipboardList} title="No jobs in progress" action={<Link href="/post-job" className={buttonVariants({ size: "sm" })}>Post a job</Link>}>
           Post a job in about a minute. Nearby providers send bids, and you choose. No card needed.
+          <StepHint className="mt-2">Tap Post a job to get started.</StepHint>
         </EmptyState>
       )}
       <p className="mt-6 text-sm"><Link href="/customer/requests" className="text-primary hover:underline">All my jobs →</Link></p>

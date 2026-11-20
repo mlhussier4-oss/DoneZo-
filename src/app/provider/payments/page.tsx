@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { CreditCard, ExternalLink, Wallet } from "lucide-react";
 import { VerificationBadge } from "@/components/crm/status-badges";
@@ -64,6 +65,7 @@ export default async function PaymentsPage({ searchParams }: PageProps<"/provide
               <Badge tone={s.tone}>{s.label}</Badge>
             </div>
             <CardDescription>{s.help}</CardDescription>
+            {status !== "active" ? <StepHint>Tap the button and follow Stripe&apos;s steps (about 5 minutes) so customers can pay you by card. The money goes straight to your bank.</StepHint> : null}
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             {status === "not_connected" ? (

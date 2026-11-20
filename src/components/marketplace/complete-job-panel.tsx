@@ -1,5 +1,6 @@
 "use client";
 
+import { StepHint } from "@/components/ui/step-hint";
 import { useState, useTransition } from "react";
 import { Banknote, CheckCircle2, CreditCard, Landmark, Smartphone } from "lucide-react";
 import { completeJob } from "@/app/provider/marketplace/actions";
@@ -33,9 +34,12 @@ export function CompleteJobPanel({ bookingId, amountCents, cardsOn }: { bookingI
 
   if (!open) {
     return (
-      <Button size="lg" className="w-full" onClick={() => setOpen(true)}>
-        <CheckCircle2 /> Mark job completed
-      </Button>
+      <div className="space-y-2">
+        <StepHint>When the work is done, tap Mark job completed. Next you&apos;ll choose how the customer is paying.</StepHint>
+        <Button size="lg" className="w-full" onClick={() => setOpen(true)}>
+          <CheckCircle2 /> Mark job completed
+        </Button>
+      </div>
     );
   }
 
@@ -53,6 +57,11 @@ export function CompleteJobPanel({ bookingId, amountCents, cardsOn }: { bookingI
       <div>
         <p className="text-lg font-semibold">Form of payment</p>
         <p className="text-sm text-muted-foreground">How is the customer paying the {formatMoney(amountCents)}?</p>
+        <StepHint className="mt-1">{method === "card"
+          ? "Tap Send invoice & card link. The customer gets the invoice in your chat, pays by card, and the job closes by itself."
+          : method
+            ? "Only tap Mark paid once you have the money. It closes the job and sends the customer their paid invoice."
+            : "Tap how the customer is paying you."}</StepHint>
       </div>
       <div role="radiogroup" aria-label="Form of payment" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {options.map((o) => (

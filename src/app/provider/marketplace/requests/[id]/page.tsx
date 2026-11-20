@@ -4,6 +4,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { notFound, redirect } from "next/navigation";
 import { Lock, MapPin } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
+import { StepHint } from "@/components/ui/step-hint";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { timingLabel, detailLines } from "@/config/marketplace";
@@ -71,12 +72,19 @@ export default async function ProviderRequestPage({ params }: PageProps<"/provid
                 ))}
               </ul>
             ) : <p className="text-sm text-muted-foreground">No photos.</p>}
-            <p className="flex items-center gap-2 text-sm text-muted-foreground"><Lock className="size-4" aria-hidden />The customer&apos;s name, address and phone are shared with you if they accept your bid.</p>
+            <p className="flex items-center gap-2 text-sm text-muted-foreground"><Lock className="size-4" aria-hidden />Customers stay private: if they pick you and you confirm, a chat opens and they send you their address there.</p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader><CardTitle>{bid ? "Your bid" : "Send a bid"}</CardTitle></CardHeader>
+          <CardHeader>
+            <CardTitle>{bid ? "Your bid" : "Send a bid"}</CardTitle>
+            {open && (!bid || bid.status === "submitted") ? (
+              <StepHint>{bid
+                ? "Your bid is in. If the customer picks you, you'll get an alert and have 5 minutes to confirm with an arrival time."
+                : "Enter your full price for the job as described, what's included and when you can come, then tap Send bid. Bids are final."}</StepHint>
+            ) : null}
+          </CardHeader>
           <CardContent className="space-y-3">
             {bid && bid.status !== "submitted" ? (
               <Alert tone="info">

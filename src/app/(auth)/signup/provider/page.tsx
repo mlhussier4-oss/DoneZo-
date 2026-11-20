@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { StepHint } from "@/components/ui/step-hint";
 import Link from "next/link";
 import { Suspense } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +23,7 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Set up your business</CardTitle>
         <CardDescription><span className="ios-app:hidden">HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</span><span className="hidden ios-app:inline">Create your business account. You&apos;ll choose your plan on the HomeHire website (homehire.us) after confirming your email.</span></CardDescription>
+        <StepHint>Fill in your business details, pick how you&apos;ll use HomeHire and accept the terms. Then confirm the email we send you.</StepHint>
       </CardHeader>
       <CardContent>
         {/* How jobs work, so pros know what to expect (owner request 2026-11-14). */}

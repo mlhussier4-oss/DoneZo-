@@ -1,5 +1,6 @@
 "use client";
 
+import { StepHint } from "@/components/ui/step-hint";
 import { useState, useTransition } from "react";
 import { CheckCircle2, Timer } from "lucide-react";
 import { CountdownClock, useSecondsLeft } from "@/components/marketplace/countdown";
@@ -30,6 +31,7 @@ export function ConfirmPanel({ bookingId, confirmBy, serverNow, defaultDate, def
         </div>
         <CountdownClock seconds={left} />
       </div>
+      <StepHint>Pick your arrival date and time, then tap Confirm job before the timer hits 0:00.</StepHint>
       <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Field label="Arrival date" htmlFor="arrival-date"><Input id="arrival-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>
         <Field label="Arrival time" htmlFor="arrival-time"><Input id="arrival-time" type="time" step={900} value={time} onChange={(e) => setTime(e.target.value)} /></Field>

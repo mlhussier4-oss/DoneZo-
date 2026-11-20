@@ -8,6 +8,7 @@ import { CustomerTag } from "@/components/marketplace/customer-tag";
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { StepHint } from "@/components/ui/step-hint";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { timingLabel } from "@/config/marketplace";
@@ -91,6 +92,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
       {!profileReady ? (
         <Alert tone="warning" className="mb-4">
           Set your home ZIP code and the services you offer to start seeing jobs.{" "}
+          <StepHint className="mt-1">Tap Complete your profile, fill in your ZIP and services, then save.</StepHint>
           <Link href="/provider/marketplace/profile" className="font-semibold underline">Complete your profile</Link>
         </Alert>
       ) : null}
@@ -105,6 +107,13 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
       </nav>
 
       {tab === "jobs" ? <MarkNewJobsSeen count={newJobs} /> : null}
+      {tab === "jobs" && profileReady ? (
+        <StepHint className="mb-3">{openJobs.length
+          ? "Tap a job to see its photos and details, then send your price. Customers only see your bid, never a phone number."
+          : "Nothing to do right now. We'll notify you the moment a customer near you posts a job."}</StepHint>
+      ) : null}
+      {tab === "bids" ? <StepHint className="mb-3">Your bids wait here. If a customer picks you, you&apos;ll get an alert and have 5 minutes to confirm.</StepHint> : null}
+      {tab === "bookings" ? <StepHint className="mb-3">Tap a booking to chat with the customer, and to mark it completed and get paid when you finish.</StepHint> : null}
       {tab === "jobs" ? (
         !openJobs.length ? (
           <EmptyState icon={Inbox} title={showHidden ? "No hidden jobs" : profileReady ? "No new jobs right now" : "Your job board is empty"}>
