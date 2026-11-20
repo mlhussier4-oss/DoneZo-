@@ -16,7 +16,8 @@ const icons = {
   grid: LayoutGrid, tags: Tags, log: ScrollText, bell: Bell, map: MapPin, flag: Flag, plan: Gem, gift: Gift,
 } satisfies Record<string, LucideIcon>;
 
-export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number; badgeTone?: "alert" };
+/** `tab`: short label; the item also appears in the phone app's bottom tab bar (first 4 tabs are used). */
+export type NavItem = { href: string; label: string; icon: keyof typeof icons; exact?: boolean; badge?: number; badgeTone?: "alert"; tab?: string };
 
 export function AppShell({
   nav,
@@ -142,7 +143,30 @@ export function AppShell({
         </div>
       ) : null}
 
-      <main className="min-w-0 px-4 py-6 sm:px-6 lg:px-10 lg:py-10">
+      {/* Phone app only: bottom tab bar, like other phone apps. "More" opens the full menu. */}
+      <div className="lg:hidden">
+        <nav aria-label="Tabs" data-testid="app-tab-bar" className="fixed inset-x-0 bottom-0 z-30 hidden border-t border-border bg-card pb-[env(safe-area-inset-bottom)] shadow-[0_-1px_6px_rgb(20_33_61/0.08)] app:flex">
+          {nav.filter((i) => i.tab).slice(0, 4).map((item) => {
+            const Icon = icons[item.icon];
+            const active = isActive(item);
+            return (
+              <Link key={item.href} href={item.href} aria-current={active ? "page" : undefined}
+                className={cn("relative flex min-h-14 flex-1 flex-col items-center justify-center gap-0.5 text-[11px] font-medium", active ? "text-primary" : "text-muted-foreground")}>
+                <Icon className={cn("size-5", active ? "stroke-[2.4]" : "")} aria-hidden />
+                {item.tab}
+                {item.badge ? <span className={cn("absolute top-1.5 left-1/2 ml-2 min-w-4 rounded-full px-1 text-[10px] leading-4 font-semibold", item.badgeTone === "alert" ? "bg-destructive text-white" : "bg-accent text-accent-foreground")}>{item.badge > 99 ? "99+" : item.badge}</span> : null}
+                {active ? <span className="absolute top-0 h-0.5 w-8 rounded-full bg-cta" aria-hidden /> : null}
+              </Link>
+            );
+          })}
+          <button type="button" onClick={() => setOpen(true)} className="flex min-h-14 flex-1 cursor-pointer flex-col items-center justify-center gap-0.5 text-[11px] font-medium text-muted-foreground">
+            <Menu className="size-5" aria-hidden />
+            More
+          </button>
+        </nav>
+      </div>
+
+      <main className="min-w-0 px-4 py-6 app:pb-28 sm:px-6 lg:px-10 lg:py-10">
         <div className="mx-auto max-w-6xl">{children}</div>
       </main>
     </div>

@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/format";
 import { confirmSubscriptionSession } from "@/lib/stripe/subscription";
 import { createClient } from "@/lib/supabase/server";
 import { ManageBillingButton, SubscribeButton } from "./subscribe-buttons";
+import { IOS_PLAN_MESSAGE, isIosApp } from "@/lib/app/server";
 
 export const metadata: Metadata = { title: "Subscribe" };
 
@@ -41,6 +42,8 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
   const ended = !cardFailed && sub?.status && ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
 
   const chosen = business.plan.code;
+  // In the iPhone app, plans are chosen on the website (Apple rule); the plans are still described here.
+  const iosApp = await isIosApp();
   return (
     <div className="space-y-5">
       <div>
@@ -55,10 +58,11 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
       {params.canceled ? <Alert tone="info">Checkout was canceled. You haven&apos;t been charged.</Alert> : null}
       {typeof params.session_id === "string" ? <Alert tone="info">We&apos;re confirming your payment with Stripe. Refresh in a moment if this page doesn&apos;t update.</Alert> : null}
       {business.memberRole !== "owner" ? <Alert tone="warning">Only the business owner can subscribe.</Alert> : null}
+      {iosApp ? <Alert tone="info" data-testid="ios-plan-note">{IOS_PLAN_MESSAGE} Once you&apos;ve chosen a plan, come back to the app and everything is ready.</Alert> : null}
       <div className="grid gap-4 md:grid-cols-2">
         {(["basic", "pro"] as const).map((code) => (
           <PlanCard key={code} plan={code} highlight={chosen === code} badge={chosen === code ? "Your choice" : undefined}>
-            {business.memberRole === "owner" ? (
+            {business.memberRole === "owner" && !iosApp ? (
               <div className="grid gap-2">
                 {/* Owner decision 2026-11-15: first month free on Basic only (new businesses). */}
                 <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].price}/month` : `${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
@@ -69,8 +73,8 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
           </PlanCard>
         ))}
       </div>
-      <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. {freeMonthNote} To confirm your card is real, we place a temporary hold for the first payment when your free month starts and release it right away; you&apos;re not charged until the free month ends. {cardFeeNote}</p>
-      {sub?.status === "past_due" || ended ? <ManageBillingButton /> : null}
+      {iosApp ? null : <p className="text-xs text-muted-foreground">Payment is handled securely by Stripe; HomeHire never sees your card number. {freeMonthNote} To confirm your card is real, we place a temporary hold for the first payment when your free month starts and release it right away; you&apos;re not charged until the free month ends. {cardFeeNote}</p>}
+      {!iosApp && (sub?.status === "past_due" || ended) ? <ManageBillingButton /> : null}
     </div>
   );
 }

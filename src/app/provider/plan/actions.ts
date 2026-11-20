@@ -1,11 +1,14 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { IOS_PLAN_MESSAGE, isIosApp } from "@/lib/app/server";
 import { requireManager } from "@/lib/auth";
 import { changePlanUrl, type PlanCode } from "@/lib/stripe/subscription";
 
 /** Owner only: open Stripe's confirmation page for switching plans (it shows any amount due now). */
 export async function changePlan(plan: PlanCode): Promise<{ error?: string }> {
+  // Apple rule: no subscription purchases inside the iPhone app; plans are managed on the website.
+  if (await isIosApp()) return { error: IOS_PLAN_MESSAGE };
   const { business } = await requireManager();
   if (business.memberRole !== "owner") return { error: "Only the business owner can change the plan." };
   if (plan !== "basic" && plan !== "pro") return { error: "Choose a plan." };

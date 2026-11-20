@@ -4,6 +4,7 @@
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { Client } from "pg";
+import { anonClient, createUser } from "./helpers";
 
 const db = new Client({ connectionString: process.env.SUPABASE_DB_URL ?? "postgresql://postgres:postgres@127.0.0.1:54322/postgres" });
 beforeAll(() => db.connect());
@@ -74,6 +75,25 @@ describe("database security audit", () => {
     for (const b of buckets) {
       expect(Number(b.file_size_limit)).toBeGreaterThan(0);
       expect(b.allowed_mime_types.every((m: string) => m.startsWith("image/"))).toBe(true);
+    }
+  });
+});
+
+describe("owner-only admin data (owner request 2026-11-20)", () => {
+  it("every admin function checks that the caller is an admin", async () => {
+    // Any new admin_* function without an is_admin() check fails this test.
+    expect(await rows(`select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+      where n.nspname = 'public' and p.proname like 'admin\\_%' and p.prosrc not like '%is_admin()%'`)).toEqual([]);
+  });
+
+  it("customers, providers and signed-out visitors get nothing from the admin dashboards", async () => {
+    const customer = await createUser({ role: "customer", full_name: "Casey" });
+    const provider = await createUser({ role: "provider", business_name: `Pro ${Date.now()}`, marketplace_enabled: true });
+    for (const [who, client] of [["customer", customer.client], ["provider", provider.client], ["signed out", anonClient()]] as const) {
+      for (const fn of ["admin_dashboard", "admin_marketplace_live"] as const) {
+        const { data, error } = await client.rpc(fn);
+        expect({ who, fn, data, denied: Boolean(error) }).toEqual({ who, fn, data: null, denied: true });
+      }
     }
   });
 });

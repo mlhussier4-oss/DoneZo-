@@ -9,6 +9,7 @@ import { BusinessDetailsForm, MarketplaceToggle } from "./settings-forms";
 import { formatDate } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteAccount } from "@/components/account/delete-account";
+import { AppLockSetting } from "@/components/app/app-lock";
 
 export const metadata: Metadata = { title: "Business settings" };
 
@@ -32,6 +33,7 @@ export default async function ProviderSettingsPage() {
           </CardHeader>
           <CardContent><PushToggle variant="setting" text="Notifications are off for this device." /></CardContent>
         </Card>
+        <AppLockSetting />
         <Card>
           <CardHeader>
             <CardTitle>Business details</CardTitle>

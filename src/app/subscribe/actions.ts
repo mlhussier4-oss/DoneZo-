@@ -1,12 +1,15 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { IOS_PLAN_MESSAGE, isIosApp } from "@/lib/app/server";
 import { requireRole, getCurrentBusiness } from "@/lib/auth";
 import { billingPortalUrl, startSubscriptionCheckout, type BillingInterval, type PlanCode } from "@/lib/stripe/subscription";
 
 const isPlan = (v: unknown): v is PlanCode => v === "basic" || v === "pro";
 
 export async function subscribe(plan: PlanCode, interval: BillingInterval = "month"): Promise<{ error?: string }> {
+  // Apple rule: no subscription purchases inside the iPhone app; plans are managed on the website.
+  if (await isIosApp()) return { error: IOS_PLAN_MESSAGE };
   await requireRole("provider");
   const business = await getCurrentBusiness();
   if (!business) return { error: "No business found." };
@@ -23,6 +26,8 @@ export async function subscribe(plan: PlanCode, interval: BillingInterval = "mon
 }
 
 export async function manageBilling(): Promise<{ error?: string }> {
+  // Apple rule: no subscription purchases inside the iPhone app; plans are managed on the website.
+  if (await isIosApp()) return { error: IOS_PLAN_MESSAGE };
   await requireRole("provider");
   const business = await getCurrentBusiness();
   if (!business || business.memberRole !== "owner") return { error: "Only the owner can manage billing." };

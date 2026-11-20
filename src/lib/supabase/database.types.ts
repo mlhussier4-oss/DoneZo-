@@ -201,14 +201,14 @@ isOneToOne: true
                   ]
                 },"businesses": {
                   Row: {
-                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"deleted_at": string | null,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"insured": boolean,"insured_updated_at": string | null,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
+                    "accepted_payment_methods": (string)[],"created_at": string,"created_by": string | null,"default_tax_rate_bps": number,"deleted_at": string | null,"description": string | null,"email": string | null,"home_zip": string | null,"id": string,"insured": boolean,"insured_updated_at": string | null,"is_review_account": boolean,"is_suspended": boolean,"logo_path": string | null,"marketplace_enabled": boolean,"marketplace_enabled_at": string | null,"marketplace_removed_reason": string | null,"name": string,"payment_terms_accepted_at": string | null,"payment_terms_accepted_by": string | null,"payment_terms_version": string | null,"phone": string | null,"plan_id": string,"referral_code": string,"referred_by": string | null,"service_radius_miles": number,"timezone": string,"updated_at": string,"verified_at": string | null,"verified_note": string | null,"years_experience": number | null
                   }
                   ComputedFields: never
                   Insert: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_review_account"?: boolean,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name": string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id": string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Update: {
-                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
+                    "accepted_payment_methods"?: (string)[],"created_at"?: string,"created_by"?: string | null,"default_tax_rate_bps"?: number,"deleted_at"?: string | null,"description"?: string | null,"email"?: string | null,"home_zip"?: string | null,"id"?: string,"insured"?: boolean,"insured_updated_at"?: string | null,"is_review_account"?: boolean,"is_suspended"?: boolean,"logo_path"?: string | null,"marketplace_enabled"?: boolean,"marketplace_enabled_at"?: string | null,"marketplace_removed_reason"?: string | null,"name"?: string,"payment_terms_accepted_at"?: string | null,"payment_terms_accepted_by"?: string | null,"payment_terms_version"?: string | null,"phone"?: string | null,"plan_id"?: string,"referral_code"?: string,"referred_by"?: string | null,"service_radius_miles"?: number,"timezone"?: string,"updated_at"?: string,"verified_at"?: string | null,"verified_note"?: string | null,"years_experience"?: number | null
                   }
                   Relationships: [
                     {
@@ -783,14 +783,14 @@ isOneToOne: false
                   ]
                 },"profiles": {
                   Row: {
-                    "avatar_path": string | null,"created_at": string,"deleted_at": string | null,"email": string | null,"full_name": string | null,"id": string,"is_suspended": boolean,"marketplace_blocked_at": string | null,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
+                    "avatar_path": string | null,"created_at": string,"deleted_at": string | null,"email": string | null,"full_name": string | null,"id": string,"is_review_account": boolean,"is_suspended": boolean,"marketplace_blocked_at": string | null,"phone": string | null,"role": Database["public"]['Enums']["app_role"],"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id": string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id": string,"is_review_account"?: boolean,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Update: {
-                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
+                    "avatar_path"?: string | null,"created_at"?: string,"deleted_at"?: string | null,"email"?: string | null,"full_name"?: string | null,"id"?: string,"is_review_account"?: boolean,"is_suspended"?: boolean,"marketplace_blocked_at"?: string | null,"phone"?: string | null,"role"?: Database["public"]['Enums']["app_role"],"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -1259,6 +1259,7 @@ isOneToOne: false
 "id": string,
 "insured": boolean,
 "insured_updated_at": string | null,
+"is_review_account": boolean,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,
@@ -1310,6 +1311,7 @@ isOneToOne: false
 "id": string,
 "insured": boolean,
 "insured_updated_at": string | null,
+"is_review_account": boolean,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,
@@ -1344,6 +1346,7 @@ isOneToOne: false
 "email": string | null,
 "full_name": string | null,
 "id": string,
+"is_review_account": boolean,
 "is_suspended": boolean,
 "marketplace_blocked_at": string | null,
 "phone": string | null,
@@ -1762,6 +1765,12 @@ isOneToOne: false
 "is_business_staff":
 { Args: { "p_business_id": string }; Returns: boolean
                            },
+"is_review_business":
+{ Args: { "p_business_id": string }; Returns: boolean
+                           },
+"is_review_request":
+{ Args: { "p_request_id": string }; Returns: boolean
+                           },
 "is_unaccepted_invitee":
 { Args: { "p_email": string }; Returns: string
                            },
@@ -1950,6 +1959,7 @@ isOneToOne: false
 "id": string,
 "insured": boolean,
 "insured_updated_at": string | null,
+"is_review_account": boolean,
 "is_suspended": boolean,
 "logo_path": string | null,
 "marketplace_enabled": boolean,

@@ -900,3 +900,63 @@ describe("save my home, review photos, responds fast (owner requests 2026-11-15)
     expect(reviews[0].photos).toEqual([photo]);
   });
 });
+
+describe("app reviewer accounts (owner request 2026-11-20)", () => {
+  async function flag(userId: string, businessId?: string) {
+    expect((await adminClient().from("profiles").update({ is_review_account: true }).eq("id", userId)).error).toBeNull();
+    if (businessId) expect((await adminClient().from("businesses").update({ is_review_account: true }).eq("id", businessId)).error).toBeNull();
+  }
+  const post = async (c: TestUser) =>
+    (await c.client.from("service_requests").insert({ category_id: await categoryId("lawn-mowing"), description: "Review isolation", timing: "this_week", zip: "78745" }).select().single()).data!;
+
+  it("keeps review jobs and real jobs apart, both on the job board and in new-job alerts", async () => {
+    const realPro = await provider();
+    const reviewPro = await provider();
+    await flag(reviewPro.id, reviewPro.businessId);
+    const realCustomer = await customer();
+    const reviewCustomer = await customer();
+    await flag(reviewCustomer.id);
+
+    const realJob = await post(realCustomer);
+    const reviewJob = await post(reviewCustomer);
+
+    expect(await feedIds(realPro)).toContain(realJob.id);
+    expect(await feedIds(realPro)).not.toContain(reviewJob.id);
+    expect(await feedIds(reviewPro)).toContain(reviewJob.id);
+    expect(await feedIds(reviewPro)).not.toContain(realJob.id);
+
+    // A review pro can't bid on a real job (and the other way round).
+    expect((await reviewPro.client.from("bids").insert({ request_id: realJob.id, business_id: reviewPro.businessId, price_cents: 5000 })).error).not.toBeNull();
+    expect((await realPro.client.from("bids").insert({ request_id: reviewJob.id, business_id: realPro.businessId, price_cents: 5000 })).error).not.toBeNull();
+
+    const alerts = async (p: Provider) =>
+      ((await p.client.from("notifications").select("link").eq("kind", "new_request")).data ?? []).map((n) => n.link);
+    expect(await alerts(realPro)).not.toContain(`/provider/marketplace/requests/${reviewJob.id}`);
+    expect(await alerts(reviewPro)).toContain(`/provider/marketplace/requests/${reviewJob.id}`);
+    expect(await alerts(reviewPro)).not.toContain(`/provider/marketplace/requests/${realJob.id}`);
+  });
+
+  it("only the service role can mark an account as a review account", async () => {
+    const pro = await provider();
+    await pro.client.from("profiles").update({ is_review_account: true }).eq("id", pro.id);
+    await pro.client.from("businesses").update({ is_review_account: true }).eq("id", pro.businessId);
+    const { data: prof } = await adminClient().from("profiles").select("is_review_account").eq("id", pro.id).single();
+    const { data: biz } = await adminClient().from("businesses").select("is_review_account").eq("id", pro.businessId).single();
+    expect(prof?.is_review_account).toBe(false);
+    expect(biz?.is_review_account).toBe(false);
+  });
+
+  it("leaves review accounts out of the admin dashboard numbers", async () => {
+    const admin = await createAdmin();
+    const before = (await admin.client.rpc("admin_dashboard")).data as Record<string, number>;
+    const reviewPro = await provider();
+    await flag(reviewPro.id, reviewPro.businessId);
+    const reviewCustomer = await customer();
+    await flag(reviewCustomer.id);
+    const job = await post(reviewCustomer);
+    const after = (await admin.client.rpc("admin_dashboard")).data as Record<string, number>;
+    for (const k of ["customers", "providers", "subscribed", "mrr_cents", "jobs_total"]) expect(after[k]).toBe(before[k]);
+    const live = (await admin.client.rpc("admin_marketplace_live", { p_status: "all" })).data as { id: string }[];
+    expect(live.map((j) => j.id)).not.toContain(job.id);
+  });
+});

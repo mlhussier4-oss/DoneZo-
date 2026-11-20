@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { BellRing, BellOff, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { deletePushSubscription, saveNativePushToken, savePushSubscription } from "@/lib/push/actions";
+import { callNative, hasNativePlugin, nativePlatform, onNative } from "@/lib/app/native";
 
 type State = "loading" | "unsupported" | "ios-install" | "blocked" | "off" | "on";
 
@@ -26,21 +27,18 @@ async function permissionState(): Promise<NotificationPermission> {
 }
 
 /** Inside the HomeHire phone app, the phone's own notifications are used instead of browser push. */
-type NativePush = {
-  checkPermissions(): Promise<{ receive: string }>;
-  requestPermissions(): Promise<{ receive: string }>;
-  register(): Promise<void>;
-  addListener(event: "registration", cb: (t: { value: string }) => void): Promise<unknown>;
-};
-function nativeApp(): { push: NativePush; platform: "ios" | "android" } | null {
-  const cap = (window as unknown as { Capacitor?: { isNativePlatform?: () => boolean; getPlatform?: () => string; Plugins?: { PushNotifications?: NativePush } } }).Capacitor;
-  const push = cap?.Plugins?.PushNotifications;
-  const platform = cap?.getPlatform?.();
-  return cap?.isNativePlatform?.() && push && (platform === "ios" || platform === "android") ? { push, platform } : null;
+type NativeApp = { platform: "ios" | "android" };
+function nativeApp(): NativeApp | null {
+  const platform = nativePlatform();
+  return platform && hasNativePlugin("PushNotifications") ? { platform } : null;
 }
-async function registerNative(app: { push: NativePush; platform: "ios" | "android" }) {
-  await app.push.addListener("registration", (t) => { void saveNativePushToken(t.value, app.platform); });
-  await app.push.register();
+const nativePush = {
+  checkPermissions: () => callNative<{ receive: string }>("PushNotifications", "checkPermissions"),
+  requestPermissions: () => callNative<{ receive: string }>("PushNotifications", "requestPermissions"),
+};
+async function registerNative(app: NativeApp) {
+  onNative<{ value: string }>("PushNotifications", "registration", (t) => { void saveNativePushToken(t.value, app.platform); });
+  await callNative("PushNotifications", "register");
 }
 
 async function currentSubscription() {
@@ -67,7 +65,7 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
       try { setDismissed(variant === "banner" && localStorage.getItem(DISMISS_KEY) === "1"); } catch { setDismissed(false); }
       const app = nativeApp();
       if (app) {
-        const { receive } = await app.push.checkPermissions().catch(() => ({ receive: "prompt" }));
+        const { receive } = await nativePush.checkPermissions().catch(() => ({ receive: "prompt" }));
         if (receive === "granted") await registerNative(app).catch(() => undefined); // keep this phone's token fresh
         if (!cancelled) setState(receive === "granted" ? "on" : receive === "denied" ? "blocked" : "off");
         return;
@@ -94,7 +92,7 @@ export function PushToggle({ text, variant = "banner" }: { text: string; variant
     const app = nativeApp();
     if (app) {
       try {
-        const { receive } = await app.push.requestPermissions();
+        const { receive } = await nativePush.requestPermissions();
         if (receive !== "granted") { setState(receive === "denied" ? "blocked" : "off"); return; }
         await registerNative(app);
         setState("on");
