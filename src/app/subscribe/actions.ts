@@ -3,9 +3,10 @@
 import { redirect } from "next/navigation";
 import { IOS_PLAN_MESSAGE, isIosApp } from "@/lib/app/server";
 import { requireRole, getCurrentBusiness } from "@/lib/auth";
+import { isPlanCode, planInfo } from "@/config/plans";
 import { billingPortalUrl, startSubscriptionCheckout, type BillingInterval, type PlanCode } from "@/lib/stripe/subscription";
 
-const isPlan = (v: unknown): v is PlanCode => v === "basic" || v === "pro";
+const isPlan = isPlanCode;
 
 export async function subscribe(plan: PlanCode, interval: BillingInterval = "month"): Promise<{ error?: string }> {
   // Apple rule: no subscription purchases inside the iPhone app; plans are managed on the website.
@@ -17,7 +18,7 @@ export async function subscribe(plan: PlanCode, interval: BillingInterval = "mon
   if (!isPlan(plan)) return { error: "Choose a plan." };
   let url: string;
   try {
-    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email }, plan, interval === "year" ? "year" : "month");
+    url = await startSubscriptionCheckout({ id: business.id, name: business.name, email: business.email }, plan, interval === "year" && planInfo[plan].yearly ? "year" : "month");
   } catch (err) {
     console.error("subscribe failed", err);
     return { error: "We couldn't reach our payment provider. Please try again in a moment." };

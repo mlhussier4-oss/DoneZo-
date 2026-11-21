@@ -960,3 +960,53 @@ describe("app reviewer accounts (owner request 2026-11-20)", () => {
     expect(live.map((j) => j.id)).not.toContain(job.id);
   });
 });
+
+describe("HomeHire Priority: 5-minute head start (owner decision 2026-11-21)", () => {
+  async function makePriority(p: Provider) {
+    const { data: plan } = await adminClient().from("plans").select("id").eq("code", "priority").single();
+    expect((await adminClient().from("businesses").update({ plan_id: plan!.id }).eq("id", p.businessId)).error).toBeNull();
+  }
+  // A ZIP far from the other tests' pros, so only this test's pros serve it.
+  const zip = "78717";
+  const post = async (c: TestUser, category = "car-detailing") =>
+    (await c.client.from("service_requests").insert({ category_id: await categoryId(category), description: "Head start", timing: "this_week", zip }).select().single()).data!;
+  const alerts = async (p: Provider, requestId: string) =>
+    ((await p.client.from("notifications").select("body, link").eq("kind", "new_request")).data ?? []).filter((n) => n.link.endsWith(requestId));
+
+  it("Priority pros see and bid first; everyone else gets the job when the head start ends", async () => {
+    const fast = await provider({ zip, radius: 10, categories: ["car-detailing"] });
+    await makePriority(fast);
+    const regular = await provider({ zip, radius: 10, categories: ["car-detailing"] });
+    const c = await customer();
+    const job = await post(c);
+    expect(job.head_start_until).not.toBeNull();
+
+    expect(await feedIds(fast)).toContain(job.id);
+    expect(await feedIds(regular)).not.toContain(job.id);
+    expect((await regular.client.from("bids").insert({ request_id: job.id, business_id: regular.businessId, price_cents: 9000, included: "Full detail", availability: "Tomorrow" })).error).not.toBeNull();
+    expect((await fast.client.from("bids").insert({ request_id: job.id, business_id: fast.businessId, price_cents: 9500, included: "Interior and exterior", availability: "Tomorrow" })).error).toBeNull();
+
+    expect((await alerts(fast, job.id))[0]?.body).toMatch(/5-minute head start/);
+    expect(await alerts(regular, job.id)).toHaveLength(0);
+
+    // The customer can't shorten or remove the head start themselves.
+    await c.client.from("service_requests").update({ head_start_until: null }).eq("id", job.id);
+    expect((await adminClient().from("service_requests").select("head_start_until").eq("id", job.id).single()).data?.head_start_until).not.toBeNull();
+
+    // Five minutes pass.
+    await adminClient().from("service_requests").update({ head_start_until: new Date(Date.now() - 1000).toISOString() }).eq("id", job.id);
+    expect(await feedIds(regular)).toContain(job.id);
+    expect((await adminClient().rpc("notify_after_head_start")).error).toBeNull();
+    expect(await alerts(regular, job.id)).toHaveLength(1);
+    expect(await alerts(fast, job.id)).toHaveLength(1); // no second alert for the Priority pro
+  });
+
+  it("no wait at all when no Priority pro serves the job", async () => {
+    const regular = await provider({ zip: "78660", radius: 5, categories: ["pet-waste-pickup"] });
+    const c = await customer();
+    const job = (await c.client.from("service_requests").insert({ category_id: await categoryId("pet-waste-pickup"), description: "No priority", timing: "this_week", zip: "78660" }).select().single()).data!;
+    expect(job.head_start_until).toBeNull();
+    expect(await feedIds(regular)).toContain(job.id);
+    expect(await alerts(regular, job.id)).toHaveLength(1);
+  });
+});

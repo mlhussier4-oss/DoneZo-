@@ -27,9 +27,14 @@ const usageOptions = [
     title: "HomeHire Pro", price: " · $19.99/month", suffix: ", business tools only",
     text: "The same business tools for the customers you already have, with the marketplace switched off. Turn it on any time.",
   },
+  {
+    value: "priority",
+    title: "HomeHire Priority", price: " · $39.99/month", suffix: ", 5-minute head start",
+    text: "Everything in Pro, plus you see and bid on new jobs near you 5 minutes before other pros, so your bid is among the first the customer sees.",
+  },
 ] as const;
 
-export function ProviderSignupForm({ initialUsage, referralCode, referrerName }: { initialUsage: "basic" | "crm" | "marketplace" | null; referralCode?: string; referrerName?: string }) {
+export function ProviderSignupForm({ initialUsage, referralCode, referrerName }: { initialUsage: "basic" | "crm" | "marketplace" | "priority" | null; referralCode?: string; referrerName?: string }) {
   const [state, action] = useFormAction<FormState>(providerSignUp, { status: "idle" });
   const [usage, setUsage] = useState<string | null>(initialUsage);
 

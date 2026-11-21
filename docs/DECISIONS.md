@@ -167,3 +167,11 @@ All of these appear in the phone app too, since the app shows the website.
 - Customers now see a "Pay" button right on their job card once the pro sends the invoice.
 - The colour is a single setting (`--hint` in globals.css) so it can be changed in one place. All hints use the shared `StepHint` component.
 - Corrected outdated wording on the provider's job page: customers send their address in the chat; it isn't shared automatically.
+
+## 2026-11-21 — Third plan: HomeHire Priority ($39.99/month)
+- **What it is:** everything in Pro, plus a **5-minute head start** on new marketplace jobs. When a job is posted, Priority pros who serve it (by service and travel distance) see it and can bid right away. Everyone else sees it 5 minutes later, so Priority bids are the first the customer sees. Several Priority pros serving the same job share the head start.
+- **Owner choices:** the name is "HomeHire Priority". It's **monthly only** (no yearly price) and has **no free month** (the free month stays Basic only). **Customers see no label** on Priority bids. **If no Priority pro serves a job, there's no wait**: everyone sees it right away, so customers never wait longer for bids.
+- **Encouragement:** Priority pros get the new-job alert "You have a 5-minute head start on your bid!" (in the app, on the phone and in notifications). The job board and the job page show a yellow banner with a live countdown.
+- **How it works:** the database decides who can see each job (`business_can_see_request`), so it's enforced on the server, not just hidden in the screen. Other pros' alerts go out by a once-a-minute job (`notify_after_head_start`) when the 5 minutes end. A "Book again" customer's past pro skips the head start. Customers can't change the head start.
+- Stripe: lookup key `donezo_priority_monthly`, created in test mode on first use. Upgrades start right away; moving down takes effect at the next billing date. If a yearly Basic or Pro provider upgrades to Priority, they switch to monthly billing.
+- Shown on sign-up, Subscribe, Plan & billing, For providers, FAQ, Terms and the pitch sheet. The admin dashboard counts Priority subscribers separately.

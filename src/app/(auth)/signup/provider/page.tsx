@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Provider sign up" };
 
 async function FormWithPreselection({ searchParams }: { searchParams: PageProps<"/signup/provider">["searchParams"] }) {
   const { plan, ref } = await searchParams;
-  const initial = plan === "basic" || plan === "crm" || plan === "marketplace" ? plan : null;
+  const initial = plan === "basic" || plan === "crm" || plan === "marketplace" || plan === "priority" ? plan : null;
   // Referral link (owner decision 2026-11-14): /signup/provider?ref=CODE
   const code = typeof ref === "string" && /^[A-Za-z0-9]{4,12}$/.test(ref) ? ref.toUpperCase() : undefined;
   const referrer = code ? (await createPublicClient().rpc("referrer_name", { p_code: code })).data : null;
@@ -22,7 +22,7 @@ export default function ProviderSignupPage({ searchParams }: PageProps<"/signup/
     <Card>
       <CardHeader>
         <CardTitle as="h1" className="text-2xl">Set up your business</CardTitle>
-        <CardDescription><span className="ios-app:hidden">HomeHire Basic $9.99/month for the marketplace, or HomeHire Pro $19.99/month with business tools. You&apos;ll subscribe after confirming your email.</span><span className="hidden ios-app:inline">Create your business account. You&apos;ll choose your plan on the HomeHire website (homehire.us) after confirming your email.</span></CardDescription>
+        <CardDescription><span className="ios-app:hidden">HomeHire Basic $9.99/month for the marketplace, HomeHire Pro $19.99/month with business tools, or HomeHire Priority $39.99/month with a 5-minute head start on new jobs. You&apos;ll subscribe after confirming your email.</span><span className="hidden ios-app:inline">Create your business account. You&apos;ll choose your plan on the HomeHire website (homehire.us) after confirming your email.</span></CardDescription>
         <StepHint>Fill in your business details, pick how you&apos;ll use HomeHire and accept the terms. Then confirm the email we send you.</StepHint>
       </CardHeader>
       <CardContent>

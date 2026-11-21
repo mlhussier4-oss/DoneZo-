@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Lock, MapPin } from "lucide-react";
 import { Alert } from "@/components/ui/alert";
 import { StepHint } from "@/components/ui/step-hint";
+import { HeadStartBanner } from "@/components/marketplace/head-start";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { timingLabel, detailLines } from "@/config/marketplace";
@@ -21,6 +22,7 @@ type Detail = {
   id: string; status: string; category_name: string; description: string; details: Record<string, string>;
   timing: string; preferred_date: string | null; zip: string; miles: number; created_at: string; expires_at: string; photos: string[];
   customer: { first_name: string; avatar_path: string | null } | null;
+  head_start_until: string | null;
 };
 
 export default async function ProviderRequestPage({ params }: PageProps<"/provider/marketplace/requests/[id]">) {
@@ -78,6 +80,7 @@ export default async function ProviderRequestPage({ params }: PageProps<"/provid
 
         <Card>
           <CardHeader>
+            {r.head_start_until && !bid ? <HeadStartBanner until={r.head_start_until} serverNow={new Date().toISOString()} className="mb-2" /> : null}
             <CardTitle>{bid ? "Your bid" : "Send a bid"}</CardTitle>
             {open && (!bid || bid.status === "submitted") ? (
               <StepHint>{bid

@@ -94,11 +94,12 @@ describe("switching plans", () => {
     expect((await adminClient().from("businesses").select("plans(code)").eq("id", p.businessId).single()).data).toEqual({ plans: { code: "basic" } });
   });
 
-  it("both plans are listed publicly with their prices", async () => {
+  it("all three plans are listed publicly with their prices", async () => {
     const { data } = await anonClient().from("plans").select("code, name, price_cents").eq("is_active", true).order("sort_order");
     expect(data).toEqual([
       { code: "basic", name: "HomeHire Basic", price_cents: 999 },
       { code: "pro", name: "HomeHire Pro", price_cents: 1999 },
+      { code: "priority", name: "HomeHire Priority", price_cents: 3999 },
     ]);
   });
 });

@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Alert } from "@/components/ui/alert";
 import { PlanCard } from "@/components/plans/plan-card";
-import { freeMonthNote, cardFeeNote, planInfo } from "@/config/plans";
+import { PLAN_CODES, freeMonthNote, cardFeeNote, planInfo } from "@/config/plans";
 import { getCurrentBusiness, requireRole } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
 import { confirmSubscriptionSession } from "@/lib/stripe/subscription";
@@ -63,15 +63,17 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
         <StepHint>Tap a plan button to pay securely on Stripe. You come right back here and can start finding jobs.</StepHint>
       ) : null}
       {iosApp ? <Alert tone="info" data-testid="ios-plan-note">{IOS_PLAN_MESSAGE} Once you&apos;ve chosen a plan, come back to the app and everything is ready.</Alert> : null}
-      <div className="grid gap-4 md:grid-cols-2">
-        {(["basic", "pro"] as const).map((code) => (
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {PLAN_CODES.map((code) => (
           <PlanCard key={code} plan={code} highlight={chosen === code} badge={chosen === code ? "Your choice" : undefined}>
             {business.memberRole === "owner" && !iosApp ? (
               <div className="grid gap-2">
                 {/* Owner decision 2026-11-15: first month free on Basic only (new businesses). */}
                 <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].price}/month` : `${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
                 {/* Owner decision 2026-11-14: pay for 12 months, get 2 free. */}
-                <SubscribeButton plan={code} interval="year" variant="accent" label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].yearly}/year (2 months free)` : `Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
+                {planInfo[code].yearly ? (
+                  <SubscribeButton plan={code} interval="year" variant="accent" label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].yearly}/year (2 months free)` : `Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
+                ) : null}
               </div>
             ) : null}
           </PlanCard>

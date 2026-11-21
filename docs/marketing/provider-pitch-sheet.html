@@ -57,7 +57,7 @@
   ol.steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: var(--yellow); display: grid; place-items: center; font: 700 13px var(--display); }
 
   .plans { display: grid; gap: 14px; }
-  @media (min-width: 560px) { .plans { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 560px) { .plans { grid-template-columns: 1fr 1fr 1fr; } }
   .plan { border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 6px; align-content: start; }
   .plan.pro { border: 2px solid var(--navy); }
   .plan h3 { margin: 0; font: 700 17px var(--display); color: var(--navy); }
@@ -92,8 +92,9 @@
     <h1>Stop paying for leads. Start winning real jobs.</h1>
     <p class="lede">HomeHire sends you local home jobs with photos and details. You bid only on the ones you want, at your price, for one flat monthly fee. No per-lead charges, ever.</p>
     <div class="price-row">
-      <span class="chip">Basic <b>$9.99</b>/month</span>
+      <span class="chip">Basic <b>first month free</b>, then $9.99/month</span>
       <span class="chip">Pro <b>$19.99</b>/month</span>
+      <span class="chip">Priority <b>$39.99</b>/month: 5-minute head start</span>
       <span class="chip">Cancel any time</span>
     </div>
   </header>
@@ -118,7 +119,7 @@
           <table class="compare">
             <thead><tr><th scope="col"></th><th scope="col">Typical lead sites</th><th scope="col">HomeHire</th></tr></thead>
             <tbody>
-              <tr><td>Cost to get work</td><td>Charged per lead, often whether you win the job or not</td><td>$9.99&ndash;$19.99 a month, flat</td></tr>
+              <tr><td>Cost to get work</td><td>Charged per lead, often whether you win the job or not</td><td>$9.99&ndash;$39.99 a month, flat</td></tr>
               <tr><td>What you see</td><td>A name and a phone number</td><td>Photos and job details</td></tr>
               <tr><td>Competition</td><td>Race to call first</td><td>Sealed bids, your price</td></tr>
               <tr><td>Cash jobs</td><td>Fees can still apply</td><td>No HomeHire fee</td></tr>
@@ -142,17 +143,22 @@
         </ol>
       </div>
       <div>
-        <h2>Two simple plans</h2>
+        <h2>Three simple plans</h2>
         <div class="plans">
           <div class="plan">
             <h3>Basic</h3>
             <div class="amt">$9.99 <span>/ month</span></div>
-            <p>The marketplace: local jobs, unlimited bids, alerts, profile and reviews.</p>
+            <p>The marketplace: local jobs, unlimited bids, alerts, profile and reviews. <strong>First month free.</strong></p>
           </div>
           <div class="plan pro">
             <h3>Pro</h3>
             <div class="amt">$19.99 <span>/ month</span></div>
             <p>Everything in Basic, plus business tools: customers, calendar, recurring visits, invoices, card payments, reports and your team.</p>
+          </div>
+          <div class="plan">
+            <h3>Priority</h3>
+            <div class="amt">$39.99 <span>/ month</span></div>
+            <p>Everything in Pro, plus a <strong>5-minute head start</strong>: see and bid on new jobs near you before other pros, so your bid is among the first the customer sees.</p>
           </div>
         </div>
         <p class="fine">Pro also works as business software on its own, with the marketplace switched off. No contracts; cancel any time.</p>

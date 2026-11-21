@@ -1,4 +1,5 @@
 import "server-only";
+import { isPlanCode, type PlanCode } from "@/config/plans";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -24,7 +25,7 @@ export type CurrentBusiness = {
   defaultTaxRateBps: number;
   memberRole: "owner" | "manager" | "employee";
   /** The plan the business pays for. Business tools (CRM, team, reports) are Pro only; the database enforces it too. */
-  plan: { code: "basic" | "pro"; name: string; priceCents: number };
+  plan: { code: PlanCode; name: string; priceCents: number };
   hasCrm: boolean;
 };
 
@@ -114,7 +115,7 @@ export const getCurrentBusiness = cache(async (): Promise<CurrentBusiness | null
     timezone: b.timezone,
     defaultTaxRateBps: b.default_tax_rate_bps,
     memberRole: data.role as CurrentBusiness["memberRole"],
-    plan: { code: b.plans?.code === "basic" ? "basic" : "pro", name: b.plans?.name ?? "HomeHire Pro", priceCents: b.plans?.price_cents ?? 1999 },
+    plan: { code: isPlanCode(b.plans?.code) ? b.plans.code : "pro", name: b.plans?.name ?? "HomeHire Pro", priceCents: b.plans?.price_cents ?? 1999 },
     hasCrm: b.plans?.code !== "basic",
   };
 });
