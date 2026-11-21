@@ -19,7 +19,8 @@ export const homeownerFaqs: Faq[] = [
 ];
 
 export const providerFaqs: Faq[] = [
-  { q: "What does HomeHire cost?", a: "HomeHire Basic is $9.99 a month for the marketplace, and your first month is free. HomeHire Pro is $19.99 a month for the marketplace plus business tools. Pay yearly and get 2 months free. There are no fees per lead." },
+  { q: "What does HomeHire cost?", a: "HomeHire Basic is $9.99 a month for the marketplace, and your first month is free. HomeHire Pro is $19.99 a month for the marketplace plus business tools. HomeHire Priority is $39.99 a month: everything in Pro, plus a 5-minute head start on new jobs. Basic and Pro can be paid yearly with 2 months free. There are no fees per lead." },
+  { q: "How does the Priority head start work?", a: "When a customer posts a job you serve, Priority pros get an alert (\"You have a 5-minute head start on your bid!\") and can see and bid on it for 5 minutes before other pros, so your bid is among the first the customer sees. If several Priority pros serve the job, they share the head start. If no Priority pro serves it, everyone sees it right away. Customers still choose whichever bid they like." },
   { q: "How does the free month work?", a: "Choose Basic and add a card. We place a temporary hold to confirm the card is real, then release it straight away. Your first payment is 30 days later. Cancel during the free month and you pay nothing." },
   { q: "What fees are there on payments?", a: "When a customer pays you by card through HomeHire, HomeHire keeps 10% and Stripe charges its processing fee. There's no HomeHire fee on cash, Venmo, Cash App or check." },
   { q: "How do I win jobs?", a: "You get an alert when a homeowner nearby posts a job in your services. Send a sealed bid with your price. If they pick you, confirm the job and your arrival time within 5 minutes. A private chat with the customer then opens, where they send you their address." },

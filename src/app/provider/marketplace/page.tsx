@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { StepHint } from "@/components/ui/step-hint";
+import { HeadStartBanner } from "@/components/marketplace/head-start";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { timingLabel } from "@/config/marketplace";
@@ -53,6 +54,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
   const profileReady = Boolean(profile?.home_zip) && (categoryCount ?? 0) > 0;
 
   const feed = tab === "jobs" && profileReady ? (await supabase.rpc("marketplace_feed")).data ?? [] : [];
+  const now = new Date().toISOString();
   // Jobs this business chose to hide (owner request 2026-11-12) stay off the board unless "Hidden jobs" is opened.
   const { data: hiddenRows } = tab === "jobs" ? await supabase.from("hidden_requests").select("request_id").eq("business_id", business.id) : { data: [] };
   const hiddenIds = new Set((hiddenRows ?? []).map((h) => h.request_id));
@@ -134,6 +136,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
                         <p className="font-semibold">{j.category_name}</p>
                         <Badge tone="primary">{timingLabel(j.timing)}{j.preferred_date ? `: ${formatDate(j.preferred_date)}` : ""}</Badge>
                       </div>
+                      {j.head_start_until ? <HeadStartBanner compact until={j.head_start_until} serverNow={now} className="w-fit" /> : null}
                       <p className="line-clamp-2 text-sm">{j.description}</p>
                       <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
                         <CustomerTag customer={j.customer} />

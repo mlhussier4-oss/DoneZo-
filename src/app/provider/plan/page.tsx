@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Alert } from "@/components/ui/alert";
 import { PlanCard } from "@/components/plans/plan-card";
 import { PageHeader } from "@/components/ui/page-header";
-import { cardFeeNote, planInfo } from "@/config/plans";
+import { PLAN_CODES, cardFeeNote, planInfo, planRank } from "@/config/plans";
 import { requireManager } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
 import { refreshSubscription } from "@/lib/stripe/subscription";
@@ -35,7 +35,7 @@ export default async function PlanPage({ searchParams }: PageProps<"/provider/pl
       {params.need === "pro" ? (
         <Alert tone="info" className="mb-4">That&apos;s part of <strong>HomeHire Pro</strong>: business tools for all your customers. {iosApp ? "Upgrades are made on the HomeHire website." : isOwner ? "Upgrade below; it starts right away." : "Ask the business owner to upgrade."}</Alert>
       ) : null}
-      {params.changed ? <Alert tone="success" className="mb-4">Your plan change was saved. If you switched to Basic, it takes effect at your next billing date.</Alert> : null}
+      {params.changed ? <Alert tone="success" className="mb-4">Your plan change was saved. If you moved to a lower plan, it takes effect at your next billing date.</Alert> : null}
       {sub?.current_period_end ? (
         <p className="mb-4 text-sm text-muted-foreground">
           {sub.cancel_at_period_end ? `Your subscription ends ${formatDate(sub.current_period_end)}.` : `Next billing date: ${formatDate(sub.current_period_end)}.`}
@@ -43,23 +43,31 @@ export default async function PlanPage({ searchParams }: PageProps<"/provider/pl
         </p>
       ) : null}
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <PlanCard plan="basic" highlight={current === "basic"} badge={current === "basic" ? "Current plan" : undefined}>
-          {current === "pro" && canBuy ? (
-            <div className="space-y-2">
-              <ChangePlanButton plan="basic" variant="outline" label="Switch to Basic" />
-              <p className="text-xs text-muted-foreground">Takes effect at your next billing date. Your customers, invoices and reports are kept but hidden, and come back if you return to Pro. Team members lose access.</p>
-            </div>
-          ) : null}
-        </PlanCard>
-        <PlanCard plan="pro" highlight={current === "pro"} badge={current === "pro" ? "Current plan" : undefined}>
-          {current === "basic" && canBuy ? (
-            <div className="space-y-2">
-              <ChangePlanButton plan="pro" label="Upgrade to Pro, $19.99/month" />
-              <p className="text-xs text-muted-foreground">Starts right away. Stripe shows you the amount before you confirm: just the difference for the rest of this billing month.</p>
-            </div>
-          ) : null}
-        </PlanCard>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {PLAN_CODES.map((code) => (
+          <PlanCard key={code} plan={code} highlight={current === code} badge={current === code ? "Current plan" : undefined}>
+            {current !== code && canBuy ? (
+              <div className="space-y-2">
+                {planRank[code] > planRank[current] ? (
+                  <>
+                    <ChangePlanButton plan={code} label={`Upgrade to ${planInfo[code].name.replace("HomeHire ", "")}, ${planInfo[code].price}/month`} />
+                    <p className="text-xs text-muted-foreground">Starts right away. Stripe shows you the amount before you confirm: just the difference for the rest of this billing period.{code === "priority" && current !== "priority" ? " Priority is billed monthly." : ""}</p>
+                  </>
+                ) : (
+                  <>
+                    <ChangePlanButton plan={code} variant="outline" label={`Switch to ${planInfo[code].name.replace("HomeHire ", "")}`} />
+                    <p className="text-xs text-muted-foreground">
+                      Takes effect at your next billing date.{" "}
+                      {code === "basic"
+                        ? "Your customers, invoices and reports are kept but hidden, and come back if you return to Pro. Team members lose access."
+                        : "You keep every business tool; only the 5-minute head start on new jobs ends."}
+                    </p>
+                  </>
+                )}
+              </div>
+            ) : null}
+          </PlanCard>
+        ))}
       </div>
 
       <p className="mt-4 text-xs text-muted-foreground">{cardFeeNote}</p>

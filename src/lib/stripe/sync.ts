@@ -54,7 +54,7 @@ export async function syncSubscription(sub: Stripe.Subscription) {
   if (error) throw new Error(`Could not save subscription: ${error.message}`);
   // The plan follows the price actually being paid (Basic or Pro). Unknown prices are left alone.
   const lookupKey = (sub.items?.data?.[0]?.price as Stripe.Price | undefined)?.lookup_key;
-  if (lookupKey && ["donezo_basic_monthly", "donezo_pro_monthly", "donezo_basic_yearly", "donezo_pro_yearly"].includes(lookupKey)) {
+  if (lookupKey && ["donezo_basic_monthly", "donezo_pro_monthly", "donezo_basic_yearly", "donezo_pro_yearly", "donezo_priority_monthly"].includes(lookupKey)) {
     const { error: planError } = await db.rpc("set_business_plan_by_lookup_key", { p_business_id: businessId, p_lookup_key: lookupKey });
     if (planError) throw new Error(`Could not save plan: ${planError.message}`);
   }

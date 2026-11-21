@@ -1071,14 +1071,14 @@ isOneToOne: true
                   ]
                 },"service_requests": {
                   Row: {
-                    "booked_at": string | null,"canceled_at": string | null,"category_id": string,"created_at": string,"customer_id": string,"description": string,"details": NonNullable<Json>,"expires_at": string,"id": string,"preferred_date": string | null,"status": Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at": string,"zip": string
+                    "booked_at": string | null,"canceled_at": string | null,"category_id": string,"created_at": string,"customer_id": string,"description": string,"details": NonNullable<Json>,"expires_at": string,"head_start_until": string | null,"id": string,"invited_business_id": string | null,"others_notified_at": string | null,"preferred_date": string | null,"status": Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at": string,"zip": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id": string,"created_at"?: string,"customer_id"?: string,"description": string,"details"?: NonNullable<Json>,"expires_at"?: string,"id"?: string,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip": string
+                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id": string,"created_at"?: string,"customer_id"?: string,"description": string,"details"?: NonNullable<Json>,"expires_at"?: string,"head_start_until"?: string | null,"id"?: string,"invited_business_id"?: string | null,"others_notified_at"?: string | null,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing": Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip": string
                   }
                   Update: {
-                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id"?: string,"created_at"?: string,"customer_id"?: string,"description"?: string,"details"?: NonNullable<Json>,"expires_at"?: string,"id"?: string,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing"?: Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip"?: string
+                    "booked_at"?: string | null,"canceled_at"?: string | null,"category_id"?: string,"created_at"?: string,"customer_id"?: string,"description"?: string,"details"?: NonNullable<Json>,"expires_at"?: string,"head_start_until"?: string | null,"id"?: string,"invited_business_id"?: string | null,"others_notified_at"?: string | null,"preferred_date"?: string | null,"status"?: Database["public"]['Enums']["request_status"],"timing"?: Database["public"]['Enums']["request_timing"],"updated_at"?: string,"zip"?: string
                   }
                   Relationships: [
                     {
@@ -1092,6 +1092,12 @@ isOneToOne: false
       columns: ["customer_id"]
 isOneToOne: false
       referencedRelation: "profiles"
+      referencedColumns: ["id"]
+    },{
+      foreignKeyName: "service_requests_invited_business_id_fkey"
+      columns: ["invited_business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
       referencedColumns: ["id"]
     },{
       foreignKeyName: "service_requests_zip_fkey"
@@ -1415,6 +1421,9 @@ isOneToOne: false
 "business_has_crm":
 { Args: { "p_business_id": string }; Returns: boolean
                            },
+"business_is_priority":
+{ Args: { "p_business_id": string }; Returns: boolean
+                           },
 "business_public_stats":
 { Args: { "p_business_id": string }; Returns: Json
                            },
@@ -1480,7 +1489,10 @@ isOneToOne: false
 "description": string,
 "details": NonNullable<Json>,
 "expires_at": string,
+"head_start_until": string | null,
 "id": string,
+"invited_business_id": string | null,
+"others_notified_at": string | null,
 "preferred_date": string | null,
 "status": Database["public"]['Enums']["request_status"],
 "timing": Database["public"]['Enums']["request_timing"],
@@ -1782,7 +1794,7 @@ isOneToOne: false
                            },
 "marketplace_feed":
 { Args: Record<PropertyKey, never>; Returns: {
-              "category_icon": string,"category_name": string,"created_at": string,"customer": Json,"description": string,"details": Json,"expires_at": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
+              "category_icon": string,"category_name": string,"created_at": string,"customer": Json,"description": string,"details": Json,"expires_at": string,"head_start_until": string,"id": string,"miles": number,"my_bid_cents": number,"my_bid_status": Database["public"]['Enums']["bid_status"],"photo_count": number,"preferred_date": string,"timing": Database["public"]['Enums']["request_timing"],"zip": string
             }[]
                            },
 "marketplace_request_detail":
@@ -1807,6 +1819,9 @@ isOneToOne: false
                            },
 "notify":
 { Args: { "p_body": string,"p_kind": string,"p_link": string,"p_title": string,"p_user_id": string }; Returns: undefined
+                           },
+"notify_after_head_start":
+{ Args: Record<PropertyKey, never>; Returns: number
                            },
 "notify_business":
 { Args: { "p_body": string,"p_business_id": string,"p_kind": string,"p_link": string,"p_title": string }; Returns: undefined
@@ -1855,6 +1870,9 @@ isOneToOne: false
                            },
 "request_bids":
 { Args: { "p_request_id": string }; Returns: Json
+                           },
+"request_eligible_businesses":
+{ Args: { "p_category": string,"p_review": boolean,"p_zip": string }; Returns: string[]
                            },
 "request_repeat":
 { Args: { "p_booking_id": string,"p_first_date": string,"p_frequency": string,"p_visits": number }; Returns: {

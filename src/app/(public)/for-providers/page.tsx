@@ -31,7 +31,7 @@ export default function ForProvidersPage() {
         ))}
       </ul>
 
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
+      <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         <PlanCard plan="basic">
           <p className="mb-3 text-sm text-muted-foreground">No fees per lead. You choose which jobs to bid on.</p>
           <Link href="/signup/provider?plan=basic" className={buttonVariants({ variant: "outline", className: "w-full" })}>Start with Basic</Link>
@@ -41,6 +41,10 @@ export default function ForProvidersPage() {
             <Link href="/signup/provider?plan=marketplace" className={buttonVariants({ className: "w-full" })}>Start with Pro</Link>
             <Link href="/signup/provider?plan=crm" className={buttonVariants({ variant: "ghost", size: "sm", className: "w-full" })}>Pro without the marketplace (business tools only)</Link>
           </div>
+        </PlanCard>
+        <PlanCard plan="priority" badge="Get there first">
+          <p className="mb-3 text-sm text-muted-foreground">When a job is posted near you, you get it 5 minutes before other pros.</p>
+          <Link href="/signup/provider?plan=priority" className={buttonVariants({ variant: "outline", className: "w-full" })}>Start with Priority</Link>
         </PlanCard>
       </div>
 

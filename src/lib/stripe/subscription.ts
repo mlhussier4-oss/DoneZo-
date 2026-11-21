@@ -4,10 +4,10 @@ import { siteUrl } from "@/lib/env";
 import { createServiceClient } from "@/lib/supabase/service";
 import { assertTestMode, stripe } from "./server";
 import { syncSubscription } from "./sync";
-import { FREE_MONTH_PLAN, FREE_TRIAL_DAYS } from "@/config/plans";
+import { FREE_MONTH_PLAN, FREE_TRIAL_DAYS, PLAN_CODES, planInfo, type PlanCode } from "@/config/plans";
 
-export type PlanCode = "basic" | "pro";
-export const planCodes: PlanCode[] = ["basic", "pro"];
+export type { PlanCode };
+export const planCodes: PlanCode[] = [...PLAN_CODES];
 /** Monthly, or yearly at the price of 10 months (owner decision 2026-11-14: pay for 12, get 2 free). */
 export type BillingInterval = "month" | "year";
 export const YEARLY_MONTHS_CHARGED = 10;
@@ -94,8 +94,8 @@ export async function confirmSubscriptionSession(sessionId: string, businessId: 
  * prorated difference; downgrades take effect at the next billing date.
  */
 async function portalConfiguration(): Promise<string> {
-  const [basicPrice, proPrice] = await Promise.all([planPrice("basic"), planPrice("pro")]);
-  const tag = `plans-${basicPrice.id}-${proPrice.id}`;
+  const [basicPrice, proPrice, priorityPrice] = await Promise.all([planPrice("basic"), planPrice("pro"), planPrice("priority")]);
+  const tag = `plans-${basicPrice.id}-${proPrice.id}-${priorityPrice.id}`;
   const list = await stripe().billingPortal.configurations.list({ active: true, limit: 100 });
   const found = list.data.find((c) => c.metadata?.donezo === tag);
   if (found) return found.id;
@@ -114,6 +114,7 @@ async function portalConfiguration(): Promise<string> {
         products: [
           { product: productOf(basicPrice), prices: [basicPrice.id] },
           { product: productOf(proPrice), prices: [proPrice.id] },
+          { product: productOf(priorityPrice), prices: [priorityPrice.id] },
         ],
         schedule_at_period_end: { conditions: [{ type: "decreasing_item_amount" }] },
       },
@@ -147,7 +148,8 @@ export async function changePlanUrl(businessId: string, plan: PlanCode): Promise
   const sub = await stripe().subscriptions.retrieve(saved.stripe_subscription_id);
   assertTestMode(sub);
   // Switching plans keeps the billing interval the provider already has (monthly or yearly).
-  const interval: BillingInterval = sub.items.data[0]?.price?.recurring?.interval === "year" ? "year" : "month";
+  // HomeHire Priority is monthly only (owner decision 2026-11-21).
+  const interval: BillingInterval = sub.items.data[0]?.price?.recurring?.interval === "year" && planInfo[plan].yearly ? "year" : "month";
   const [price, configuration] = await Promise.all([planPrice(plan, interval), portalConfiguration()]);
   const item = sub.items.data[0];
   if (!item) throw new Error("Subscription has no items.");
