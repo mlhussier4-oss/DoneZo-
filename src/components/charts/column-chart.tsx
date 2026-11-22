@@ -38,8 +38,10 @@ export function ColumnChart({
           </div>
         ))}
         <div className="absolute inset-y-0 right-0 left-12 flex items-end">
-          {data.map((d) => {
+          {data.map((d, i) => {
             const pct = (d.value / top) * 100;
+            // Labels and tooltips in the right half open toward the left, so they never run past the chart's edge.
+            const rightHalf = i >= data.length / 2;
             return (
               <div
                 key={d.key}
@@ -53,13 +55,13 @@ export function ColumnChart({
                   style={{ height: `${pct}%`, minHeight: d.value > 0 ? 2 : 0 }}
                 />
                 {d === last && d.value > 0 ? (
-                  <span className="absolute text-xs font-medium text-foreground tabular-nums" style={{ bottom: `calc(${pct}% + 4px)` }}>
+                  <span className={`absolute text-xs font-medium whitespace-nowrap text-foreground tabular-nums ${rightHalf ? "right-0" : ""}`} style={{ bottom: `calc(${pct}% + 4px)` }}>
                     {d.display}
                   </span>
                 ) : null}
                 <span
                   role="tooltip"
-                  className="pointer-events-none absolute bottom-full z-10 mb-1 hidden rounded-md bg-foreground px-2 py-1 text-xs whitespace-nowrap text-background shadow group-hover:block group-focus-visible:block"
+                  className={`pointer-events-none absolute bottom-full z-10 mb-1 hidden rounded-md bg-foreground px-2 py-1 text-xs whitespace-nowrap text-background shadow group-hover:block group-focus-visible:block ${rightHalf ? "right-0" : "left-0"}`}
                 >
                   {d.label}: <strong>{d.display}</strong>
                 </span>

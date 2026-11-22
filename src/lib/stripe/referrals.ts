@@ -19,6 +19,12 @@ export async function handleSubscriptionInvoicePaid(invoice: Stripe.Invoice) {
   if (!invoice.customer || (invoice.amount_paid ?? 0) <= 0) return; // a $0 invoice (e.g. paid by credit) doesn't count
   const businessId = await businessForCustomer(typeof invoice.customer === "string" ? invoice.customer : invoice.customer.id);
   if (!businessId) return;
+  // Revenue box on the admin dashboard (owner request 2026-11-22). Saved once per invoice, so duplicate webhooks are harmless.
+  const paidAt = invoice.status_transitions?.paid_at ? new Date(invoice.status_transitions.paid_at * 1000).toISOString() : new Date().toISOString();
+  const { error: revenueError } = await createServiceClient().rpc("record_subscription_payment", {
+    p_invoice_id: invoice.id!, p_business_id: businessId, p_amount_cents: invoice.amount_paid, p_paid_at: paidAt,
+  });
+  if (revenueError) throw new Error(`Could not record subscription payment: ${revenueError.message}`);
   const { error } = await createServiceClient().rpc("record_referral_payment", { p_business_id: businessId });
   if (error) throw new Error(`Could not record referral payment: ${error.message}`);
   // The reward (if any) belongs to the referrer; apply all of their pending ones.
@@ -34,6 +40,16 @@ export async function handleSubscriptionChargeRefunded(charge: Stripe.Charge) {
   if (!businessId) return;
   const { error } = await createServiceClient().rpc("revoke_referral_payment", { p_business_id: businessId });
   if (error) throw new Error(error.message);
+  // Revenue box: subtract the refund from the subscription payment it belongs to.
+  const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
+  if (pi) {
+    const found = await stripe().invoicePayments.list({ payment: { type: "payment_intent", payment_intent: pi }, limit: 1 });
+    const invoiceId = found.data[0] ? (typeof found.data[0].invoice === "string" ? found.data[0].invoice : found.data[0].invoice?.id) : null;
+    if (invoiceId) {
+      const { error: refundError } = await createServiceClient().rpc("record_subscription_refund", { p_invoice_id: invoiceId, p_refunded_total_cents: charge.amount_refunded });
+      if (refundError) throw new Error(refundError.message);
+    }
+  }
 }
 
 /** Puts earned free months on the referrer's Stripe balance. Safe to call any number of times. */

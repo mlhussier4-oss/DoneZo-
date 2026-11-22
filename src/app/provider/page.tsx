@@ -43,6 +43,14 @@ export default async function ProviderOverviewPage() {
         description={`${business.name} · ${business.plan.name}${business.marketplaceEnabled ? " with the marketplace" : ""}`}
         actions={<Link href="/provider/jobs/new" className={buttonVariants()}><Plus /> New job</Link>}
       />
+      {/* Owner request 2026-11-22: money and jobs first, at the very top of the dashboard. */}
+      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4" data-testid="provider-kpis">
+        <StatTile label="Revenue this month" value={formatMoney(d.revenue_month_cents)} context={`${formatMoney(d.revenue_week_cents)} this week`} href="/provider/reports" />
+        <StatTile label="Outstanding" value={formatMoney(d.outstanding_cents)} context={`${d.outstanding_invoices} unpaid ${d.outstanding_invoices === 1 ? "invoice" : "invoices"}`} href="/provider/invoices" />
+        <StatTile label="Next 7 days" value={String(d.upcoming_jobs_7d)} context="scheduled visits" href="/provider/calendar" />
+        <StatTile label="Completed this month" value={String(d.completed_jobs_month)} context={`${d.new_customers_month} new ${d.new_customers_month === 1 ? "customer" : "customers"}`} href="/provider/jobs?tab=past" />
+      </div>
+
       {business.marketplaceEnabled ? <ProviderProgress businessId={business.id} /> : null}
 
       {isEmpty ? (
@@ -57,13 +65,6 @@ export default async function ProviderOverviewPage() {
           </CardContent>
         </Card>
       ) : null}
-
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatTile label="Revenue this month" value={formatMoney(d.revenue_month_cents)} context={`${formatMoney(d.revenue_week_cents)} this week`} href="/provider/reports" />
-        <StatTile label="Outstanding" value={formatMoney(d.outstanding_cents)} context={`${d.outstanding_invoices} unpaid ${d.outstanding_invoices === 1 ? "invoice" : "invoices"}`} href="/provider/invoices" />
-        <StatTile label="Next 7 days" value={String(d.upcoming_jobs_7d)} context="scheduled visits" href="/provider/calendar" />
-        <StatTile label="Completed this month" value={String(d.completed_jobs_month)} context={`${d.new_customers_month} new ${d.new_customers_month === 1 ? "customer" : "customers"}`} href="/provider/jobs?tab=past" />
-      </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_20rem]">
         <Card>

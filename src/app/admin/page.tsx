@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { requireRole } from "@/lib/auth";
 import { formatDateTime, formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { RevenueCard, isRevenueRange } from "./revenue-card";
 
 export const metadata: Metadata = { title: "Business dashboard" };
 
@@ -29,8 +30,10 @@ const series = (days: Day[], key: keyof Omit<Day, "day">) =>
   days.map((d, i) => ({ key: d.day, label: short(d.day), value: d[key], display: String(d[key]), axisLabel: i % 5 === 4 || i === days.length - 1 ? short(d.day) : "" }));
 
 /** Owner request 2026-11-14: a bird's-eye view of the whole business, refreshing itself every 15 seconds. */
-export default async function AdminDashboardPage() {
+export default async function AdminDashboardPage({ searchParams }: PageProps<"/admin">) {
   await requireRole("admin");
+  const { rev } = await searchParams;
+  const range = isRevenueRange(rev) ? rev : "30d";
   const { data, error } = await (await createClient()).rpc("admin_dashboard");
   if (error || !data) throw new Error("Could not load the dashboard.");
   const d = data as unknown as Dash;
@@ -47,6 +50,8 @@ export default async function AdminDashboardPage() {
         <StatTile label="Monthly subscriptions" value={formatMoney(d.mrr_cents)} context={`from paying providers · ${d.in_free_month} in their free month`} />
         <StatTile label="Provider sign-ups" value={String(d.providers)} context={`+${d.providers_7d} this week`} href="/admin/businesses" />
       </section>
+
+      <RevenueCard range={range} />
 
       <section aria-label="Jobs" className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
         <StatTile label="Jobs posted today" value={String(d.jobs_today)} context={`${d.jobs_7d} this week · ${d.jobs_total} total`} href="/admin/marketplace" />
