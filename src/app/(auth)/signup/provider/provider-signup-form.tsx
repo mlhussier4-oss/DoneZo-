@@ -20,7 +20,7 @@ const usageOptions = [
   {
     value: "marketplace",
     title: "HomeHire Pro", price: " · $19.99/month", suffix: ", with marketplace",
-    text: "Everything in Basic, plus business tools for all your customers: calendar, recurring visits, invoices, reports and your team.",
+    text: "Everything in Basic, plus business tools for all your customers: CRM, recurring visits, invoices, reports and your team.",
   },
   {
     value: "crm",

@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 export function PlanCard({ plan, highlight, badge, children }: { plan: PlanCode; highlight?: boolean; badge?: string; children?: React.ReactNode }) {
   const p = planInfo[plan];
   return (
-    <Card className={cn("flex flex-col", highlight && "border-primary ring-1 ring-primary")} data-testid={`plan-${plan}`}>
+    <Card className={cn("flex min-w-0 flex-col", highlight && "border-primary ring-1 ring-primary")} data-testid={`plan-${plan}`}>
       <CardHeader>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle as="h2">{p.name}</CardTitle>
           {badge ? <Badge tone="primary">{badge}</Badge> : null}
         </div>
@@ -23,7 +23,8 @@ export function PlanCard({ plan, highlight, badge, children }: { plan: PlanCode;
         <ul className="space-y-2 text-sm">
           {p.features.map((f) => <li key={f} className="flex gap-2"><Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />{f}</li>)}
         </ul>
-        {children ? <div className="mt-auto">{children}</div> : null}
+        {/* Buttons inside a plan tile wrap onto two lines instead of running past the edge on narrow (3-across) tiles. */}
+        {children ? <div className="mt-auto min-w-0 [&_:is(a,button)]:h-auto [&_:is(a,button)]:min-h-10 [&_:is(a,button)]:py-2 [&_:is(a,button)]:text-center [&_:is(a,button)]:whitespace-normal">{children}</div> : null}
       </CardContent>
     </Card>
   );
