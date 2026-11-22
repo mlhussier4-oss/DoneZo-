@@ -35,7 +35,7 @@ export default async function ReferralsPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2"><Gift className="size-5 text-primary" aria-hidden /> 2 paying referrals = 1 free month</CardTitle>
             <CardDescription>
-              Share your link. When 2 providers sign up with it and make their first subscription payment, your next month of your plan is free.
+              Share your link. A referral counts once that provider is actually charged for their subscription (after any free month), on any plan: Basic, Pro or Priority. Every 2 that count = 1 free month of the plan you&apos;re on, whichever it is.
               There&apos;s no limit.
             </CardDescription>
           </CardHeader>

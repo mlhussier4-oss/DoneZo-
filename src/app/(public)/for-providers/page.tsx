@@ -50,7 +50,7 @@ export default function ForProvidersPage() {
 
       <div className="mt-8 rounded-lg border border-cta bg-accent-soft p-4 text-sm" data-testid="referral-promo">
         <p className="font-semibold">Refer pros, get HomeHire free</p>
-        <p className="text-muted-foreground">Every 2 providers who join with your personal link and subscribe = 1 free month of your plan.</p>
+        <p className="text-muted-foreground">Every 2 providers who join with your personal link and are charged for their subscription (any plan, after any free month) = 1 free month of your plan, whichever plan you&apos;re on.</p>
       </div>
 
       <p className="mt-6 text-sm text-muted-foreground">
