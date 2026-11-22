@@ -236,6 +236,8 @@ export function PostJobWizard({
                   const on = picked.includes(o);
                   return (
                     <button key={o} type="button" aria-pressed={on}
+                      aria-label={q.optionNotes?.[o] ? o : undefined}
+                      aria-describedby={q.optionNotes?.[o] ? `note-${q.key}-${q.options.indexOf(o)}` : undefined}
                       onClick={() => setDetails((d) => {
                         const n = { ...d };
                         // Multi-choice questions keep every picked answer, in the order shown.
@@ -250,7 +252,7 @@ export function PostJobWizard({
                       )}>
                       {o}
                       {q.optionNotes?.[o] ? (
-                        <span className={cn("mt-0.5 block text-xs leading-snug font-normal", on ? "text-white/75" : "text-muted-foreground/80")}>{q.optionNotes[o]}</span>
+                        <span id={`note-${q.key}-${q.options.indexOf(o)}`} className={cn("mt-0.5 block text-xs leading-snug font-normal", on ? "text-white/75" : "text-muted-foreground/80")}>{q.optionNotes[o]}</span>
                       ) : null}
                     </button>
                   );
