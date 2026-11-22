@@ -58,6 +58,8 @@ export const planInfo: Record<PlanCode, { name: string; price: string; yearly: s
 /** Owner decision 2026-11-15: HomeHire Basic's first month is free (once per business). Pro is charged from the start. */
 export const FREE_TRIAL_DAYS = 30;
 export const FREE_MONTH_PLAN = "basic" as const;
+/** When a free month started now ends, i.e. the date of the first charge. */
+export const freeMonthEndsAt = (): Date => new Date(Date.now() + FREE_TRIAL_DAYS * 86_400_000);
 export const freeMonthNote = "HomeHire Basic: first month free, then $9.99/month. Cancel any time.";
 
 export const cardFeeNote = "HomeHire keeps 10% of card payments your customers make through HomeHire (all plans). No fee on cash, Venmo, Cash App or check.";

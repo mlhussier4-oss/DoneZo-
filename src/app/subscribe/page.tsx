@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { Alert } from "@/components/ui/alert";
 import { PlanCard } from "@/components/plans/plan-card";
-import { PLAN_CODES, freeMonthNote, cardFeeNote, planInfo } from "@/config/plans";
+import { freeMonthEndsAt, PLAN_CODES, freeMonthNote, cardFeeNote, planInfo } from "@/config/plans";
 import { getCurrentBusiness, requireRole } from "@/lib/auth";
 import { formatDate } from "@/lib/format";
 import { confirmSubscriptionSession } from "@/lib/stripe/subscription";
@@ -43,6 +43,7 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
   const ended = !cardFailed && sub?.status && ["canceled", "unpaid", "incomplete_expired"].includes(sub.status);
 
   const chosen = business.plan.code;
+  const firstCharge = formatDate(freeMonthEndsAt(), business.timezone);
   // In the iPhone app, plans are chosen on the website (Apple rule); the plans are still described here.
   const iosApp = await isIosApp();
   return (
@@ -71,6 +72,12 @@ async function SubscribeContent({ searchParams }: { searchParams: PageProps<"/su
                 {/* Owner decision 2026-11-15: first month free on Basic only (new businesses). */}
                 <SubscribeButton plan={code} variant={chosen === code ? "primary" : "outline"} label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].price}/month` : `${ended ? "Resubscribe" : "Subscribe"} monthly: ${planInfo[code].price}/month`} />
                 {/* Owner decision 2026-11-14: pay for 12 months, get 2 free. */}
+                {/* Sign-up disclosure (owner decision 2026-11-22): the exact first charge date, shown before they subscribe. */}
+                {!ended && code === "basic" ? (
+                  <p className="text-xs text-muted-foreground" data-testid="first-charge-date">
+                    Start today and your free month runs until <strong className="text-foreground">{firstCharge}</strong>. Your card is then charged {planInfo.basic.price} (or {planInfo.basic.yearly} if you pick yearly) and renews until you cancel. Cancel before {firstCharge} and you pay nothing.
+                  </p>
+                ) : null}
                 {planInfo[code].yearly ? (
                   <SubscribeButton plan={code} interval="year" variant="accent" label={!ended && code === "basic" ? `Start free month, then ${planInfo[code].yearly}/year (2 months free)` : `Yearly: ${planInfo[code].yearly}/year (2 months free)`} />
                 ) : null}
