@@ -120,12 +120,12 @@ export default async function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
         <h2 className="text-2xl font-semibold tracking-tight">What do you need done?</h2>
         <p className="mt-1 text-muted-foreground">Choose a service to get started.</p>
-        <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <ul className="mt-6 grid grid-cols-2 items-start gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((c) => (
             <li key={c.id}>
               <Link
                 href={`/post-job?category=${c.slug}`}
-                className="flex h-full flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary hover:bg-primary-soft"
+                className="flex flex-col gap-3 rounded-lg border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary hover:bg-primary-soft"
               >
                 <span className="flex size-11 items-center justify-center rounded-lg bg-primary text-cta">
                   <CategoryIcon name={c.icon} className="size-6" />
