@@ -83,7 +83,6 @@ export default async function HomePage() {
                 "No paying per lead: bid only on the jobs you want, at your price",
                 "Sealed bids, so you compete on your own terms",
                 "Schedule, invoice and take card payments; cash, Venmo, Cash App and check carry no HomeHire fee",
-                "Simple monthly plans from $9.99, cancel any time",
               ],
               cta: { href: "/for-providers", label: "See plans for pros", variant: "primary" as const },
             },
