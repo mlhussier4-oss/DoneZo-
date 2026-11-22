@@ -1141,6 +1141,26 @@ isOneToOne: true
                   Relationships: [
                     
                   ]
+                },"subscription_payments": {
+                  Row: {
+                    "amount_cents": number,"business_id": string | null,"created_at": string,"id": string,"paid_at": string,"plan_code": string | null,"refunded_cents": number,"stripe_invoice_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "amount_cents": number,"business_id"?: string | null,"created_at"?: string,"id"?: string,"paid_at": string,"plan_code"?: string | null,"refunded_cents"?: number,"stripe_invoice_id": string
+                  }
+                  Update: {
+                    "amount_cents"?: number,"business_id"?: string | null,"created_at"?: string,"id"?: string,"paid_at"?: string,"plan_code"?: string | null,"refunded_cents"?: number,"stripe_invoice_id"?: string
+                  }
+                  Relationships: [
+                    {
+      foreignKeyName: "subscription_payments_business_id_fkey"
+      columns: ["business_id"]
+isOneToOne: false
+      referencedRelation: "businesses"
+      referencedColumns: ["id"]
+    }
+                  ]
                 },"support_reports": {
                   Row: {
                     "admin_note": string | null,"booking_id": string | null,"category": string,"created_at": string,"id": string,"message": string,"reporter_id": string,"request_id": string | null,"resolved_at": string | null,"status": string,"subject": string | null
@@ -1251,6 +1271,9 @@ isOneToOne: false
       } },
 "admin_restore_customer_marketplace":
 { Args: { "p_user_id": string }; Returns: undefined
+                           },
+"admin_revenue":
+{ Args: { "p_range"?: string }; Returns: Json
                            },
 "admin_set_business_verified":
 { Args: { "p_business_id": string,"p_note": string,"p_verified": boolean }; Returns: {
@@ -1850,6 +1873,12 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"record_subscription_payment":
+{ Args: { "p_amount_cents": number,"p_business_id": string,"p_invoice_id": string,"p_paid_at": string }; Returns: undefined
+                           },
+"record_subscription_refund":
+{ Args: { "p_invoice_id": string,"p_refunded_total_cents": number }; Returns: undefined
+                           },
 "referrer_name":
 { Args: { "p_code": string }; Returns: string
                            },

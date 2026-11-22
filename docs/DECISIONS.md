@@ -182,3 +182,8 @@ All of these appear in the phone app too, since the app shows the website.
 
 ## 2026-11-22 — Referral wording made explicit (no rule change)
 - The owner confirmed: a referred provider counts **only once they're actually charged** for their subscription (a free month doesn't count until it ends and they pay), on **any plan**. Every 2 that count = **1 free month of the referrer's own plan, whichever plan they're on** (Basic, Pro or Priority). This is how it already works (Stripe `invoice.paid` with an amount above $0). The wording on Refer & earn, For providers, the FAQ, the Terms and the pitch sheet now says it plainly.
+
+## 2026-11-22 — Admin revenue box
+- The admin dashboard has a **Subscription revenue** box: totals for subscriptions (net of refunds), HomeHire's 10% card fees and total income; a chart filtered by **Today** (by hour), **7 days**, **30 days** (by day) and **Year** (last 12 months, by month), in Central time; and the latest subscription payments. It refreshes with the dashboard every 15 seconds.
+- Each subscription payment Stripe confirms (platform `invoice.paid` above $0) is saved once in `subscription_payments` (duplicate webhooks are ignored); refunds are subtracted. Free-month ($0) invoices aren't income. Only admins can read it (`admin_revenue`). Review accounts are left out.
+- Recording starts when this is published; earlier test-mode payments aren't backfilled.
