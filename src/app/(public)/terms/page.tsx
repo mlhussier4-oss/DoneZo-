@@ -46,7 +46,7 @@ export default function TermsPage() {
 
       <h2 id="referrals">Provider referral program</h2>
       <ul>
-        <li>Each provider has a personal referral link. When 2 new providers sign up with your link and make their first subscription payment, you earn 1 free month of your current plan. There is no limit.</li>
+        <li>Each provider has a personal referral link. A referred provider counts once they are actually charged for their first subscription payment (a free month doesn&apos;t count until it ends and they are charged), on any plan. Every 2 referred providers who count earn you 1 free month of your current plan, whichever plan you are on. There is no limit.</li>
         <li>A free month is a credit on your HomeHire subscription bill, applied automatically. It has no cash value and can&apos;t be transferred.</li>
         <li>Referrals must be real, separate businesses. A referral whose first payment is refunded before it earns a free month doesn&apos;t count. HomeHire may remove credits or referral access for abuse (for example, fake or duplicate accounts).</li>
         <li>HomeHire may change or end the program; credits already earned stay on your account. [To be reviewed by an attorney.]</li>
