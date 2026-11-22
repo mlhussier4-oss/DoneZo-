@@ -161,14 +161,15 @@ export function PostJobWizard({
         <section aria-labelledby="step-title" className="space-y-4">
           <h1 id="step-title" className="text-2xl font-bold tracking-tight sm:text-3xl">What do you need done?</h1>
           <StepHint>Tap the service you need. Next you&apos;ll add photos and a few quick details; it takes about a minute.</StepHint>
-          <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {/* items-start: each tile keeps its own height, so a tile next to Misc (with its examples) isn't stretched. */}
+          <ul className="grid grid-cols-2 items-start gap-3 sm:grid-cols-3">
             {categories.map((c) => (
               <li key={c.id}>
                 <button
                   type="button"
                   onClick={() => { setCategory(c); setDetails(homePrefill(c.slug, home?.details)); go(1); }}
                   className={cn(
-                    "flex h-full w-full cursor-pointer flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition-colors hover:border-primary hover:bg-primary-soft",
+                    "flex w-full cursor-pointer flex-col items-start gap-3 rounded-lg border bg-card p-4 text-left shadow-sm transition-colors hover:border-primary hover:bg-primary-soft",
                     category?.id === c.id ? "border-primary ring-1 ring-primary" : "border-border",
                   )}
                 >
@@ -229,7 +230,7 @@ export function PostJobWizard({
           ) : (
             <fieldset key={q.key} className="space-y-2">
               <legend className="text-sm font-medium">{q.label} <span className="font-normal text-muted-foreground">(optional)</span></legend>
-              <div className="flex flex-wrap gap-2">
+              <div className={q.optionNotes ? "grid gap-2" : "flex flex-wrap gap-2"}>
                 {q.options.map((o) => {
                   const picked = (details[q.key] ?? "").split(", ").filter(Boolean);
                   const on = picked.includes(o);
@@ -242,8 +243,15 @@ export function PostJobWizard({
                         if (next.length) n[q.key] = next.join(", "); else delete n[q.key];
                         return n;
                       })}
-                      className={cn("min-h-11 cursor-pointer rounded-full border px-4 text-sm font-medium", on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card hover:bg-muted")}>
+                      className={cn(
+                        "min-h-11 cursor-pointer border text-sm font-medium",
+                        q.optionNotes ? "rounded-lg px-4 py-2.5 text-left" : "rounded-full px-4",
+                        on ? "border-primary bg-primary text-primary-foreground" : "border-input bg-card hover:bg-muted",
+                      )}>
                       {o}
+                      {q.optionNotes?.[o] ? (
+                        <span className={cn("mt-0.5 block text-xs leading-snug font-normal", on ? "text-white/75" : "text-muted-foreground/80")}>{q.optionNotes[o]}</span>
+                      ) : null}
                     </button>
                   );
                 })}

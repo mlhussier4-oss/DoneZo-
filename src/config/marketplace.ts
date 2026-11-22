@@ -16,6 +16,8 @@ export const timingLabel = (t: string) => timingOptions.find((o) => o.value === 
  */
 export type CategoryQuestion = {
   key: string; label: string; short: string; options: string[]; multiple?: boolean;
+  /** Small light-gray explanation under each choice (owner request 2026-11-21: what a standard vs. deep clean includes). */
+  optionNotes?: Record<string, string>;
   text?: { placeholder: string; maxLength: number; zip?: boolean };
 };
 
@@ -38,7 +40,14 @@ export const categoryQuestions: Record<string, CategoryQuestion[]> = {
     { key: "bedrooms", label: "Bedrooms", short: "Bedrooms", options: ["1", "2", "3", "4", "5+"] },
     { key: "bathrooms", label: "Bathrooms", short: "Bathrooms", options: ["1", "2", "3", "4+"] },
     { key: "rooms", label: "What needs cleaning? (pick all that apply)", short: "Clean", options: ["Whole home", "Kitchen", "Living room", "Bathrooms", "Bedrooms"], multiple: true },
-    { key: "type", label: "Type of clean", short: "Type", options: ["Standard", "Deep clean", "Move-out"] },
+    {
+      key: "type", label: "Type of clean", short: "Type", options: ["Standard", "Deep clean", "Move-out"],
+      optionNotes: {
+        Standard: "Routine upkeep: dust, vacuum and mop floors, wipe kitchen counters and appliance fronts, clean sinks, toilets, showers and tubs, and empty the trash.",
+        "Deep clean": "Everything in a standard clean, plus a top-to-bottom scrub: baseboards, doors and light switches, cabinet fronts, inside the microwave, and built-up grime and soap scum. Best for a first visit or a seasonal clean.",
+        "Move-out": "A deep clean of an empty home, plus inside cabinets, drawers, closets, the fridge and the oven, so it's ready to hand over.",
+      },
+    },
   ],
   moving: [
     { key: "items", label: "About how many items?", short: "Items", options: ["1–5 items", "6–15 items", "16–30 items", "Whole home (30+ items)"] },
