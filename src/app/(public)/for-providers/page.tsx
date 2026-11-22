@@ -20,12 +20,12 @@ export default function ForProvidersPage() {
       <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Why pros choose HomeHire">
         {[
           { title: "New customers nearby", text: "Real local jobs with photos and details land on your job board as they're posted." },
-          { title: "No paying for leads", text: "Bid only on the jobs you want, at your price. Bids are sealed." },
+          { title: "Your price, sealed bids", text: "Bid only on the jobs you want, at your price. Bids are sealed." },
           { title: "Get paid your way", text: "Take cards through HomeHire, or cash, Venmo, Cash App and check with no HomeHire fee." },
-          { title: "Your business in one place", text: "With Pro: customers, calendar, recurring visits, invoices, reports and your team." },
+          { title: "No paying per lead!", text: "Save money and bid on as many jobs that come in as you want.", bold: true },
         ].map((item) => (
           <li key={item.title} className="rounded-lg border border-border border-t-4 border-t-cta bg-card p-4 shadow-sm">
-            <p className="font-semibold">{item.title}</p>
+            <p className={"bold" in item && item.bold ? "text-lg font-extrabold" : "font-semibold"}>{item.title}</p>
             <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
           </li>
         ))}
