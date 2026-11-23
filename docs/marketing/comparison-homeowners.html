@@ -1,0 +1,132 @@
+<title>HomeHire vs Calling Around</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a one-page homeowner comparison with large, calm type for readers 40+, in the homeowner-flyer look:
+     navy masthead, a three-way comparison (HomeHire highlighted), "what happens after you post" in three steps, QR strip.
+     Deliberately single-theme (brand print look), colors set explicitly. */
+  :root {
+    --navy: #14213d; --yellow: #f5c21b; --ink: #1a2235; --muted: #4f5a73; --paper: #ffffff; --mist: #eef1f7;
+    --line: #d9deea; --soft: #fff7d6;
+    --display: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+    --body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--mist); color: var(--ink); font: 17px/1.6 var(--body); }
+  .sheet { max-width: 920px; margin: 0 auto; background: var(--paper); box-shadow: 0 1px 3px rgb(20 33 61 / .12); }
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  @media (min-width: 720px) { .wrap { padding-left: max(44px, env(safe-area-inset-left, 0px)); padding-right: max(44px, env(safe-area-inset-right, 0px)); } }
+  h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+
+  header { background: var(--navy); color: #fff; margin-top: calc(-1 * env(safe-area-inset-top, 0px)); padding-top: calc(env(safe-area-inset-top, 0px) + 28px); padding-bottom: 34px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 20px var(--display); }
+  .mark { width: 38px; height: 38px; border-radius: 10px; background: var(--yellow); color: var(--navy); display: grid; place-items: center; }
+  header h1 { margin-top: 22px; font-size: clamp(30px, 6vw, 46px); line-height: 1.1; max-width: 18ch; }
+  header h1 em { font-style: normal; color: var(--yellow); }
+  header .lede { margin-top: 14px; color: #d6dcea; font-size: 19px; max-width: 54ch; }
+
+  main { display: grid; gap: 32px; padding-block: 30px 10px; }
+  main > * { min-width: 0; }
+  h2 { font-size: 24px; color: var(--navy); margin-bottom: 14px; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 640px; font-size: 16px; }
+  th, td { padding: 13px 15px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  thead th { font: 700 15px var(--display); color: var(--navy); background: var(--mist); }
+  thead th.hh { background: var(--navy); color: #fff; }
+  tbody th { font-weight: 600; color: var(--navy); width: 22%; background: #fbfcfe; }
+  td.hh { background: var(--soft); font-weight: 600; }
+  td.dim { color: var(--muted); }
+
+  ol.steps { margin: 0; padding: 0; list-style: none; counter-reset: s; display: grid; gap: 14px; }
+  @media (min-width: 720px) { ol.steps { grid-template-columns: repeat(3, 1fr); } }
+  ol.steps li { counter-increment: s; border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 6px; align-content: start; }
+  ol.steps li::before { content: counter(s); width: 34px; height: 34px; border-radius: 50%; background: var(--yellow); color: var(--navy); display: grid; place-items: center; font: 800 17px var(--display); }
+  ol.steps strong { font: 700 18px/1.3 var(--display); color: var(--navy); }
+  ol.steps span { color: var(--muted); font-size: 16px; }
+
+  .quote { background: var(--soft); border: 1px solid #f0d77a; border-radius: 14px; padding: 18px 20px; font: 600 19px/1.45 var(--display); color: var(--navy); }
+  .quote small { display: block; margin-top: 6px; font: 400 14px var(--body); color: var(--muted); }
+
+  footer { margin-top: 28px; background: var(--navy); color: #fff; padding-block: 28px; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px; }
+  .cta > div:first-child { flex: 1 1 320px; min-width: 0; }
+  .cta h2 { color: #fff; margin-bottom: 6px; }
+  .cta p { color: #d6dcea; }
+  .url { display: inline-block; margin-top: 12px; background: var(--yellow); color: var(--navy); font: 800 19px var(--display); padding: 10px 18px; border-radius: 12px; text-decoration: none; }
+  .url:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .qr { background: #fff; padding: 8px; border-radius: 12px; width: 140px; height: 140px; display: grid; place-items: center; }
+  .qr img, .qr canvas { width: 124px !important; height: 124px !important; }
+  .fine { margin-top: 18px; font-size: 12.5px; color: #aab4cc; display: grid; gap: 4px; }
+  .fine a { color: #d6dcea; }
+</style>
+
+<div class="sheet">
+  <header class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V19a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M8.75 14.25 11 16.5l4.25-4.5"/></svg></span>
+      HomeHire
+    </div>
+    <h1>Real prices, side by side. <em>No phone tag.</em></h1>
+    <p class="lede">Most ways of finding a pro start with your phone number going out and the calls coming in. HomeHire works the other way around: you post once, the bids come to you, and nobody can call you.</p>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="cmp">
+      <h2 id="cmp">How HomeHire compares</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col"></th><th scope="col" class="hh">HomeHire</th><th scope="col">Lead websites (like Angi)</th><th scope="col">Calling around</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Getting started</th><td class="hh">Post once with a few photos, about a minute</td><td class="dim">Fill in a request form</td><td class="dim">Look up companies, call each one, leave messages</td></tr>
+            <tr><th scope="row">Your phone and email</th><td class="hh">Never shared. Pros see your first name and ZIP code only</td><td class="dim">Your request goes to several pros (Angi: up to 5), who follow up</td><td class="dim">Given to every company you call</td></tr>
+            <tr><th scope="row">Calls and texts</th><td class="hh">None. Pros can't message you until you pick one</td><td class="dim">Pros pay for your contact, so expect quick calls or messages</td><td class="dim">Call-backs, voicemails and sales follow-ups</td></tr>
+            <tr><th scope="row">Getting a price</th><td class="hh">Real bids based on your photos, side by side</td><td class="dim">Often needs a call or a visit</td><td class="dim">Often "we'll need to come out for a quote"</td></tr>
+            <tr><th scope="row">Booking</th><td class="hh">Tap the bid you like. Your pro confirms an arrival time within minutes</td><td class="dim">Arrange it by phone with the pro</td><td class="dim">Arrange it by phone</td></tr>
+            <tr><th scope="row">Your address</th><td class="hh">You send it in a private chat, only after your pro confirms</td><td class="dim">Usually asked for up front</td><td class="dim">Usually asked for up front</td></tr>
+            <tr><th scope="row">Paying</th><td class="hh">Free to post, no card to get quotes, pay after the work is done</td><td class="dim">Varies by pro</td><td class="dim">Varies by company</td></tr>
+            <tr><th scope="row">Reviews</th><td class="hh">Only from customers who actually booked through HomeHire</td><td class="dim">Varies by site</td><td class="dim">Whatever you can find online</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="how">
+      <h2 id="how">What happens after you post</h2>
+      <ol class="steps">
+        <li><strong>Bids arrive on your screen</strong><span>Local pros send sealed bids with their price, what's included and when they can come. No calls, no texts.</span></li>
+        <li><strong>You pick, they confirm</strong><span>Tap the one you like. Your pro confirms the job and arrival time within minutes, then a private chat opens.</span></li>
+        <li><strong>Pay when it's done</strong><span>By card through HomeHire, or cash, Venmo, Cash App or check. Then rate your pro and book again in two taps.</span></li>
+      </ol>
+    </section>
+
+    <p class="quote">"And no blown-up inbox of messages to answer."<small>The whole idea behind HomeHire: get the job done without handing your phone number to a crowd.</small></p>
+  </main>
+
+  <footer class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Post your first job, free</h2>
+        <p>Lawn, cleaning, junk removal, pressure washing, pet waste, car detailing, movers and more. Scan or visit:</p>
+        <a class="url" href="https://homehire.us" target="_blank" rel="noopener">homehire.us</a>
+      </div>
+      <div class="qr" id="qr" role="img" aria-label="QR code linking to homehire.us"></div>
+    </div>
+    <div class="fine">
+      <span>Competitor details as of November 2026 from public sources and can change; experiences vary by site and company. Angi matches each request with up to 5 pros (<a href="https://intercom.help/angi/en/articles/6207184-angi-leads-frequently-asked-questions" target="_blank" rel="noopener">Angi Leads FAQ</a>), and pros pay per lead (<a href="https://www.housecallpro.com/resources/thumbtack-vs-angi/" target="_blank" rel="noopener">Housecall Pro guide</a>).</span>
+      <span>Angi is a trademark of its owner. HomeHire is not affiliated with it. HomeHire is launching in the Austin, TX area.</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  try { new QRCode(document.getElementById("qr"), { text: "https://homehire.us", width: 124, height: 124, colorDark: "#14213d", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { document.getElementById("qr").textContent = "homehire.us"; }
+</script>
