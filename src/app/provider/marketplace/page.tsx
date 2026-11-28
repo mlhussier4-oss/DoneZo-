@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GetTheApp } from "@/components/app/get-the-app";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Camera, Inbox, MapPin, UserCog } from "lucide-react";
@@ -198,6 +199,7 @@ export default async function ProviderMarketplacePage({ searchParams }: PageProp
           </Card>
         )
       ) : null}
+      <GetTheApp className="mt-6" />
     </>
   );
 }

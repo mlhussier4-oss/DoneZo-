@@ -1107,6 +1107,20 @@ isOneToOne: false
       referencedColumns: ["zip"]
     }
                   ]
+                },"signup_sources": {
+                  Row: {
+                    "campaign": string | null,"content": string | null,"created_at": string,"landing": string | null,"medium": string | null,"ref": string | null,"referrer": string | null,"role": string,"source": string | null,"user_id": string
+                  }
+                  ComputedFields: never
+                  Insert: {
+                    "campaign"?: string | null,"content"?: string | null,"created_at"?: string,"landing"?: string | null,"medium"?: string | null,"ref"?: string | null,"referrer"?: string | null,"role": string,"source"?: string | null,"user_id": string
+                  }
+                  Update: {
+                    "campaign"?: string | null,"content"?: string | null,"created_at"?: string,"landing"?: string | null,"medium"?: string | null,"ref"?: string | null,"referrer"?: string | null,"role"?: string,"source"?: string | null,"user_id"?: string
+                  }
+                  Relationships: [
+                    
+                  ]
                 },"stripe_accounts": {
                   Row: {
                     "business_id": string,"charges_enabled": boolean,"created_at": string,"details_submitted": boolean,"disabled_reason": string | null,"payouts_enabled": boolean,"requirements_due": (string)[],"status": Database["public"]['Enums']["stripe_account_status"],"stripe_account_id": string,"updated_at": string
@@ -1390,6 +1404,9 @@ isOneToOne: false
         isOneToOne: true
         isSetofReturn: false
       } },
+"admin_signup_sources":
+{ Args: { "p_days"?: number }; Returns: Json
+                           },
 "admin_strike_from_report":
 { Args: { "p_report_id": string }; Returns: undefined
                            },
@@ -2038,6 +2055,9 @@ isOneToOne: false
       } },
 "set_member_role":
 { Args: { "p_business_id": string,"p_role": Database["public"]['Enums']["business_member_role"],"p_user_id": string }; Returns: undefined
+                           },
+"signup_channel":
+{ Args: { "p_medium": string,"p_ref": string,"p_referrer": string,"p_source": string }; Returns: string
                            },
 "signup_plan_id":
 { Args: { "p_meta": Json }; Returns: string

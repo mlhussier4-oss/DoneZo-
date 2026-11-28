@@ -1,5 +1,6 @@
 "use server";
 
+import { ATTRIBUTION_COOKIE, decodeAttribution } from "@/lib/attribution";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { REMEMBER_COOKIE } from "@/lib/supabase/remember";
@@ -57,6 +58,11 @@ async function redirectAfterSignIn(supabase: ServerClient, userId: string | unde
 // ---------------------------------------------------------------------------
 // Provider sign-up (email + password). Creates the business via a database trigger.
 // ---------------------------------------------------------------------------
+/** The first-visit record saved by the proxy, cleaned (or null). */
+async function signupSource() {
+  return decodeAttribution((await cookies()).get(ATTRIBUTION_COOKIE)?.value);
+}
+
 const providerSignUpSchema = z.object({
   fullName: z.string().trim().min(1, "Enter your name.").max(120),
   businessName: z.string().trim().min(1, "Enter your business name.").max(120),
@@ -85,6 +91,8 @@ export async function providerSignUp(_prev: FormState, formData: FormData): Prom
         business_name: businessName,
         // The plan picked here is a preference; what the provider pays for in Stripe decides the plan.
         plan: usage === "basic" ? "basic" : usage === "priority" ? "priority" : "pro",
+        // Where this sign-up came from (admin dashboard; owner request 2026-11-28).
+        signup_source: await signupSource(),
         marketplace_enabled: usage !== "crm",
         // Recorded on the business by the database (who accepted, when, which version).
         payment_terms_version: PAYMENT_TERMS_VERSION,
@@ -121,7 +129,7 @@ export async function customerSignUp(_prev: FormState, formData: FormData): Prom
     options: {
       emailRedirectTo: `${publicEnv.siteUrl()}/auth/confirm?next=${encodeURIComponent(after)}`,
       // signup_next: where the confirmation email returns them (e.g. back to posting their job).
-      data: { full_name: firstName, signup_next: after },
+      data: { full_name: firstName, signup_next: after, signup_source: await signupSource() },
     },
   });
   if (error) return { status: "error", message: friendlyAuthError(error.message) };

@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { GetTheApp } from "@/components/app/get-the-app";
 import { brand } from "@/config/brand";
 
 export function SiteFooter() {
   return (
     <footer className="bg-primary text-white/70">
+      <div className="mx-auto max-w-6xl px-4 pt-8 sm:px-6"><GetTheApp variant="footer" className="border-b border-white/15 pb-6" /></div>
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
           <p>{brand.name}: {brand.tagline}</p>

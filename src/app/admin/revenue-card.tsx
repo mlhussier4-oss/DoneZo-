@@ -37,7 +37,7 @@ function axisLabel(range: RevenueRange, label: string, i: number, n: number): st
  * dashboard every 15 seconds. Subscriptions are Stripe-confirmed payments net of refunds; card fees (HomeHire's
  * 10%) are shown alongside as a number, not stacked, so the chart stays one clear series.
  */
-export async function RevenueCard({ range }: { range: RevenueRange }) {
+export async function RevenueCard({ range, keep = "" }: { range: RevenueRange; keep?: string }) {
   const { data, error } = await (await createClient()).rpc("admin_revenue", { p_range: range });
   if (error || !data) throw new Error("Could not load revenue.");
   const r = data as unknown as Revenue;
@@ -60,7 +60,7 @@ export async function RevenueCard({ range }: { range: RevenueRange }) {
           </div>
           <nav aria-label="Revenue period" className="flex gap-1 rounded-lg bg-muted p-1 text-sm">
             {REVENUE_RANGES.map((x) => (
-              <Link key={x.value} href={`/admin?rev=${x.value}`} scroll={false} aria-current={x.value === range ? "page" : undefined}
+              <Link key={x.value} href={`/admin?rev=${x.value}${keep}`} scroll={false} aria-current={x.value === range ? "page" : undefined}
                 className={cn("rounded-md px-3 py-1.5 font-medium", x.value === range ? "bg-primary text-white shadow-sm" : "text-muted-foreground hover:text-foreground")}>
                 {x.label}
               </Link>

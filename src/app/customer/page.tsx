@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GetTheApp } from "@/components/app/get-the-app";
 import Link from "next/link";
 import { ClipboardList, Plus, Smartphone } from "lucide-react";
 import { LiveRefresh } from "@/components/marketplace/live-refresh";
@@ -93,6 +94,7 @@ export default async function CustomerHomePage({ searchParams }: PageProps<"/cus
         </EmptyState>
       )}
       <p className="mt-6 text-sm"><Link href="/customer/requests" className="text-primary hover:underline">All my jobs →</Link></p>
+      <GetTheApp className="mt-6" />
       <div className="mt-8 border-t border-border pt-4"><PushToggle variant="setting" text="Notifications for new bids and messages:" /></div>
     </>
   );

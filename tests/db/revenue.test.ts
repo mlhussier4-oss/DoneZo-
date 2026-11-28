@@ -49,3 +49,21 @@ describe("admin revenue", () => {
     expect((await pro.client.rpc("record_subscription_payment", { p_invoice_id: "in_fake", p_business_id: await businessIdFor(pro.id), p_amount_cents: 999, p_paid_at: new Date().toISOString() })).error).not.toBeNull();
   });
 });
+
+describe("where sign-ups come from (owner request 2026-11-28)", () => {
+  type Sources = { total: number; channels: { channel: string; signups: number; customers: number; providers: number }[]; campaigns: { campaign: string; signups: number }[] };
+  it("saves each sign-up's first visit and groups them into channels for the admin only", async () => {
+    const admin = await createAdmin();
+    const campaign = `test_${randomUUID().slice(0, 8)}`;
+    await createUser({ role: "customer", full_name: "Casey", signup_source: { source: "facebook", medium: "paid", campaign, landing: "/post-job" } });
+    await createUser({ role: "provider", business_name: `Src Co ${Date.now()}`, marketplace_enabled: true, signup_source: { referrer: "google.com" } });
+    const d = (await admin.client.rpc("admin_signup_sources", { p_days: 30 })).data as Sources;
+    expect(d.campaigns.find((c) => c.campaign === campaign)?.signups).toBe(1);
+    expect(d.channels.find((c) => c.channel === "Facebook ads")?.customers).toBeGreaterThanOrEqual(1);
+    expect(d.channels.find((c) => c.channel === "Google search")?.providers).toBeGreaterThanOrEqual(1);
+
+    const pro = await createUser({ role: "provider", business_name: `Nosy ${Date.now()}`, marketplace_enabled: true });
+    expect((await pro.client.rpc("admin_signup_sources", { p_days: 30 })).error).not.toBeNull();
+    expect((await pro.client.from("signup_sources").select("user_id")).data ?? []).toEqual([]);
+  });
+});

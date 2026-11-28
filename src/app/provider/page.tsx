@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GetTheApp } from "@/components/app/get-the-app";
 import Link from "next/link";
 import { CalendarDays, FileText, Plus, Repeat, Users } from "lucide-react";
 import { StatTile } from "@/components/charts/stat-tile";
@@ -99,6 +100,7 @@ export default async function ProviderOverviewPage() {
           </CardContent>
         </Card>
       </div>
+      <GetTheApp className="mt-6" />
     </>
   );
 }

@@ -11,11 +11,12 @@ export default function PrivacyPage() {
 
       <h2>What we collect</h2>
       <ul>
-        <li><strong>Account details:</strong> your name, email address and, for providers, your business name, phone number, description and service area. Providers sign in with a password; customers sign in with a code we email to them.</li>
+        <li><strong>Account details:</strong> your email address and name (customers give a first name only) and, for providers, your business name, phone number, description, website and service area. Everyone signs in with a password, and customers can also use a code we email to them.</li>
         <li><strong>Job details:</strong> the job descriptions, photos, ZIP codes and addresses that customers post, and the bids, messages and photos exchanged after a bid is accepted.</li>
         <li><strong>Business records (providers):</strong> the customers, jobs, schedules, estimates, invoices, notes and payment records a provider keeps in HomeHire. The provider controls these records; we store them on their behalf.</li>
         <li><strong>Payments:</strong> card payments and subscriptions are handled by Stripe. We never see or store full card numbers. We receive the payment amount, status and a reference from Stripe. Providers&apos; bank and identity details for payouts are collected by Stripe, not by us.</li>
-        <li><strong>Technical data:</strong> sign-in cookies that keep you logged in, and server logs (time, page requested, error codes) that help us keep HomeHire running and secure. We don&apos;t use advertising or tracking cookies.</li>
+        <li><strong>Technical data:</strong> sign-in cookies that keep you logged in, and server logs (time, page requested, error codes) that help us keep HomeHire running and secure.</li>
+        <li><strong>How you found us:</strong> on your first visit we save a small cookie noting the ad, website or referral link that brought you and the page you landed on, and we attach it to your account if you sign up. It helps us see which of our marketing works. It stays with HomeHire and is not shared with advertising networks. We don&apos;t use advertising or cross-site tracking cookies.</li>
       </ul>
 
       <h2>Who can see what</h2>
