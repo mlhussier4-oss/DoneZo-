@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { BadgeCheck, MapPin } from "lucide-react";
+import { BadgeCheck, MapPin, Globe } from "lucide-react";
 import { ProviderAvatar } from "@/components/marketplace/provider-avatar";
 import { Rating } from "@/components/marketplace/stars";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +18,9 @@ import { RespondsFastBadge } from "@/components/marketplace/fast-badge";
 import { reviewPhotoUrl } from "@/lib/review-photos";
 
 export const metadata: Metadata = { title: "Provider profile" };
+
+/** "https://www.mybiz.com/about" → "mybiz.com" for display. */
+const websiteLabel = (url: string) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "Website"; } };
 
 async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }) {
   await connection();
@@ -44,6 +47,12 @@ async function Profile({ params }: { params: PageProps<"/pros/[id]">["params"] }
             {p.years_experience ? ` · ${p.years_experience} years in business` : ""}
           </p>
           {p.home_zip ? <p className="flex items-center gap-1 text-sm text-muted-foreground"><MapPin className="size-4" aria-hidden />Serves within {p.service_radius_miles} miles of {p.home_zip}</p> : null}
+          {p.website ? (
+            <a href={p.website} target="_blank" rel="nofollow ugc noopener noreferrer" data-testid="pro-website"
+              className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+              <Globe className="size-4" aria-hidden />{websiteLabel(p.website)}
+            </a>
+          ) : null}
         </div>
       </div>
 

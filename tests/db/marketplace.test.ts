@@ -1010,3 +1010,15 @@ describe("HomeHire Priority: 5-minute head start (owner decision 2026-11-21)", (
     expect(await alerts(regular, job.id)).toHaveLength(1);
   });
 });
+
+describe("provider website link (owner request 2026-11-28)", () => {
+  it("only accepts a plain http(s) link, and only the business itself can set it", async () => {
+    const pro = await provider();
+    const other = await provider();
+    expect((await pro.client.from("businesses").update({ website: "javascript:alert(1)" }).eq("id", pro.businessId)).error).not.toBeNull();
+    expect((await pro.client.from("businesses").update({ website: "https://example-lawn.com" }).eq("id", pro.businessId)).error).toBeNull();
+    await other.client.from("businesses").update({ website: "https://hijack.example" }).eq("id", pro.businessId);
+    const { data } = await anonClient().rpc("get_provider_profile", { p_business_id: pro.businessId });
+    expect((data as { website: string }).website).toBe("https://example-lawn.com");
+  });
+});
