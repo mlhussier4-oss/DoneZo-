@@ -1,0 +1,484 @@
+<title>HomeHire Growth Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a working plan. Navy masthead with the headline numbers, then the projection (scenario switch, chart,
+     milestone table, adjustable assumptions), then the written plan. HomeHire's own navy and yellow. */
+  :root {
+    --bg: #f3f5f8; --surface: #ffffff; --ink: #14213d; --muted: #4f5a73; --faint: #8a93a8; --line: #d9deea;
+    --navy: #1c2e4a; --on-navy: #ffffff; --on-navy-muted: #c9d1e3; --yellow: #f5c21b; --yellow-soft: #fff6d1; --on-yellow: #14213d;
+    --good: #1f7a4d; --good-soft: #e5f3ec; --warn: #9a5b00; --warn-soft: #fff1d6;
+    --s1: #2a78d6; --s2: #eb6834; --cost: #52514e; --grid: #e4e8ef;
+    --display: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+    --body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+    --bg: #0f1626; --surface: #172238; --ink: #eef1f7; --muted: #b4bdd0; --faint: #8b95ab; --line: #2b3954;
+    --navy: #0b1220; --on-navy: #ffffff; --on-navy-muted: #b4bdd0; --yellow: #f5c21b; --yellow-soft: #3a3214; --on-yellow: #14213d;
+    --good: #5fd39a; --good-soft: #14382a; --warn: #f2b65a; --warn-soft: #3a2a10;
+    --s1: #3987e5; --s2: #d95926; --cost: #c3c2b7; --grid: #24324c; color-scheme: dark; } }
+  :root[data-theme="dark"] {
+    --bg: #0f1626; --surface: #172238; --ink: #eef1f7; --muted: #b4bdd0; --faint: #8b95ab; --line: #2b3954;
+    --navy: #0b1220; --on-navy: #ffffff; --on-navy-muted: #b4bdd0; --yellow: #f5c21b; --yellow-soft: #3a3214; --on-yellow: #14213d;
+    --good: #5fd39a; --good-soft: #14382a; --warn: #f2b65a; --warn-soft: #3a2a10;
+    --s1: #3987e5; --s2: #d95926; --cost: #c3c2b7; --grid: #24324c; color-scheme: dark; }
+
+  * { box-sizing: border-box; }
+  body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--body); }
+  .wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; }
+  h2 { font-size: 22px; line-height: 1.25; }
+  h3 { font-size: 16px; }
+  p { margin: 0; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  header.mast { background: var(--navy); color: var(--on-navy); margin-top: calc(-1 * env(safe-area-inset-top, 0px)); padding-top: calc(env(safe-area-inset-top, 0px) + 32px); padding-bottom: 28px; }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 18px var(--display); }
+  .mark { width: 34px; height: 34px; border-radius: 9px; background: var(--yellow); color: var(--on-yellow); display: grid; place-items: center; }
+  header h1 { margin-top: 18px; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; }
+  header .lede { margin-top: 10px; color: var(--on-navy-muted); max-width: 70ch; }
+  .route { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .route span { border: 1px solid rgb(255 255 255 / .25); border-radius: 999px; padding: 4px 12px; font-size: 13px; color: var(--on-navy-muted); }
+  .route span.now { background: var(--yellow); color: var(--on-yellow); border-color: var(--yellow); font-weight: 600; }
+
+  main { display: grid; gap: 28px; padding-block: 24px 48px; }
+  .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 20px; min-width: 0; }
+  .panel-head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .panel-head p { color: var(--muted); font-size: 14px; margin-top: 4px; max-width: 70ch; }
+
+  .seg { display: inline-flex; gap: 4px; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 4px; }
+  .seg button { border: 0; background: transparent; color: var(--muted); font: 600 14px var(--body); padding: 7px 14px; border-radius: 7px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--navy); color: var(--on-navy); }
+  .seg button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+
+  .kpis { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+  .kpi { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 2px; align-content: start; }
+  .kpi .label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  .kpi .value { font: 800 28px/1.15 var(--display); font-variant-numeric: tabular-nums; }
+  .kpi .ctx { font-size: 13px; color: var(--muted); }
+
+  .chart-box { position: relative; margin-top: 18px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .legend i.line { height: 2px; border-radius: 0; width: 16px; vertical-align: 3px; }
+  svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.45; white-space: nowrap; box-shadow: 0 4px 14px rgb(0 0 0 / .18); transform: translateX(-50%); }
+  .tip[hidden] { display: none; }
+  .tip b { font-variant-numeric: tabular-nums; }
+
+  .health { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 16px; }
+  .pill { display: flex; gap: 10px; align-items: flex-start; border-radius: 10px; padding: 10px 12px; font-size: 13.5px; }
+  .pill.good { background: var(--good-soft); }
+  .pill.warn { background: var(--warn-soft); }
+  .pill strong { display: block; font-size: 14px; }
+  .pill .dot { flex: none; width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; }
+  .pill.good .dot { background: var(--good); }
+  .pill.warn .dot { background: var(--warn); }
+
+  .table-scroll { overflow-x: auto; margin-top: 4px; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 760px; }
+  th, td { padding: 9px 10px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  td.neg { color: var(--warn); }
+
+  .inputs { display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
+  fieldset { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 0; min-width: 0; display: grid; gap: 12px; align-content: start; }
+  legend { font: 700 14px var(--display); padding: 0 6px; }
+  .field { display: grid; gap: 4px; }
+  .field label { font-size: 13.5px; font-weight: 600; display: flex; justify-content: space-between; gap: 8px; }
+  .field label output { font-variant-numeric: tabular-nums; color: var(--ink); }
+  .field small { color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+  input[type="range"] { width: 100%; accent-color: var(--navy); }
+  .field { min-width: 0; }
+  select { width: 100%; max-width: 100%; min-width: 0; font: 14px var(--body); padding: 7px 8px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+  .btn { border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: 600 14px var(--body); padding: 8px 14px; border-radius: 8px; cursor: pointer; }
+
+  .plan { display: grid; gap: 24px; }
+  .plan section { display: grid; gap: 10px; }
+  .plan p, .plan li { max-width: 72ch; }
+  .plan ul { margin: 0; padding-left: 20px; display: grid; gap: 6px; }
+  .two { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+  .card { border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+  .card h3 { display: flex; align-items: center; gap: 8px; }
+  .tag { font: 600 11.5px var(--body); letter-spacing: .04em; text-transform: uppercase; background: var(--yellow-soft); color: var(--ink); padding: 2px 8px; border-radius: 999px; }
+  .steps { list-style: none; padding: 0 !important; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: start; }
+  .steps li::before { content: counter(s); width: 26px; height: 26px; border-radius: 50%; background: var(--yellow); color: var(--on-yellow); display: grid; place-items: center; font: 800 13px var(--display); }
+  .note { font-size: 13px; color: var(--muted); }
+  .sources { font-size: 12.5px; color: var(--muted); display: grid; gap: 4px; }
+  .sources a { color: var(--s1); }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<header class="mast">
+  <div class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V19a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M8.75 14.25 11 16.5l4.25-4.5"/></svg></span>
+      HomeHire LLC
+    </div>
+    <h1>Growth plan: Austin first, then Texas, then the U.S.</h1>
+    <p class="lede">A 24-month projection built from HomeHire's real prices (Basic $9.99, Pro $19.99, Priority $39.99, a 10% fee on card payments) and a $1,000/month Meta ad budget per city. Every assumption below can be changed, and the numbers update as you go. These are planning estimates, not promises: replace them with your real numbers after the first 60 days.</p>
+    <div class="route" aria-label="Launch order"><span class="now">Austin</span><span>Dallas–Fort Worth</span><span>Houston</span><span>San Antonio</span><span>Next U.S. metros</span></div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="panel" aria-labelledby="proj-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="proj-title">24-month projection</h2>
+        <p>Pick a scenario, then fine-tune the assumptions further down. Revenue is subscriptions plus HomeHire's 10% card fee; costs are ads, Stripe fees on subscriptions and the website tools.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Scenario">
+        <button type="button" data-scenario="conservative" aria-pressed="false">Conservative</button>
+        <button type="button" data-scenario="base" aria-pressed="true">Base</button>
+        <button type="button" data-scenario="strong" aria-pressed="false">Strong</button>
+      </div>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="chart-box" id="chart-box">
+      <div class="legend" aria-hidden="true">
+        <span><i style="background:var(--s1)"></i>Subscriptions</span>
+        <span><i style="background:var(--s2)"></i>10% card fees</span>
+        <span><i class="line" style="background:var(--cost)"></i>Monthly costs</span>
+      </div>
+      <svg id="chart" viewBox="0 0 760 270" role="img" aria-labelledby="chart-desc"><desc id="chart-desc">Monthly revenue (subscriptions and card fees, stacked) and monthly costs for 24 months.</desc></svg>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+
+    <div class="health" id="health"></div>
+  </section>
+
+  <section class="panel" aria-labelledby="ms-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="ms-title">Milestones</h2>
+        <p>Where the business stands at key months in the selected scenario. "Booked jobs" are marketplace jobs a customer hired a pro for that month.</p>
+      </div>
+    </div>
+    <div class="table-scroll"><table id="milestones"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="as-title">
+    <div class="panel-head">
+      <div>
+        <h2 id="as-title">Assumptions</h2>
+        <p>Start with the scenario's values, then change any of them. Your changes stay on this device.</p>
+      </div>
+      <button type="button" class="btn" id="reset">Reset to scenario</button>
+    </div>
+    <form class="inputs" id="inputs" novalidate></form>
+  </section>
+
+  <article class="panel plan" aria-labelledby="plan-title">
+    <div>
+      <h2 id="plan-title">The business plan</h2>
+      <p class="note">Written for HomeHire LLC's launch. Share it with your bank, a partner or an investor as a starting point.</p>
+    </div>
+
+    <section>
+      <h3>What HomeHire is</h3>
+      <p>HomeHire is a home-services marketplace where homeowners post a job with photos and local pros send sealed bids. Homeowners compare real prices side by side, keep their phone and email private, and only talk to the pro they hire. Pros pay a flat monthly subscription instead of paying per lead, and Pro and Priority plans include a full business app (CRM, scheduling, invoicing, team and reports) that works with or without the marketplace.</p>
+    </section>
+
+    <section>
+      <h3>How HomeHire makes money</h3>
+      <div class="two">
+        <div class="card"><h3>Subscriptions <span class="tag">Recurring</span></h3><ul><li><strong>Basic, $9.99/month:</strong> the marketplace, first month free.</li><li><strong>Pro, $19.99/month:</strong> marketplace plus business tools (CRM).</li><li><strong>Priority, $39.99/month:</strong> everything in Pro plus a 5-minute head start on new jobs.</li><li>Basic and Pro can pay yearly (2 months free).</li></ul></div>
+        <div class="card"><h3>Card fees <span class="tag">Per job</span></h3><ul><li><strong>10% of card payments</strong> customers make through HomeHire, for marketplace and CRM jobs alike.</li><li>No fee on cash, Venmo, Cash App or check.</li><li>Each pro pays Stripe's processing fee from their own account; HomeHire pays none on job payments.</li></ul></div>
+      </div>
+      <p>Subscriptions are the dependable base. Card fees grow with job volume and become a large share of revenue as more customers pay by card.</p>
+    </section>
+
+    <section>
+      <h3>Why pros and homeowners switch</h3>
+      <div class="two">
+        <div class="card"><h3>For pros</h3><ul><li>No paying per lead: Thumbtack charges per lead; HomeHire is a flat $9.99–$39.99 a month.</li><li>Sealed bids and real jobs with photos, sent to their job board and phone.</li><li>A business app included with Pro, priced below standalone tools like Jobber.</li><li>Referral rewards: every 2 paying referrals earns a free month.</li></ul></div>
+        <div class="card"><h3>For homeowners</h3><ul><li>Post once, compare prices, no phone calls or flood of sales texts.</li><li>Phone and email stay private; the address is shared only in the chat after a pro confirms.</li><li>Free to post, no card needed to get quotes, pay after the work is done.</li><li>Reviews only from real bookings.</li></ul></div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Market</h3>
+      <p>Thumbtack alone reports roughly 300,000 active pros paying per lead, and Nextdoor shows about 6.6 million claimed local business pages, so the supply of small home-service businesses looking for work is large. The opportunity is winning them city by city with a cheaper, simpler model, and keeping homeowners coming back with a better experience than calling around.</p>
+    </section>
+
+    <section>
+      <h3>Go-to-market: the Austin playbook</h3>
+      <div class="two">
+        <div class="card"><h3>Weeks 1–3 · Providers <span class="tag">Supply first</span></h3><ul><li>Message 20 Austin pros a day (Google Maps, Nextdoor, Facebook groups, Thumbtack listings) with the pitch sheet.</li><li>Flyers and conversations at supply stores in the early morning (landscape supply, Home Depot Pro desk, equipment rental).</li><li>Target 40–60 pros with at least 5 in every service before inviting customers.</li><li>About 30% of the Meta budget on "lawn care / cleaning business owner" audiences.</li></ul></div>
+        <div class="card"><h3>Week 4 onward · Customers <span class="tag">Demand</span></h3><ul><li>About 70% of the Meta budget on homeowners 40+ in your launch ZIP codes.</li><li>Post as the local owner in Nextdoor and neighborhood Facebook groups.</li><li>Door hangers with the homeowner flyer's QR code in 2–3 neighborhoods.</li><li>Every pro sends "book me again on HomeHire" to their existing customers.</li><li>Partners: realtors, property managers and HOAs (new homeowners need everything).</li></ul></div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Expansion roadmap</h3>
+      <p>Open the next city only when the current one is healthy: most jobs get their first bid within an hour, and pros average at least one booked marketplace job a month. In the base scenario, Dallas–Fort Worth opens in month 7, Houston in month 10, San Antonio in month 13, then a new U.S. metro about every two months. Each city gets its own $1,000/month ad budget, funded from HomeHire's profits.</p>
+    </section>
+
+    <section>
+      <h3>Monthly running costs</h3>
+      <ul>
+        <li>Website and database (Vercel Pro and Supabase Pro): about $45/month; Apple Developer $99/year; Google Play $25 once.</li>
+        <li>Stripe: about 2.9% + 30¢ plus 0.7% subscription billing on each subscription payment; nothing monthly.</li>
+        <li>Meta ads: $1,000/month per active city.</li>
+        <li>Not included in the projection: your own pay, insurance, legal review of the Terms, trademark, accounting and taxes.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Numbers to watch every week</h3>
+      <ul>
+        <li><strong>Time to first bid</strong> on a new job: aim for under 1 hour.</li>
+        <li><strong>Booked jobs per pro per month</strong>: at least 1 keeps pros subscribed. If it drops, shift ad money from pros to customers.</li>
+        <li><strong>Cost per new customer</strong> from Meta (posted their first job): compare with the assumption above.</li>
+        <li><strong>Free month → paid</strong> rate for Basic, and monthly cancellations by plan (your admin dashboard shows both).</li>
+        <li><strong>Share of jobs paid by card</strong>: each one earns HomeHire 10%.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h3>Risks and how HomeHire handles them</h3>
+      <div class="two">
+        <div class="card"><h3>Too many pros, too few jobs</h3><p>Pros cancel if they don't see work. Launch one city at a time, recruit about 5 pros per service before advertising to homeowners, and move ad money toward customers whenever jobs per pro falls below 1.</p></div>
+        <div class="card"><h3>Payment holds or disputes</h3><p>Grow steadily, keep refund and cancellation policies clear, and answer disputes fast. Customer job payments go to each pro's own Stripe account, so a problem with one pro doesn't freeze HomeHire's income. The free month has no pre-charge reminder by your choice; watch disputes after the first wave of conversions.</p></div>
+        <div class="card"><h3>Competitors respond</h3><p>Win on what's hard to copy quickly: no per-lead fees, private-by-default homeowners, sealed bids, the 5-minute confirmation flow and a business app included in the plan.</p></div>
+        <div class="card"><h3>App store review</h3><p>The app is built for Apple's rules (no in-app subscription sales on iPhone, account deletion, reviewer accounts). The website works on every phone even before the apps are approved.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h3>First 90 days</h3>
+      <ol class="steps">
+        <li><span><strong>Before launch:</strong> bank account, live Stripe, Apple and Google accounts, Vercel and Supabase upgrades, lawyer review of the Terms.</span></li>
+        <li><span><strong>Weeks 1–3:</strong> recruit 40–60 Austin pros across all 8 services; start the provider share of ads.</span></li>
+        <li><span><strong>Week 4:</strong> soft launch to homeowners in 2–3 neighborhoods; watch every job's time to first bid.</span></li>
+        <li><span><strong>Months 2–3:</strong> scale customer ads, add realtor and HOA partners, ask every happy customer for a review and a referral.</span></li>
+        <li><span><strong>Day 90 review:</strong> put your real numbers into the assumptions above and decide when Dallas–Fort Worth opens.</span></li>
+      </ol>
+    </section>
+
+    <div class="sources">
+      <strong>Sources for the starting assumptions</strong>
+      <span>Meta lead costs for home and home-improvement businesses averaged about $41–43 per lead in <a href="https://www.wordstream.com/blog/facebook-ads-benchmarks-2025" target="_blank" rel="noopener">WordStream's 2025 Facebook ads benchmarks</a>; a homeowner who posts a job is usually cheaper than a sales lead, so the base case uses $35.</span>
+      <span>Thumbtack pro count: Forbes, as cited in <a href="https://wiki.krisyotam.com/content/wikipedia_en_all_nopic_2026-03/Thumbtack_(company)" target="_blank" rel="noopener">Thumbtack (company)</a>. Nextdoor business pages: <a href="https://briefglance.com/companies/nextdoor-holdings-inc/pulses/77131" target="_blank" rel="noopener">Briefglance summary of Nextdoor's 2026 Fave Awards</a>.</span>
+      <span>All other assumptions (conversion, cancellations, job size, card share) are planning estimates for a new marketplace and should be replaced with HomeHire's own data.</span>
+    </div>
+  </article>
+</main>
+
+<script>
+(() => {
+  const PRICES = { basic: 9.99, pro: 19.99, priority: 39.99 };
+  const FIXED_MONTHLY = 45 + 99 / 12;
+
+  const EXPANSION = {
+    slow: { label: "Slow: Austin, then a new city every 6 months", months: [1, 10, 16, 22] },
+    base: { label: "Base: Texas in year 1, a new U.S. metro every 2 months after", months: [1, 7, 10, 13, 16, 18, 20, 22, 24] },
+    fast: { label: "Fast: Texas by month 8, then a new metro every 2 months", months: [1, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24] },
+  };
+
+  // Each input: key, label, help, min, max, step, format.
+  const FIELDS = [
+    { group: "Marketing", key: "adPerCity", label: "Meta ads per city, per month", help: "Each open city gets its own budget.", min: 250, max: 5000, step: 50, fmt: "money0" },
+    { group: "Marketing", key: "customerShare", label: "Share of ads aimed at homeowners", help: "The rest targets pros. Homeowners are usually the harder side.", min: 0.3, max: 0.95, step: 0.05, fmt: "pct" },
+    { group: "Marketing", key: "cac", label: "Ad cost per new homeowner", help: "A homeowner who signs up and posts their first job. Meta home-services leads ran about $41–43 in 2025.", min: 10, max: 80, step: 1, fmt: "money0" },
+    { group: "Marketing", key: "organic", label: "Free homeowners per paid one (after 6 months)", help: "Nextdoor, Facebook groups, flyers, referrals and pros bringing their own customers. Builds up over a city's first 6 months.", min: 0, max: 3, step: 0.1, fmt: "x" },
+    { group: "Providers", key: "outreachLaunch", label: "Pros signed per month from your outreach (first 3 months)", help: "Direct messages, calls and supply-store visits in a new city.", min: 0, max: 80, step: 1, fmt: "int" },
+    { group: "Providers", key: "outreachAfter", label: "Pros signed per month from outreach (after)", help: "Ongoing outreach once a city is running.", min: 0, max: 40, step: 1, fmt: "int" },
+    { group: "Providers", key: "proCac", label: "Ad cost per new pro", help: "Pros reached by the provider share of ads.", min: 20, max: 200, step: 5, fmt: "money0" },
+    { group: "Providers", key: "trialConv", label: "Basic free month → paid", help: "Card required and checked at sign-up.", min: 0.2, max: 0.9, step: 0.05, fmt: "pct" },
+    { group: "Providers", key: "proChurn", label: "Pros cancelling per month", help: "Lower when pros get steady jobs.", min: 0.02, max: 0.2, step: 0.01, fmt: "pct" },
+    { group: "Providers", key: "mixPro", label: "New pros choosing Pro", help: "The rest split between Basic and Priority.", min: 0, max: 0.7, step: 0.05, fmt: "pct" },
+    { group: "Providers", key: "mixPriority", label: "New pros choosing Priority", help: "$39.99 with the 5-minute head start.", min: 0, max: 0.4, step: 0.01, fmt: "pct" },
+    { group: "Providers", key: "referral", label: "New pros referred per paying pro, per month", help: "Every 2 paying referrals earns the referrer a free month.", min: 0, max: 0.15, step: 0.01, fmt: "dec2" },
+    { group: "Jobs", key: "jobsPerCustomer", label: "Jobs posted per active homeowner, per month", help: "Lawn and cleaning repeat often; most other jobs don't.", min: 0.1, max: 1.5, step: 0.05, fmt: "dec2" },
+    { group: "Jobs", key: "customerChurn", label: "Homeowners going inactive per month", help: "", min: 0.03, max: 0.3, step: 0.01, fmt: "pct" },
+    { group: "Jobs", key: "booked", label: "Posted jobs that get booked", help: "A pro is hired and confirms.", min: 0.3, max: 0.95, step: 0.05, fmt: "pct" },
+    { group: "Jobs", key: "cardShare", label: "Booked jobs paid by card through HomeHire", help: "HomeHire earns 10% of each card payment.", min: 0, max: 1, step: 0.05, fmt: "pct" },
+    { group: "Jobs", key: "avgJob", label: "Average job price", help: "Mowing is lower; moving and cleaning are higher.", min: 50, max: 600, step: 5, fmt: "money0" },
+    { group: "Growth", key: "expansion", label: "Expansion pace", help: "When new cities open. Each adds its own ad budget.", type: "select" },
+  ];
+
+  const SCENARIOS = {
+    conservative: { adPerCity: 1000, customerShare: 0.7, cac: 50, organic: 0.5, outreachLaunch: 15, outreachAfter: 5, proCac: 80, trialConv: 0.45, proChurn: 0.09, mixPro: 0.25, mixPriority: 0.05, referral: 0.02, jobsPerCustomer: 0.3, customerChurn: 0.14, booked: 0.55, cardShare: 0.3, avgJob: 160, expansion: "slow" },
+    base:         { adPerCity: 1000, customerShare: 0.7, cac: 35, organic: 1.0, outreachLaunch: 25, outreachAfter: 8, proCac: 60, trialConv: 0.6, proChurn: 0.06, mixPro: 0.3, mixPriority: 0.1, referral: 0.04, jobsPerCustomer: 0.35, customerChurn: 0.10, booked: 0.65, cardShare: 0.4, avgJob: 175, expansion: "base" },
+    strong:       { adPerCity: 1000, customerShare: 0.75, cac: 22, organic: 1.5, outreachLaunch: 35, outreachAfter: 12, proCac: 45, trialConv: 0.7, proChurn: 0.04, mixPro: 0.35, mixPriority: 0.12, referral: 0.06, jobsPerCustomer: 0.45, customerChurn: 0.07, booked: 0.75, cardShare: 0.5, avgJob: 190, expansion: "fast" },
+  };
+
+  const STORE = "homehire-growth-plan-v1";
+  let scenario = "base";
+  let a = { ...SCENARIOS.base };
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || "null");
+    if (saved && SCENARIOS[saved.scenario]) { scenario = saved.scenario; a = { ...SCENARIOS[scenario], ...saved.a }; }
+  } catch (e) { /* storage unavailable: start from the base scenario */ }
+  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ scenario, a })); } catch (e) { /* ignore */ } };
+
+  const usd0 = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
+  const fmt = {
+    money0: (v) => usd0.format(v), pct: (v) => `${Math.round(v * 100)}%`, x: (v) => `${(+v).toFixed(1)}×`,
+    int: (v) => String(Math.round(v)), dec2: (v) => (+v).toFixed(2),
+  };
+  const money = (v) => (v < 0 ? "−" : "") + usd0.format(Math.abs(Math.round(v)));
+  const short = (v) => { const n = Math.abs(v); const s = n >= 1e6 ? `$${(n / 1e6).toFixed(1)}M` : n >= 1e3 ? `$${(n / 1e3).toFixed(n >= 1e4 ? 0 : 1)}k` : `$${Math.round(n)}`; return (v < 0 ? "−" : "") + s; };
+
+  /** Month-by-month model, one cohort per city. */
+  function project(p) {
+    const launches = EXPANSION[p.expansion].months;
+    const mixBasic = Math.max(0, 1 - p.mixPro - p.mixPriority);
+    const cities = []; const rows = [];
+    let cumRev = 0, cumCost = 0;
+    for (let t = 1; t <= 24; t++) {
+      if (launches.includes(t)) cities.push({ start: t, cust: 0, trial: 0, basic: 0, pro: 0, pri: 0 });
+      let subs = 0, fees = 0, ads = 0, pros = 0, cust = 0, jobs = 0, payments = 0;
+      for (const c of cities) {
+        const age = t - c.start + 1;
+        ads += p.adPerCity;
+        const organic = Math.min(p.organic, (p.organic * age) / 6);
+        c.cust = c.cust * (1 - p.customerChurn) + (p.adPerCity * p.customerShare / p.cac) * (1 + organic);
+        const paying = c.basic + c.pro + c.pri;
+        const newPros = (age <= 3 ? p.outreachLaunch : p.outreachAfter) + (p.adPerCity * (1 - p.customerShare)) / p.proCac + paying * p.referral;
+        const keep = 1 - p.proChurn;
+        c.basic = c.basic * keep + c.trial * p.trialConv;
+        c.pro = c.pro * keep + newPros * p.mixPro;
+        c.pri = c.pri * keep + newPros * p.mixPriority;
+        c.trial = newPros * mixBasic;
+        subs += c.basic * PRICES.basic + c.pro * PRICES.pro + c.pri * PRICES.priority;
+        payments += c.basic + c.pro + c.pri;
+        const booked = c.cust * p.jobsPerCustomer * p.booked;
+        jobs += booked;
+        fees += booked * p.cardShare * p.avgJob * 0.10;
+        pros += c.basic + c.pro + c.pri; cust += c.cust;
+      }
+      const revenue = subs + fees;
+      const stripe = subs * 0.036 + payments * 0.30;
+      const costs = ads + stripe + FIXED_MONTHLY;
+      cumRev += revenue; cumCost += costs;
+      rows.push({ t, cities: cities.length, pros, cust, jobs, subs, fees, revenue, ads, costs, profit: revenue - costs, cum: cumRev - cumCost, cumRev });
+    }
+    return rows;
+  }
+
+  // ---------- Assumption inputs ----------
+  const form = document.getElementById("inputs");
+  const groups = {};
+  for (const f of FIELDS) {
+    if (!groups[f.group]) { const fs = document.createElement("fieldset"); const lg = document.createElement("legend"); lg.textContent = f.group; fs.append(lg); form.append(fs); groups[f.group] = fs; }
+    const wrap = document.createElement("div"); wrap.className = "field";
+    const id = `in-${f.key}`;
+    if (f.type === "select") {
+      wrap.innerHTML = `<label for="${id}">${f.label}</label><select id="${id}">${Object.entries(EXPANSION).map(([k, v]) => `<option value="${k}">${v.label}</option>`).join("")}</select><small>${f.help}</small>`;
+    } else {
+      wrap.innerHTML = `<label for="${id}">${f.label} <output id="${id}-out"></output></label><input type="range" id="${id}" min="${f.min}" max="${f.max}" step="${f.step}">${f.help ? `<small>${f.help}</small>` : ""}`;
+    }
+    groups[f.group].append(wrap);
+    const el = wrap.querySelector(f.type === "select" ? "select" : "input");
+    el.addEventListener("input", () => { a[f.key] = f.type === "select" ? el.value : parseFloat(el.value); save(); render(); });
+  }
+  function syncInputs() {
+    for (const f of FIELDS) {
+      const el = document.getElementById(`in-${f.key}`);
+      el.value = a[f.key];
+      if (f.type !== "select") document.getElementById(`in-${f.key}-out`).textContent = fmt[f.fmt](a[f.key]);
+    }
+  }
+
+  // ---------- Scenario buttons ----------
+  const segButtons = [...document.querySelectorAll("[data-scenario]")];
+  segButtons.forEach((b) => b.addEventListener("click", () => { scenario = b.dataset.scenario; a = { ...SCENARIOS[scenario] }; save(); syncInputs(); render(); }));
+  document.getElementById("reset").addEventListener("click", () => { a = { ...SCENARIOS[scenario] }; save(); syncInputs(); render(); });
+
+  // ---------- Chart ----------
+  const svg = document.getElementById("chart");
+  const tip = document.getElementById("tip");
+  const W = 760, H = 270, PL = 56, PR = 70, PT = 14, PB = 34;
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (name, attrs, text) => { const n = document.createElementNS(NS, name); for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v); if (text != null) n.textContent = text; return n; };
+  function niceMax(v) { if (v <= 0) return 1; const p = 10 ** Math.floor(Math.log10(v)); for (const s of [1, 2, 4, 6, 8, 10]) if (s * p >= v) return s * p; return 10 * p; }
+
+  function drawChart(rows) {
+    [...svg.querySelectorAll(":scope > :not(desc)")].forEach((n) => n.remove());
+    const top = niceMax(Math.max(...rows.map((r) => Math.max(r.revenue, r.costs))));
+    const iw = W - PL - PR, ih = H - PT - PB;
+    const y = (v) => PT + ih - (v / top) * ih;
+    const slot = iw / rows.length, bw = Math.min(18, slot * 0.62);
+    for (let i = 0; i <= 4; i++) {
+      const v = (top / 4) * i;
+      svg.append(el("line", { x1: PL, x2: W - PR, y1: y(v), y2: y(v), stroke: "var(--grid)", "stroke-width": 1 }));
+      svg.append(el("text", { x: PL - 8, y: y(v) + 4, "text-anchor": "end", "font-size": 11, fill: "var(--muted)", "font-family": "var(--body)" }, short(v)));
+    }
+    rows.forEach((r, i) => {
+      const cx = PL + slot * i + slot / 2, x = cx - bw / 2;
+      const hs = (r.subs / top) * ih, hf = (r.fees / top) * ih;
+      // Subscriptions at the base; card fees on top, 2px surface gap between, rounded data end on the top segment.
+      if (hs > 0) svg.append(el("rect", { x, y: y(r.subs), width: bw, height: Math.max(0, hs), fill: "var(--s1)", rx: hf > 2 ? 0 : 3 }));
+      if (hf > 2) {
+        const yTop = y(r.subs + r.fees);
+        svg.append(el("path", { d: `M${x},${y(r.subs) - 2} V${yTop + 3} Q${x},${yTop} ${x + 3},${yTop} H${x + bw - 3} Q${x + bw},${yTop} ${x + bw},${yTop + 3} V${y(r.subs) - 2} Z`, fill: "var(--s2)" }));
+      }
+      if (r.t === 1 || r.t % 3 === 0) svg.append(el("text", { x: cx, y: H - PB + 18, "text-anchor": "middle", "font-size": 11, fill: "var(--muted)", "font-family": "var(--body)" }, `M${r.t}`));
+    });
+    // Costs line
+    const pts = rows.map((r, i) => `${PL + slot * i + slot / 2},${y(r.costs)}`).join(" ");
+    svg.append(el("polyline", { points: pts, fill: "none", stroke: "var(--cost)", "stroke-width": 2, "stroke-linejoin": "round" }));
+    const last = rows[rows.length - 1], lx = PL + slot * (rows.length - 1) + slot / 2;
+    svg.append(el("circle", { cx: lx, cy: y(last.costs), r: 4, fill: "var(--cost)", stroke: "var(--surface)", "stroke-width": 2 }));
+    svg.append(el("text", { x: lx + 10, y: y(last.costs) + 4, "font-size": 11.5, fill: "var(--muted)", "font-family": "var(--body)" }, `Costs ${short(last.costs)}`));
+    svg.append(el("text", { x: lx + 10, y: y(last.revenue) + 4, "font-size": 11.5, "font-weight": 600, fill: "var(--ink)", "font-family": "var(--body)" }, `Revenue ${short(last.revenue)}`));
+    svg.append(el("text", { x: PL, y: H - 2, "font-size": 11, fill: "var(--muted)", "font-family": "var(--body)" }, "Month after launch"));
+    // Hit areas for the tooltip
+    rows.forEach((r, i) => {
+      const hit = el("rect", { x: PL + slot * i, y: PT, width: slot, height: ih, fill: "transparent", tabindex: 0, role: "img", "aria-label": `Month ${r.t}: revenue ${money(r.revenue)}, costs ${money(r.costs)}` });
+      const show = () => {
+        const box = svg.getBoundingClientRect(); const scale = box.width / W;
+        tip.innerHTML = `<b>Month ${r.t}</b> · ${r.cities} ${r.cities === 1 ? "city" : "cities"}<br>Subscriptions <b>${money(r.subs)}</b><br>Card fees <b>${money(r.fees)}</b><br>Costs <b>${money(r.costs)}</b><br>Profit <b>${money(r.profit)}</b>`;
+        tip.hidden = false;
+        const cx = (PL + slot * i + slot / 2) * scale; const half = tip.offsetWidth / 2;
+        tip.style.left = `${Math.min(Math.max(cx, half), box.width - half)}px`;
+        tip.style.top = `${Math.max(0, y(Math.max(r.revenue, r.costs)) * scale - tip.offsetHeight - 6) + 28}px`;
+      };
+      hit.addEventListener("mouseenter", show); hit.addEventListener("focus", show);
+      hit.addEventListener("mouseleave", () => (tip.hidden = true)); hit.addEventListener("blur", () => (tip.hidden = true));
+      svg.append(hit);
+    });
+  }
+
+  // ---------- KPIs, health, milestones ----------
+  function render() {
+    segButtons.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.scenario === scenario)));
+    const rows = project(a);
+    const m12 = rows[11], m24 = rows[23];
+    const positive = rows.find((r) => r.profit > 0);
+    const payback = rows.find((r, i) => r.cum >= 0 && rows.slice(0, i).some((x) => x.cum < 0));
+    const total24 = m24.cumRev;
+    document.getElementById("kpis").innerHTML = [
+      ["Monthly revenue, month 12", money(m12.revenue), `${money(m12.subs)} subscriptions + ${money(m12.fees)} card fees`],
+      ["Monthly revenue, month 24", money(m24.revenue), `${m24.cities} cities open`],
+      ["Revenue over 24 months", money(total24), `${money(m24.cum)} left after ads and tools`],
+      ["Paying pros, month 24", Math.round(m24.pros).toLocaleString("en-US"), `${Math.round(m24.cust).toLocaleString("en-US")} active homeowners`],
+      ["Monthly profit turns positive", positive ? `Month ${positive.t}` : "Not in 24 months", payback ? `early losses earned back by month ${payback.t}` : rows[0].cum >= 0 ? "profitable from month 1" : "early losses not yet earned back"],
+    ].map(([l, v, c]) => `<div class="kpi"><span class="label">${l}</span><span class="value">${v}</span><span class="ctx">${c}</span></div>`).join("");
+
+    const health = [6, 12, 24].map((m) => { const r = rows[m - 1]; const per = r.pros ? r.jobs / r.pros : 0; return { m, per }; });
+    document.getElementById("health").innerHTML = health.map(({ m, per }) => {
+      const ok = per >= 1;
+      return `<div class="pill ${ok ? "good" : "warn"}"><span class="dot" aria-hidden="true"></span><span><strong>Month ${m}: ${per.toFixed(1)} booked jobs per pro</strong>${ok ? "Healthy: pros are seeing steady work." : "Below 1 a month: pros may cancel. Shift ad money toward homeowners or slow pro sign-ups."}</span></div>`;
+    }).join("");
+
+    const marks = [3, 6, 9, 12, 18, 24];
+    const cols = [["Month", (r) => `Month ${r.t}`], ["Cities", (r) => r.cities], ["Paying pros", (r) => Math.round(r.pros).toLocaleString("en-US")], ["Active homeowners", (r) => Math.round(r.cust).toLocaleString("en-US")], ["Booked jobs", (r) => Math.round(r.jobs).toLocaleString("en-US")], ["Subscriptions", (r) => money(r.subs)], ["Card fees", (r) => money(r.fees)], ["Ads", (r) => money(r.ads)], ["Monthly profit", (r) => money(r.profit), (r) => r.profit < 0], ["Running total", (r) => money(r.cum), (r) => r.cum < 0]];
+    document.getElementById("milestones").innerHTML = `<thead><tr>${cols.map((c) => `<th scope="col">${c[0]}</th>`).join("")}</tr></thead><tbody>${marks.map((m) => { const r = rows[m - 1]; return `<tr>${cols.map((c, i) => i === 0 ? `<th scope="row">${c[1](r)}</th>` : `<td class="${c[2] && c[2](r) ? "neg" : ""}">${c[1](r)}</td>`).join("")}</tr>`; }).join("")}</tbody>`;
+
+    drawChart(rows);
+  }
+
+  syncInputs();
+  render();
+  window.addEventListener("resize", () => (tip.hidden = true));
+})();
+</script>

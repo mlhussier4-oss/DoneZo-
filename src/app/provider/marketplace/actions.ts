@@ -23,6 +23,19 @@ const profileSchema = z.object({
   radius: z.coerce.number().int().min(1, "At least 1 mile.").max(60, "At most 60 miles."),
   years: z.union([z.literal(""), z.coerce.number().int().min(0).max(100)]),
   description: z.string().trim().max(2000),
+  // Optional website (owner request 2026-11-28). "mybiz.com" becomes "https://mybiz.com".
+  website: z.string().trim().max(200).transform((v, ctx) => {
+    if (!v) return null;
+    const withScheme = /^https?:\/\//i.test(v) ? v : `https://${v}`;
+    try {
+      const u = new URL(withScheme);
+      if (!["http:", "https:"].includes(u.protocol) || !u.hostname.includes(".") || /[\s<>"]/.test(withScheme)) throw new Error();
+      return withScheme;
+    } catch {
+      ctx.addIssue({ code: "custom", message: "Enter a website link, like https://yourbusiness.com" });
+      return z.NEVER;
+    }
+  }),
   categories: z.array(z.string().uuid()).min(1, "Choose at least one service you offer."),
   methods: z.array(z.enum(["card", "cash", "venmo", "cash_app", "check"])),
 });
@@ -34,6 +47,7 @@ export async function saveMarketplaceProfile(_prev: ActionState, fd: FormData): 
     radius: fd.get("radius"),
     years: fd.get("years") ?? "",
     description: fd.get("description") ?? "",
+    website: fd.get("website") ?? "",
     categories: fd.getAll("categories"),
     methods: fd.getAll("methods"),
   });
@@ -50,6 +64,7 @@ export async function saveMarketplaceProfile(_prev: ActionState, fd: FormData): 
       service_radius_miles: v.radius,
       years_experience: v.years === "" ? null : v.years,
       description: v.description || null,
+      website: v.website,
       // Card is mandatory (owner decision 2026-11-12); the others are optional.
       accepted_payment_methods: ["card", ...v.methods.filter((m) => m !== "card")],
       insured: fd.get("insured") === "on",

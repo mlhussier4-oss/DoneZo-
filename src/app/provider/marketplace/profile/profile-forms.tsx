@@ -18,6 +18,7 @@ type Values = {
   radius: number;
   years: number | null;
   description: string;
+  website: string;
   categories: string[];
   methods: string[];
   insured: boolean;
@@ -83,6 +84,9 @@ export function MarketplaceProfileForm({ values, allCategories }: { values: Valu
       </label>
       <Field label="About your business" htmlFor="description" hint="Shown on your public profile." error={e.description}>
         <Textarea id="description" name="description" defaultValue={values.description} maxLength={2000} />
+      </Field>
+      <Field label="Website (optional)" htmlFor="website" hint="List a website link for customers to see. It shows on your public profile." error={e.website}>
+        <Input id="website" name="website" type="url" inputMode="url" autoComplete="url" placeholder="https://yourbusiness.com" defaultValue={values.website} maxLength={200} />
       </Field>
       <FormAlert state={state} />
       <SubmitButton>Save profile</SubmitButton>

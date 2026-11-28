@@ -187,3 +187,7 @@ All of these appear in the phone app too, since the app shows the website.
 - The admin dashboard has a **Subscription revenue** box: totals for subscriptions (net of refunds), HomeHire's 10% card fees and total income; a chart filtered by **Today** (by hour), **7 days**, **30 days** (by day) and **Year** (last 12 months, by month), in Central time; and the latest subscription payments. It refreshes with the dashboard every 15 seconds.
 - Each subscription payment Stripe confirms (platform `invoice.paid` above $0) is saved once in `subscription_payments` (duplicate webhooks are ignored); refunds are subtracted. Free-month ($0) invoices aren't income. Only admins can read it (`admin_revenue`). Review accounts are left out.
 - Recording starts when this is published; earlier test-mode payments aren't backfilled.
+
+## 2026-11-28 — Provider website link
+- Pros can add an optional website on their Marketplace profile ("List a website link for customers to see"). It shows on their public profile as a link (opens in a new tab, marked `nofollow`). Only plain http(s) links are accepted ("mybiz.com" is saved as https://mybiz.com), and only the business itself can set it.
+- Note: a website lets a customer reach a pro outside HomeHire before booking. Accepted by the owner's request; watch whether it affects bookings through HomeHire.

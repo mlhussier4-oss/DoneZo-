@@ -55,6 +55,7 @@ export type ProviderProfile = {
   id: string;
   name: string;
   description: string | null;
+  website?: string | null;
   years_experience: number | null;
   home_zip: string | null;
   service_radius_miles: number;

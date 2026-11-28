@@ -1,0 +1,160 @@
+<title>HomeHire vs Lead Apps</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Layout: a one-page recruiting comparison for pros, in the HomeHire pitch-sheet look: navy masthead with the claim,
+     a comparison table (HomeHire column highlighted), the math on one month of leads, and a sign-up strip.
+     Deliberately single-theme (brand print look), colors set explicitly. */
+  :root {
+    --navy: #14213d; --yellow: #f5c21b; --ink: #1a2235; --muted: #4f5a73; --paper: #ffffff; --mist: #eef1f7;
+    --line: #d9deea; --soft: #fff7d6; --good: #1f7a4d; --bad: #a23b2a;
+    --display: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+    --body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { background: var(--mist); color: var(--ink); font: 16px/1.55 var(--body); }
+  .sheet { max-width: 960px; margin: 0 auto; background: var(--paper); box-shadow: 0 1px 3px rgb(20 33 61 / .12); }
+  .wrap { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  @media (min-width: 720px) { .wrap { padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); } }
+  h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+
+  header { background: var(--navy); color: #fff; padding-block: 28px 32px; margin-top: calc(-1 * env(safe-area-inset-top, 0px)); padding-top: calc(env(safe-area-inset-top, 0px) + 28px); }
+  .brand { display: flex; align-items: center; gap: 10px; font: 700 19px var(--display); }
+  .mark { width: 36px; height: 36px; border-radius: 10px; background: var(--yellow); color: var(--navy); display: grid; place-items: center; }
+  header h1 { margin-top: 20px; font-size: clamp(28px, 5.6vw, 44px); line-height: 1.1; max-width: 20ch; }
+  header h1 em { font-style: normal; color: var(--yellow); }
+  header .lede { margin-top: 12px; color: #d6dcea; max-width: 62ch; font-size: 17px; }
+
+  main { display: grid; gap: 30px; padding-block: 28px 12px; }
+  main > * { min-width: 0; }
+  h2 { font-size: 22px; color: var(--navy); margin-bottom: 12px; }
+
+  .table-scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+  table { border-collapse: separate; border-spacing: 0; width: 100%; min-width: 720px; font-size: 14.5px; }
+  th, td { padding: 12px 14px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  thead th { font: 700 14px var(--display); color: var(--navy); background: var(--mist); }
+  thead th.hh { background: var(--navy); color: #fff; }
+  tbody th { font-weight: 600; color: var(--navy); width: 20%; background: #fbfcfe; }
+  td.hh { background: var(--soft); font-weight: 600; }
+  .yes { color: var(--good); font-weight: 700; }
+  .no { color: var(--bad); font-weight: 700; }
+
+  .math { display: grid; gap: 14px; }
+  @media (min-width: 680px) { .math { grid-template-columns: 1fr 1fr; } }
+  .box { border-radius: 14px; padding: 18px 20px; display: grid; gap: 6px; align-content: start; }
+  .box h3 { font-size: 16px; }
+  .box .big { font: 800 34px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+  .old { background: var(--mist); }
+  .old .big { color: var(--muted); }
+  .new { background: var(--soft); border: 1px solid #f0d77a; }
+  .new .big { color: var(--navy); }
+  .box p { color: var(--muted); font-size: 14.5px; }
+
+  ul.wins { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+  @media (min-width: 680px) { ul.wins { grid-template-columns: 1fr 1fr; } }
+  ul.wins li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; align-items: start; }
+  ul.wins li::before { content: "✓"; width: 26px; height: 26px; border-radius: 50%; background: var(--navy); color: var(--yellow); display: grid; place-items: center; font: 800 14px var(--display); }
+  ul.wins strong { display: block; color: var(--navy); }
+  ul.wins span { color: var(--muted); font-size: 14.5px; }
+
+  .honest { border-left: 4px solid var(--yellow); background: var(--mist); padding: 14px 16px; border-radius: 0 12px 12px 0; font-size: 14.5px; }
+
+  footer { margin-top: 26px; background: var(--navy); color: #fff; padding-block: 26px; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 18px; }
+  .cta > div:first-child { flex: 1 1 320px; min-width: 0; }
+  .cta h2 { color: #fff; margin-bottom: 4px; }
+  .cta p { color: #d6dcea; }
+  .url { display: inline-block; margin-top: 10px; background: var(--yellow); color: var(--navy); font: 800 18px var(--display); padding: 10px 18px; border-radius: 12px; text-decoration: none; }
+  .url:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .qr { background: #fff; padding: 8px; border-radius: 12px; width: 136px; height: 136px; display: grid; place-items: center; }
+  .qr img, .qr canvas { width: 120px !important; height: 120px !important; }
+  .fine { margin-top: 18px; font-size: 12px; color: #aab4cc; display: grid; gap: 4px; }
+  .fine a { color: #d6dcea; }
+</style>
+
+<div class="sheet">
+  <header class="wrap">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V19a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.5"/><path d="M8.75 14.25 11 16.5l4.25-4.5"/></svg></span>
+      HomeHire for pros
+    </div>
+    <h1>Stop paying for leads. <em>Start winning jobs.</em></h1>
+    <p class="lede">Lead apps charge you every time a homeowner's contact lands in your inbox, whether you win the job or not. HomeHire is a flat monthly price, and you bid on as many jobs as you want.</p>
+  </header>
+
+  <main class="wrap">
+    <section aria-labelledby="cmp">
+      <h2 id="cmp">How HomeHire compares</h2>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col"></th><th scope="col" class="hh">HomeHire</th><th scope="col">Thumbtack</th><th scope="col">Angi Leads</th><th scope="col">Google Local Services Ads</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">How you pay to get work</th><td class="hh">Flat monthly plan: $9.99, $19.99 or $39.99</td><td>Per lead, often about $10–$80+ each</td><td>Per lead (or a lead budget on a subscription)</td><td>Per lead (call, message or booking), often about $25–$100+</td></tr>
+            <tr><th scope="row">Pay for jobs you don't win?</th><td class="hh"><span class="yes">No.</span> Bid on unlimited jobs</td><td><span class="no">Yes.</span> Leads are charged whether or not they book</td><td><span class="no">Yes.</span> Charged per lead received</td><td><span class="no">Yes.</span> Charged per contact</td></tr>
+            <tr><th scope="row">Competing for the same homeowner</th><td class="hh">Sealed bids: the homeowner compares prices and picks; no race to call first</td><td>Several pros may get the same request</td><td>Each request can go to up to 5 pros</td><td>You compete in the Google results</td></tr>
+            <tr><th scope="row">Business app included</th><td class="hh"><span class="yes">Yes</span> with Pro: CRM, scheduling, invoices, card payments, team, reports</td><td>No. Separate software needed</td><td>No. Separate software needed</td><td>No. Separate software needed</td></tr>
+            <tr><th scope="row">Cost of business software on its own</th><td class="hh">Included in Pro, $19.99/month</td><td colspan="3">Popular field-service apps such as Jobber or Housecall Pro start around $39–$79 a month for one user</td></tr>
+            <tr><th scope="row">Fee on your job payments</th><td class="hh">10% only when the customer pays by card through HomeHire; $0 on cash, Venmo, Cash App or check</td><td colspan="3">No cut of the job, but you've already paid for the lead</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="mathh">
+      <h2 id="mathh">One month, side by side</h2>
+      <div class="math">
+        <div class="box old">
+          <h3>Pay-per-lead example</h3>
+          <div class="big">$600+</div>
+          <p>20 leads at about $30 each, and you might win only a handful of them. You pay for every one.</p>
+        </div>
+        <div class="box new">
+          <h3>HomeHire Pro</h3>
+          <div class="big">$19.99</div>
+          <p>Bid on every job that fits you, plus the full business app. Even after a 10% card fee on a few $175 jobs, you keep far more.</p>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="why">
+      <h2 id="why">Why pros switch</h2>
+      <ul class="wins">
+        <li><span><strong>Predictable cost</strong><span>One flat price. No surprise lead bills, no weekly charges.</span></span></li>
+        <li><span><strong>Real jobs with photos</strong><span>Homeowners post photos and details, so you price accurately without a site visit.</span></span></li>
+        <li><span><strong>You win on your terms</strong><span>Sealed bids: no one sees your price, and no race to be the first to call.</span></span></li>
+        <li><span><strong>Chat opens when you're hired</strong><span>Confirm the job and arrival time, and a private chat opens with the customer automatically.</span></span></li>
+        <li><span><strong>Get paid your way</strong><span>Card through HomeHire, or cash, Venmo, Cash App and check with no HomeHire fee.</span></span></li>
+        <li><span><strong>Get there first with Priority</strong><span>$39.99 adds a 5-minute head start on every new job near you.</span></span></li>
+      </ul>
+    </section>
+
+    <p class="honest"><strong>The fine print, up front:</strong> HomeHire keeps 10% of card payments your customers make through HomeHire. That's how we keep the plans this cheap. There's never a fee on cash, Venmo, Cash App or check, and never a fee per lead or per bid.</p>
+  </main>
+
+  <footer class="wrap">
+    <div class="cta">
+      <div>
+        <h2>Basic: first month free</h2>
+        <p>Then $9.99/month. Card required, cancel any time. Scan or visit:</p>
+        <a class="url" href="https://homehire.us/for-providers" target="_blank" rel="noopener">homehire.us/for-providers</a>
+      </div>
+      <div class="qr" id="qr" role="img" aria-label="QR code linking to homehire.us/for-providers"></div>
+    </div>
+    <div class="fine">
+      <span>Competitor details as of November 2026 from public sources; prices vary by market and job type and can change. Thumbtack and Angi lead pricing: <a href="https://www.housecallpro.com/resources/thumbtack-vs-angi/" target="_blank" rel="noopener">Housecall Pro guide</a>; Angi matching (up to 5 pros): <a href="https://intercom.help/angi/en/articles/6207184-angi-leads-frequently-asked-questions" target="_blank" rel="noopener">Angi Leads FAQ</a>; Google: <a href="https://support.google.com/localservices/answer/7195435" target="_blank" rel="noopener">How leads work</a>; software prices: <a href="https://www.softwareadvice.com/construction/housecall-profile/vs/jobber" target="_blank" rel="noopener">Software Advice</a>. The pay-per-lead month is an illustration, not a quote.</span>
+      <span>Thumbtack, Angi, Google, Jobber and Housecall Pro are trademarks of their owners. HomeHire is not affiliated with them.</span>
+    </div>
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  try { new QRCode(document.getElementById("qr"), { text: "https://homehire.us/for-providers", width: 120, height: 120, colorDark: "#14213d", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M }); }
+  catch (e) { document.getElementById("qr").textContent = "homehire.us"; }
+</script>
